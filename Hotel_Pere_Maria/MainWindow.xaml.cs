@@ -8,6 +8,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Hotel_Pere_Maria.Models;
+using Hotel_Pere_Maria.Services;
 
 namespace Hotel_Pere_Maria
 {
@@ -19,6 +21,13 @@ namespace Hotel_Pere_Maria
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ApiService apiService = new ApiService();
+            List<Reservation> result = await apiService.getAllReservation();
+            txtResultados.Text = result.First().ToString();
         }
     }
 }

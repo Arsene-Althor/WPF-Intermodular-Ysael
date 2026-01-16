@@ -7,7 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TextBlock>Login</TextBlock>
+        <StackPanel>
+            <Button Content="Probar Conexión" Click="Button_Click" Margin="10"/>
+            <ScrollViewer Height="200">
+                <TextBlock x:Name="txtResultados" TextWrapping="Wrap" Background="#F0F0F0" Padding="10"/>
+            </ScrollViewer>
+        </StackPanel>
 
     </Grid>
 </Window>
