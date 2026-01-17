@@ -10,12 +10,12 @@ using Hotel_Pere_Maria.Models;
 
 namespace Hotel_Pere_Maria.Services
 {
-    public class ApiService
+    public static class ApiService
     {
-        private readonly HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient _httpClient = new HttpClient();
         private const string BaseUrl = "http://localhost:3000/";
 
-        public async Task<List<Reservation>> getAllReservation()
+        public static async Task<List<Reservation>> getAllReservation()
         {
             try
             {

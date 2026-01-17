@@ -9,8 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\" />
-    <Folder Include="Views\" />
+    <None Remove="Resources\565469 %281%29.png" />
+    <None Remove="Resources\HotelLogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\565469 (1).png" />
+    <Resource Include="Resources\HotelLogo.png" />
   </ItemGroup>
 
 </Project>
