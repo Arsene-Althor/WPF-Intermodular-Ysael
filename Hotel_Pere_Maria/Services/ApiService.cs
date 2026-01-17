@@ -34,6 +34,25 @@ namespace Hotel_Pere_Maria.Services
                 return null;
             }
         }
+        public static async Task<string> InsertarReserva(Reservation reserva)
+        {
+            try
+            {
 
+                string json = JsonSerializer.Serialize(reserva);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(BaseUrl + "reservation/add", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                return mensajeServidor;
+            }
+            catch(Exception ex) 
+            {
+                return "Error del servidor: " + ex.Message;
+            }
+        }
     }
+
 }

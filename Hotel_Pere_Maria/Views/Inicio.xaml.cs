@@ -44,5 +44,11 @@ namespace Hotel_Pere_Maria.Views
                 MessageBox.Show($"Error al conectar con la API: {ex.Message}");
             }
         }
+
+        private void click_abriraddReserva(object sender, RoutedEventArgs e) { 
+            addReserva addreserva = new addReserva();
+            addreserva.ShowDialog();
+            
+        }
     }
 }

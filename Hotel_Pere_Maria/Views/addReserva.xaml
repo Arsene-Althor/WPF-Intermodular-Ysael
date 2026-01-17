@@ -1,0 +1,57 @@
+﻿<Window x:Class="Hotel_Pere_Maria.Views.addReserva"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
+        mc:Ignorable="d"
+        Title="Añadir Reserva" Height="600" Width="500">
+    <Grid>
+        <Border Background="White" CornerRadius="10" Padding="20" Margin="20" 
+        BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Nueva Reserva" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" Foreground="#2C3E50"/>
+
+                <TextBlock Text="Numero de Habitación" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                <TextBox x:Name="txtRoomId" Padding="8" BorderBrush="#CCCCCC" Text="HAB-"/>
+
+                <TextBlock Text="Cliente" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                <TextBox x:Name="txtUserId" Padding="8" BorderBrush="#CCCCCC" Text="USER-"/>
+
+                <TextBlock Text="Forma de pago" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                <ComboBox x:Name="cbFormaPago" SelectedIndex="0" Padding="8">
+                    <ComboBoxItem Content="Tarjeta de Crédito"/>
+                    <ComboBoxItem Content="Efectivo"/>
+                    <ComboBoxItem Content="Transferencia Bancaria"/>
+                </ComboBox>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Check-In" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                        <DatePicker x:Name="dpCheckIn"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Check-Out" Margin="0,0,0,5" FontWeight="SemiBold"/>
+                        <DatePicker x:Name="dpCheckOut"/>
+                    </StackPanel>
+                </Grid>
+
+                <Button x:Name="btnGuardar" Content="Confirmar Reserva" Margin="0,30,0,0" Padding="12"
+                Background="#27AE60" Foreground="White" FontWeight="Bold" Click="click_confirmarReserva">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

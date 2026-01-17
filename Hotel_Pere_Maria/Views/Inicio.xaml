@@ -19,7 +19,8 @@
                 </MenuItem>
 
                 <MenuItem Header="Reservas" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Lista de Reservas" x:Name="menuReservas"/>
+                    <MenuItem Header="Añadir reserva" Click="click_abriraddReserva" />
+                    <MenuItem Header="Lista de reservas"/>
                 </MenuItem>
 
                 <MenuItem Header="Cerrar Sesión" Foreground="Red" HorizontalAlignment="Right"/>
