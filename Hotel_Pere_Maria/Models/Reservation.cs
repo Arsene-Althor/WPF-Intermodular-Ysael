@@ -11,14 +11,28 @@ namespace Hotel_Pere_Maria.Models
         public string reservation_id {  get; set; }
         public string room_id { get; set; }
         public string user_id { get; set; }
-        public DateTime check_in { get; set; }
-        public DateTime check_out { get; set; }
-        public DateTime? cancelation_date { get; set; }
+        private DateTime _check_in { get; set; }
+        private DateTime _check_out { get; set; }
+        private DateTime? _cancelation_date { get; set; }
 
-        public override string ToString()
+        public DateTime check_in
         {
-            return $"Id reserva: {reservation_id}\nRoom_id: {room_id}\nUser_id: {user_id}\nCheck_in: {check_in.Date}\nCheck_out: {check_out.Date}";
+            get => _check_in.ToLocalTime();
+            set => _check_in = value;
         }
+
+        public DateTime check_out
+        {
+            get => _check_out.ToLocalTime();
+            set => _check_out = value;
+        }
+
+        public DateTime? cancelation_date
+        {
+            get => _cancelation_date?.ToLocalTime();
+            set => _cancelation_date = value;
+        }
+
 
     }
 }
