@@ -1,0 +1,77 @@
+﻿<Window x:Class="Hotel_Pere_Maria.Views.listReservas"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
+        mc:Ignorable="d"
+        Title="listReservas" Height="450" Width="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="5">
+                    <TextBlock Text="ID Reserva:"/>
+                    <TextBox x:Name="txtFiltroIdReserva" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Desde:"/>
+                    <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Hasta:"/>
+                    <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Estado:"/>
+                    <CheckBox x:Name="chkCanceladas" Content="Canceladas" VerticalAlignment="Center" Margin="0,5,0,0" Click="FiltrarDatos"/>
+                </StackPanel>
+
+                <Button Content="Limpiar Filtros" Click="Click_LimpiarFiltros" 
+            VerticalAlignment="Bottom" Margin="10,5" Padding="10,2"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="ID Usuario:"/>
+                    <TextBox x:Name="txtFiltroUser" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Nombre Usuario:"/>
+                    <TextBox x:Name="txtFiltroNameUser" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Email Usuario:"/>
+                    <TextBox x:Name="txtFiltroEmailUser" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Habitación:"/>
+                    <TextBox x:Name="txtFiltroRoom" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+
+            </StackPanel>
+
+        </StackPanel>
+
+        <DataGrid x:Name="dgReservas" Grid.Row="1" AutoGenerateColumns="False" 
+                  IsReadOnly="True" AlternatingRowBackground="#F0F0F0">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID Reserva" Binding="{Binding reservation_id}" Width="*"/>
+                <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="*"/>
+                <DataGridTextColumn Header="Usuario" Binding="{Binding user_id}" Width="*"/>
+                <DataGridTextColumn Header="Check-In" Binding="{Binding check_in, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
+                <DataGridTextColumn Header="Check-Out" Binding="{Binding check_out, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>

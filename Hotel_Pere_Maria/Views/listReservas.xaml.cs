@@ -16,17 +16,18 @@ using Hotel_Pere_Maria.Services;
 namespace Hotel_Pere_Maria.Views
 {
     /// <summary>
-    /// Lógica de interacción para Inicio.xaml
+    /// Lógica de interacción para listReservas.xaml
     /// </summary>
-    public partial class Inicio : Window
+    public partial class listReservas : Window
     {
-        public Inicio()
+        public listReservas()
         {
             InitializeComponent();
             this.Loaded += Iniciar_Ventana;
         }
 
-        private async void Iniciar_Ventana(object sender, RoutedEventArgs e) {
+        private async void Iniciar_Ventana(object sender, RoutedEventArgs e)
+        {
             await Cargar_Reservas();
         }
 
@@ -34,26 +35,23 @@ namespace Hotel_Pere_Maria.Views
         {
             try
             {
-                var reservas = await ApiService.getAllActiveReservation();
+                var reservas = await ApiService.getAllReservation();
                 if (reservas != null)
                 {
-                    listReservation.ItemsSource = reservas;
+                    dgReservas.ItemsSource = reservas;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show($"Error al conectar con la API: {ex.Message}");
             }
         }
 
-        private void click_abriraddReserva(object sender, RoutedEventArgs e) { 
-            addReserva addreserva = new addReserva();
-            addreserva.ShowDialog();
-            
+        //Pendiente implementar
+        private void FiltrarDatos(object sender, EventArgs e) { 
         }
 
-        private void click_abrirallReservas(object sender, RoutedEventArgs e) { 
-            listReservas listReservas = new listReservas();
-            listReservas.ShowDialog();
+        private void Click_LimpiarFiltros(object sender, RoutedEventArgs e) { 
         }
     }
 }
