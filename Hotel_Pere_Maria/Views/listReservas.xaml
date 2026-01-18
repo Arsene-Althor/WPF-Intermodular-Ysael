@@ -20,6 +20,11 @@
                 </StackPanel>
 
                 <StackPanel Margin="5">
+                    <TextBlock Text="Estado:"/>
+                    <CheckBox x:Name="chkCanceladas" Content="Canceladas" VerticalAlignment="Center" Margin="0,5,0,0" Click="FiltrarDatos" IsChecked="True"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
                     <TextBlock Text="Desde:"/>
                     <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
                 </StackPanel>
@@ -28,35 +33,33 @@
                     <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
                 </StackPanel>
 
-                <StackPanel Margin="5">
-                    <TextBlock Text="Estado:"/>
-                    <CheckBox x:Name="chkCanceladas" Content="Canceladas" VerticalAlignment="Center" Margin="0,5,0,0" Click="FiltrarDatos"/>
-                </StackPanel>
-
                 <Button Content="Limpiar Filtros" Click="Click_LimpiarFiltros" 
             VerticalAlignment="Bottom" Margin="10,5" Padding="10,2"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
 
                 <StackPanel Margin="5">
-                    <TextBlock Text="ID Usuario:"/>
+                    <TextBlock Text="Usuario:"/>
                     <TextBox x:Name="txtFiltroUser" Width="100" TextChanged="FiltrarDatos"/>
                 </StackPanel>
                 <StackPanel Margin="5">
-                    <TextBlock Text="Nombre Usuario:"/>
-                    <TextBox x:Name="txtFiltroNameUser" Width="100" TextChanged="FiltrarDatos"/>
-                </StackPanel>
-                <StackPanel Margin="5">
-                    <TextBlock Text="Email Usuario:"/>
-                    <TextBox x:Name="txtFiltroEmailUser" Width="100" TextChanged="FiltrarDatos"/>
-                </StackPanel>
-
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
-
-                <StackPanel Margin="5">
                     <TextBlock Text="Habitación:"/>
                     <TextBox x:Name="txtFiltroRoom" Width="100" TextChanged="FiltrarDatos"/>
+                </StackPanel>
+                <StackPanel Margin="5,5" Width="200">
+                    <DockPanel>
+                        <TextBlock Text="Mín: " DockPanel.Dock="Left"/>
+                        <TextBlock Text="{Binding ElementName=slMin, Path=Value, StringFormat={}{0:N0}€}" DockPanel.Dock="Right"/>
+                    </DockPanel>
+                    <Slider x:Name="slMin" Minimum="0" Maximum="10000" Value="0" ValueChanged="FiltrarDatos" TickFrequency="10" IsSnapToTickEnabled="True"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,5" Width="200">
+                    <DockPanel>
+                        <TextBlock Text="Máx: " DockPanel.Dock="Left"/>
+                        <TextBlock Text="{Binding ElementName=slMax, Path=Value, StringFormat={}{0:N0}€}" DockPanel.Dock="Right"/>
+                    </DockPanel>
+                    <Slider x:Name="slMax" Minimum="0" Maximum="10000" Value="10000" ValueChanged="FiltrarDatos" TickFrequency="10" IsSnapToTickEnabled="True"/>
                 </StackPanel>
 
             </StackPanel>
@@ -71,6 +74,8 @@
                 <DataGridTextColumn Header="Usuario" Binding="{Binding user_id}" Width="*"/>
                 <DataGridTextColumn Header="Check-In" Binding="{Binding check_in, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
                 <DataGridTextColumn Header="Check-Out" Binding="{Binding check_out, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
+                <DataGridTextColumn Header="Fecha de cancelación" Binding="{Binding cancelation_date, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
+                <DataGridTextColumn Header="Precio" Binding="{Binding price}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -18,7 +18,11 @@
                 <TextBlock Text="Cliente" Margin="0,10,0,5" FontWeight="SemiBold"/>
                 <TextBox x:Name="txtUserId" Padding="8" BorderBrush="#CCCCCC" Text="USER-"/>
 
+                <TextBlock Text="Precio" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                <TextBox x:Name="txtprice" Padding="8" BorderBrush="#CCCCCC" Text="0"/>
+
                 <TextBlock Text="Forma de pago" Margin="0,10,0,5" FontWeight="SemiBold"/>
+                
                 <ComboBox x:Name="cbFormaPago" SelectedIndex="0" Padding="8">
                     <ComboBoxItem Content="Tarjeta de Crédito"/>
                     <ComboBoxItem Content="Efectivo"/>

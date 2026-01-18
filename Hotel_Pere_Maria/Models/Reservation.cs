@@ -13,6 +13,7 @@ namespace Hotel_Pere_Maria.Models
         public string user_id { get; set; }
         private DateTime _check_in { get; set; }
         private DateTime _check_out { get; set; }
+        public double price { get; set; }
         private DateTime? _cancelation_date { get; set; }
 
         public DateTime check_in
