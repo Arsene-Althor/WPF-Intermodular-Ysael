@@ -27,17 +27,34 @@ namespace Hotel_Pere_Maria.Views
         }
 
         public async void click_confirmarReserva(object sender, RoutedEventArgs e) {
-            
-            Reservation r = new Reservation();
 
-            r.room_id = txtRoomId.Text;
-            r.user_id = txtUserId.Text;
-            r.check_in = dpCheckIn.SelectedDate ?? DateTime.Now;
-            r.check_out = dpCheckOut.SelectedDate ?? DateTime.Now;
+            if (txtRoomId.Text == "" || txtUserId.Text == "" || dpCheckIn.SelectedDate == null || dpCheckOut.SelectedDate == null)
+            {
+                MessageBox.Show("Es necesario rellenar todos los campos");
+            }
+            else {
+                Reservation r = new Reservation();
 
-            string respuestaapi = await ApiService.InsertarReserva(r);
+                r.room_id = txtRoomId.Text;
+                r.user_id = txtUserId.Text;
+                r.check_in = dpCheckIn.SelectedDate ?? DateTime.Now;
+                r.check_out = dpCheckOut.SelectedDate ?? DateTime.Now;
 
-            MessageBox.Show(respuestaapi, "Respuesta Api");
+                var (esOk, respuestaapi) = await ApiService.InsertarReserva(r);
+
+                if (esOk)
+                {
+                    MessageBox.Show("¡Reserva confirmada!", "Nueva reserva creada");
+                }
+                else
+                {
+                    MessageBox.Show(respuestaapi, "Error al confriamar");
+                }
+            }
+
+           
+
+                
         }
     }
 }

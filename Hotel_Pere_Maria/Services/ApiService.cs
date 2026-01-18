@@ -15,6 +15,25 @@ namespace Hotel_Pere_Maria.Services
         private static readonly HttpClient _httpClient = new HttpClient();
         private const string BaseUrl = "http://localhost:3000/";
 
+        public static async Task<List<Reservation>> getAllActiveReservation() {
+            try
+            {
+                var respuesta = await _httpClient.GetAsync(BaseUrl + "reservation/allActive");
+                if (respuesta.IsSuccessStatusCode)
+                {
+                    string contenido = await respuesta.Content.ReadAsStringAsync();
+                    var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    List<Reservation> lista = JsonSerializer.Deserialize<List<Reservation>>(contenido, opciones);
+                    return lista;
+                }
+                return new List<Reservation>();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public static async Task<List<Reservation>> getAllReservation()
         {
             try
@@ -34,7 +53,7 @@ namespace Hotel_Pere_Maria.Services
                 return null;
             }
         }
-        public static async Task<string> InsertarReserva(Reservation reserva)
+        public static async Task<(bool exito ,string mensaje)> InsertarReserva(Reservation reserva)
         {
             try
             {
@@ -46,11 +65,17 @@ namespace Hotel_Pere_Maria.Services
 
                 string mensajeServidor = await response.Content.ReadAsStringAsync();
 
-                return mensajeServidor;
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, mensajeServidor);
+                }
+                else { 
+                    return (false, mensajeServidor);
+                }
             }
             catch(Exception ex) 
             {
-                return "Error del servidor: " + ex.Message;
+                return (false , "Error de conexión");
             }
         }
     }

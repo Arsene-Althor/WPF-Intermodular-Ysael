@@ -34,7 +34,7 @@ namespace Hotel_Pere_Maria.Views
         {
             try
             {
-                var reservas = await ApiService.getAllReservation();
+                var reservas = await ApiService.getAllActiveReservation();
                 if (reservas != null)
                 {
                     listReservation.ItemsSource = reservas;
