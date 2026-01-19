@@ -50,7 +50,7 @@ namespace Hotel_Pere_Maria.Views
             }
         }
 
-        //Pendiente implementar
+        //Pendiente implementar IDcliente y Habitación
         private void FiltrarDatos(object sender, EventArgs e) {
             if (_todasLasReservas == null || slMin == null || slMax == null) return;
 
@@ -100,6 +100,14 @@ namespace Hotel_Pere_Maria.Views
             if (chkCanceladas != null) chkCanceladas.IsChecked = true;
 
             FiltrarDatos(null, null);
+        }
+
+        private void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
+            var resSelect = dgReservas.SelectedItem as Reservation;
+            if (resSelect != null) { 
+                modReserva modReserva = new modReserva(resSelect);
+                modReserva.ShowDialog();
+            }
         }
     }
 }

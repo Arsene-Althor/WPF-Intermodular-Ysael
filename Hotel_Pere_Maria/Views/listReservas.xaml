@@ -25,11 +25,11 @@
                 </StackPanel>
 
                 <StackPanel Margin="5">
-                    <TextBlock Text="Desde:"/>
+                    <TextBlock Text="Check-In Desde:"/>
                     <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
                 </StackPanel>
                 <StackPanel Margin="5">
-                    <TextBlock Text="Hasta:"/>
+                    <TextBlock Text="Check-In Hasta:"/>
                     <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
                 </StackPanel>
 
@@ -67,7 +67,7 @@
         </StackPanel>
 
         <DataGrid x:Name="dgReservas" Grid.Row="1" AutoGenerateColumns="False" 
-                  IsReadOnly="True" AlternatingRowBackground="#F0F0F0">
+                  IsReadOnly="True" AlternatingRowBackground="#F0F0F0" MouseDoubleClick="dbClick_modReserva">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID Reserva" Binding="{Binding reservation_id}" Width="*"/>
                 <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="*"/>
