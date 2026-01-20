@@ -72,10 +72,10 @@ namespace Hotel_Pere_Maria.Views
 
                 if (verCanceladas == true)
                 {
-                    cEstado = (r.cancelation_date == null);
+                    cEstado = (r.cancelation_date == null || r.cancelation_date != null);
                 }
                 else { 
-                    cEstado = (r.cancelation_date != null);
+                    cEstado = (r.cancelation_date == null);
                 }
 
                 bool cDesde = !fechaDesde.HasValue || r.check_in.Date >= fechaDesde.Value.Date;
