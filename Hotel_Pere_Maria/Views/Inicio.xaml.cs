@@ -20,21 +20,25 @@ namespace Hotel_Pere_Maria.Views
     /// </summary>
     public partial class Inicio : Window
     {
+        //Ventana de inicio accedemos a esta tras inicio de sesion
         public Inicio()
         {
+            //Iniciamos la ventana cargando los datos de todas las reservas activas
             InitializeComponent();
             this.Loaded += Iniciar_Ventana;
         }
 
+        //Este metodo lo usamos para refrescar la ventana lo asignamos al boton de refrescar e inicio de ventana
         private async void Iniciar_Ventana(object sender, RoutedEventArgs e) {
             await Cargar_Reservas();
         }
 
+        //Cargamos los datos de las reservas activas en la lista de listReservation 
         private async Task Cargar_Reservas()
         {
             try
             {
-                var reservas = await ApiService.getAllActiveReservation();
+                var reservas = await ReservationService.getAllActiveReservation();
                 if (reservas != null)
                 {
                     listReservation.ItemsSource = reservas;
@@ -45,6 +49,7 @@ namespace Hotel_Pere_Maria.Views
             }
         }
 
+        //Metodos para abrir otras ventanas
         private void click_abriraddReserva(object sender, RoutedEventArgs e) { 
             addReserva addreserva = new addReserva();
             addreserva.ShowDialog();

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hotel_Pere_Maria.Models
 {
+    //Modelo para reservas
     public class Reservation
     {
         public string reservation_id {  get; set; }
@@ -15,8 +16,11 @@ namespace Hotel_Pere_Maria.Models
         private DateTime _check_in { get; set; }
         private DateTime _check_out { get; set; }
         public double price { get; set; }
+
+        //La fecha de cancelación puede ser nula 
         private DateTime? _cancelation_date { get; set; }
 
+        //Al obtener una fecha la convertimos a la hora del equipo local ya que la base de datos la guarda en formato universal
         public DateTime check_in
         {
             get => _check_in.ToLocalTime();
@@ -35,12 +39,14 @@ namespace Hotel_Pere_Maria.Models
             set => _cancelation_date = value;
         }
 
+        //Metodo para Calcular el precio de cancelación 
         //Falta calcular precio
         public double CalcularPrecioCancelacion(DateTime fechaCancelacion) {
             return 10;
         }
 
-        public static double CalcularPrecio(String usuario, String habitacion, DateTime entrada , DateTime salida) {
+        //Metodo estatico para calcular el precio de una habitación
+        public static double CalcularPrecio(Reservation? r,String? usuario, String? habitacion, DateTime? entrada , DateTime? salida) {
             return 10;
         }
 

@@ -17,11 +17,10 @@ using Microsoft.VisualBasic;
 
 namespace Hotel_Pere_Maria.Views
 {
-    /// <summary>
-    /// Lógica de interacción para modReserva.xaml
-    /// </summary>
+    //Controller para mofificar reservas
     public partial class modReserva : Window
     {
+        //La variable _reserva es la reserva que vamos a modificar
         private Reservation _reserva;
         public modReserva(Reservation reserva)
         {
@@ -31,9 +30,13 @@ namespace Hotel_Pere_Maria.Views
 
         }
 
+        //Esta función muestra el precio de la modificación dinamicamente
         private void RecalcularPrecio(object sender, EventArgs e) {
             DateTime? newCheckIn = dpCheckIn.SelectedDate;
             DateTime? newCheckOut = dpCheckOut.SelectedDate;
+
+            String? newuser_id = txtUserId.Text ?? null;
+            String? newroom_id = txtRoomId.Text ?? null;
 
             DateTime ahora = DateTime.Now;
             ahora = ahora.AddDays(-1);
@@ -55,26 +58,38 @@ namespace Hotel_Pere_Maria.Views
                 return;
             }
 
+            double precioAmpliacion = Reservation.CalcularPrecio(_reserva,newuser_id,newroom_id,newCheckIn, newCheckOut);
+
+            lblPrecioFinal.Text = precioAmpliacion + " €";
+
         }
 
+        //Funcion para el boton de cancelar reserva
+
         public async void Click_CancelarReserva(object sender, RoutedEventArgs e) { 
+            //Obtenemos la fecha actual y caluclamos el precio que hay que devolver al cliente con esta
             DateTime fechaCancelacion = DateTime.Now;
-            double precioCancel = 0;
+            double precioCancel = _reserva.CalcularPrecioCancelacion(fechaCancelacion);
+
+            //Mostramos un mensaje para convirmar la cancelación
 
             MessageBoxResult respuesta = MessageBox.Show(
                 "La devolución por cancelación serian: " + precioCancel + " €\n" +
                 "¿Está seguro de que quieres cancelar la reserva?","Cancelación de reserva", MessageBoxButton.YesNo);
 
+            //Si la respuesta es afriamtiva mandamos la peticion a la api
             if (respuesta == MessageBoxResult.Yes) {
 
                 try
                 {
-                    var (esOk, respuestaapi) = await ApiService.cancelReservation(_reserva, precioCancel);
+                    var (esOk, respuestaapi) = await ReservationService.cancelReservation(_reserva, precioCancel);
+                    //Si la respusta es afirmativa mostramos un mensaje y cerramos la ventan de modificación
                     if (esOk)
                     {
                         MessageBox.Show("Reserva cancleada", "Cancelación realizada!");
                         this.Close();
                     }
+                    //En caso contrario mostramos la respuesta de la api
                     else {
                         MessageBox.Show(respuestaapi, "Error de cancelación");
                     }
@@ -87,6 +102,7 @@ namespace Hotel_Pere_Maria.Views
             } 
         }
 
+        //Cargamos los datos de la reserva a modificar en el formulario
         private void relleanForm() {
             nReserva.Text = nReserva.Text + _reserva.reservation_id;
         }

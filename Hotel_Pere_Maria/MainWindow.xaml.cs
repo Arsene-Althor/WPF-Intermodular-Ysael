@@ -14,9 +14,7 @@ using Hotel_Pere_Maria.Views;
 
 namespace Hotel_Pere_Maria
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    //Pantalla de inicio de sesion
     public partial class MainWindow : Window
     {
         public MainWindow()

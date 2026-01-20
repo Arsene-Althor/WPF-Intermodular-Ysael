@@ -16,11 +16,10 @@ using Hotel_Pere_Maria.Services;
 
 namespace Hotel_Pere_Maria.Views
 {
-    /// <summary>
-    /// Lógica de interacción para listReservas.xaml
-    /// </summary>
+    //Ventana para mostrar una lista con todas las reservas
     public partial class listReservas : Window
     {
+        //Tenemos una lista con todas las reservas para evitar peticiones a la api al utilizar filtros
         private List<Reservation> _todasLasReservas;
         public listReservas()
         {
@@ -33,11 +32,12 @@ namespace Hotel_Pere_Maria.Views
             await Cargar_Reservas();
         }
 
+        //Cargamos las reservas del mismo modo que en el inicio y guardamos la lista recibida en _todasLasReservas
         private async Task Cargar_Reservas()
         {
             try
             {
-                var reservas = await ApiService.getAllReservation();
+                var reservas = await ReservationService.getAllReservation();
                 if (reservas != null)
                 {
                     dgReservas.ItemsSource = reservas;
@@ -51,6 +51,8 @@ namespace Hotel_Pere_Maria.Views
         }
 
         //Pendiente implementar IDcliente y Habitación
+
+        //Utilizamos este metodo para filtrar los datos de la lista en tiempo real
         private void FiltrarDatos(object sender, EventArgs e) {
             if (_todasLasReservas == null || slMin == null || slMax == null) return;
 
@@ -87,6 +89,7 @@ namespace Hotel_Pere_Maria.Views
             dgReservas.ItemsSource = resultado;
         }
 
+        //Utilizamos este metodo para limpiar todos los filtros
         private void Click_LimpiarFiltros(object sender, RoutedEventArgs e) {
             if (_todasLasReservas == null) return;
             if(txtFiltroIdReserva != null) txtFiltroIdReserva.Text = "";
@@ -101,6 +104,8 @@ namespace Hotel_Pere_Maria.Views
 
             FiltrarDatos(null, null);
         }
+
+        //Al pulsar doble click en una reserva de la lista abrimos una nueva ventana para modificar esta
 
         private void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
             var resSelect = dgReservas.SelectedItem as Reservation;
