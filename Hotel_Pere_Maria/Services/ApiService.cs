@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -14,6 +15,37 @@ namespace Hotel_Pere_Maria.Services
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private const string BaseUrl = "http://localhost:3000/";
+
+        public static async Task<(bool exito, string mensaje)> cancelReservation(Reservation r, double precioCancel)
+        {
+            try
+            {
+                double precionew = r.price - precioCancel;
+                var datos = new
+                {
+                    reservation_id = r.reservation_id,
+                    price = precionew
+                };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(BaseUrl + "reservation/cancel", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, mensajeServidor);
+                }
+                else
+                {
+                    return (false, mensajeServidor);
+                }
+            }
+            catch (Exception ex) {
+                return (false, "Error de conexión");
+            }
+        }
 
         public static async Task<List<Reservation>> getAllActiveReservation() {
             try

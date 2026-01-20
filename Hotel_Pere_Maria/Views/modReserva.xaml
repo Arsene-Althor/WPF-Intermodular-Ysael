@@ -40,6 +40,7 @@
                     </StackPanel>
                 </Grid>
             </GroupBox>
+            <Button Content="Cancelar Reserva" HorizontalAlignment="Center" Padding="5" Background="Red" Foreground="White" FontWeight="Bold" Click="Click_CancelarReserva"></Button>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
                 <TextBlock Text="Precio Total: " FontSize="18" VerticalAlignment="Center"/>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,6 +33,15 @@ namespace Hotel_Pere_Maria.Models
         {
             get => _cancelation_date?.ToLocalTime();
             set => _cancelation_date = value;
+        }
+
+        //Falta calcular precio
+        public double CalcularPrecioCancelacion(DateTime fechaCancelacion) {
+            return 10;
+        }
+
+        public static double CalcularPrecio(String usuario, String habitacion, DateTime entrada , DateTime salida) {
+            return 10;
         }
 
 
