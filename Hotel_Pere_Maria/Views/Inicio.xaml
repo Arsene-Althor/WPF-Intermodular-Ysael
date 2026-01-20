@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Inicio" Height="450" Width="800">
+        Title="Inicio" Height="500" Width="600">
     <Grid >
         <DockPanel>
 
