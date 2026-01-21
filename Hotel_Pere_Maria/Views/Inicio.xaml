@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Inicio" Height="500" Width="600">
+        Title="Inicio" Height="500" Width="800">
     <Grid >
         <DockPanel>
 
@@ -48,15 +48,15 @@
                 </Grid>
 
                 <Grid Grid.Row="1">
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Segoe UI Black">Reservas Actuales</TextBlock>
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Segoe UI Black" Margin="10">Reservas Actuales</TextBlock>
                 </Grid>
 
 
 
-                <Border Grid.Row="2" CornerRadius="5" BorderBrush="#DDDDDD" BorderThickness="1" Background="#80FFFFFF">
+                <Border Grid.Row="2" CornerRadius="5" BorderBrush="#FF4A4A4A" BorderThickness="2" Background="#80D4D4D4">
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <ScrollViewer.Background>
-                            <ImageBrush ImageSource="/Resources/HotelLogo.png" Stretch="Uniform" Opacity="0.3"/>
+                            <ImageBrush ImageSource="/Resources/HotelLogo.png" Stretch="Uniform" Opacity="0.5"/>
                         </ScrollViewer.Background>
                         <ItemsControl x:Name="listReservation" Margin="10">
                             <ItemsControl.ItemsPanel>
