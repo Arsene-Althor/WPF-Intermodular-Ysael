@@ -27,12 +27,42 @@ namespace Hotel_Pere_Maria.Views
             InitializeComponent();
         }
 
+        public void Select_Room(object sender, MouseButtonEventArgs e) {
+            MessageBox.Show("Busqueda Room");
+        }
+        public void Select_Client(object sender, MouseButtonEventArgs e)
+        {
+            MessageBox.Show("Busqueda Cliente");
+        }
+
+        public void fecha_select(object sender, SelectionChangedEventArgs e) {
+            if (dpCheckIn.SelectedDate != null && dpCheckOut.SelectedDate != null) {
+
+                DateTime ayeronce = DateTime.Today.AddDays(-1).AddHours(11);
+                
+                if (dpCheckIn.SelectedDate >= dpCheckOut.SelectedDate || dpCheckIn.SelectedDate < ayeronce)
+                {
+                    MessageBox.Show("La fecha no es valida");
+                    txtRoomId.IsEnabled = false;
+                    txtUserId.IsEnabled = false;
+                    dpCheckIn.SelectedDate = null;
+                    dpCheckOut.SelectedDate = null;
+                    return;
+                }
+                else { 
+                    txtRoomId.IsEnabled=true;
+                    txtUserId.IsEnabled=true;
+                }
+            }
+
+        }
+
         //Funcion para el boton de confirmar reserva
         public async void click_confirmarReserva(object sender, RoutedEventArgs e) {
 
             //En caso de que algun elemento este vacio mostraremos un mensaje
 
-            if (txtRoomId.Text == "" || txtUserId.Text == "" || dpCheckIn.SelectedDate == null || dpCheckOut.SelectedDate == null ||txtprice.Text == "")
+            if (txtRoomId.Text == "" || txtUserId.Text == "" || dpCheckIn.SelectedDate == null || dpCheckOut.SelectedDate == null)
             {
                 MessageBox.Show("Es necesario rellenar todos los campos");
             
@@ -40,7 +70,7 @@ namespace Hotel_Pere_Maria.Views
                 //Si estan todos los elementos rellenados los enviamos a la api para insertar la reserva
                 try
                 {
-                    double price = double.Parse(txtprice.Text);
+                    double price = double.Parse(lblPrecio.Text);
                     Reservation r = new Reservation();
 
                     r.room_id = txtRoomId.Text;
