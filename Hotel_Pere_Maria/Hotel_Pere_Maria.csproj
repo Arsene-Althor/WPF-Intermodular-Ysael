@@ -18,4 +18,8 @@
     <Resource Include="Resources\HotelLogo.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+
 </Project>

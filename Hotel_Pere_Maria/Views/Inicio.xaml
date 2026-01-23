@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Inicio" Height="500" Width="800">
+        Title="Inicio" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid >
         <DockPanel>
 
-            <Menu DockPanel.Dock="Top" Background="#F0F0F0" Padding="5">
+            <Menu DockPanel.Dock="Top" Background="#F5F6F7" Padding="5" BorderBrush="Black" BorderThickness="1">
                 <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
                     <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios" />
                 </MenuItem>
