@@ -5,11 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Inicio" Height="500" Width="800">
+        Title="Inicio" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid >
         <DockPanel>
 
-            <Menu DockPanel.Dock="Top" Background="#F0F0F0" Padding="5">
+            <Menu DockPanel.Dock="Top" Background="#F5F6F7" Padding="5" BorderBrush="Black" BorderThickness="1">
+                <Menu.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <DockPanel HorizontalAlignment="Stretch"/>
+                    </ItemsPanelTemplate>
+                </Menu.ItemsPanel>
+                
                 <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
                     <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios" />
                 </MenuItem>
@@ -23,7 +30,21 @@
                     <MenuItem Header="Lista de reservas" Click="click_abrirallReservas"/>
                 </MenuItem>
 
-                <MenuItem Header="Cerrar Sesión" Foreground="Red" HorizontalAlignment="Right"/>
+                <MenuItem DockPanel.Dock="Right" HorizontalAlignment="Right">
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock VerticalAlignment="Center" Margin="5,0" FontWeight="Bold"> Mi cuenta</TextBlock>
+                            <Ellipse Width="25" Height="25" Margin="0,0,8,0">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="/Resources/userIcon.png" Stretch="UniformToFill"/>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </StackPanel>
+                    </MenuItem.Header>
+                    <MenuItem Header="Mi perfil"></MenuItem>
+                    <MenuItem Header="Ajustes"></MenuItem>
+                    <MenuItem Header="Cerrar Sesion"></MenuItem>
+                </MenuItem>
             </Menu>
 
             <Grid x:Name="MainContent" Margin="20">

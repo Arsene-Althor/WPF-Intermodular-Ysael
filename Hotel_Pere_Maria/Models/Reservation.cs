@@ -16,6 +16,7 @@ namespace Hotel_Pere_Maria.Models
         private DateTime _check_in { get; set; }
         private DateTime _check_out { get; set; }
         public double price { get; set; }
+        public string createdBy { get; set; }
 
         //La fecha de cancelación puede ser nula 
         private DateTime? _cancelation_date { get; set; }

@@ -45,7 +45,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, mensajeServidor);
                 }
             }
-            catch (Exception ex)
+            catch (Exception err)
             {
                 return (false, "Error de conexión");
             }
@@ -123,7 +123,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, mensajeServidor);
                 }
             }
-            catch (Exception ex)
+            catch (Exception err)
             {
                 return (false, "Error de conexión");
             }

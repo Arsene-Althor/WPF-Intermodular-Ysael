@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http.Headers;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -24,6 +25,7 @@ namespace Hotel_Pere_Maria
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            ApiService._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiRU1QLTAwMDAxIiwiZW1haWwiOiJhZG1pbjJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaXNWSVAiOmZhbHNlLCJpYXQiOjE3Njk0NTA3MjUsImV4cCI6MTc2OTUzNzEyNX0.qXUjgqfdI-LUrkdAvCLKgoqEI5rsaEcY0PEY7-4CCb4");
             Inicio inicio = new Inicio();
             inicio.Show();
             this.Close();
