@@ -27,8 +27,21 @@ namespace Hotel_Pere_Maria.Views
             InitializeComponent();
         }
 
-        public void Select_Room(object sender, MouseButtonEventArgs e) {
-            MessageBox.Show("Busqueda Room");
+        public void Select_Room(object sender, MouseButtonEventArgs e)
+        {
+            DateTime checkIn = dpCheckIn.SelectedDate.Value;
+            DateTime checkOut = dpCheckOut.SelectedDate.Value;
+
+            var win = new SelectedRoom(checkIn, checkOut);
+
+            // (opcional) si quieres que se abra modal
+            if (win.ShowDialog() == true && win.SelectedRoomResult != null)
+            {
+                var room = win.SelectedRoomResult;
+
+                // ejemplo: poner el id en el textbox
+                txtRoomId.Text = room.RoomId.ToString(); //room.RoomId ?? ""; 
+            }
         }
         public void Select_Client(object sender, MouseButtonEventArgs e)
         {
