@@ -1,15 +1,58 @@
 ﻿<Window x:Class="Hotel_Pere_Maria.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Hotel_Pere_Maria"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Login - Hotel Pere Maria"
+        Height="670" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F5F5"
+        ResizeMode="NoResize">
     <Grid>
-        <StackPanel VerticalAlignment="Center">
-            <Button Click="Button_Click_1">Iniciar Sesion</Button>
-        </StackPanel>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="350">
 
+            <Image Source="/Resources/HotelLogo.png" Width="340" Height="180"/>
+
+            <TextBlock Text="Login"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Margin="0,0,0,30"
+                       Foreground="#1f2121"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock Text="Email" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
+            <TextBox x:Name="TxtEmail"
+                     Height="40"
+                     Padding="10"
+                     FontSize="14"
+                     Background="White"
+                     BorderThickness="1"
+                     BorderBrush="#d0d0d0"
+                     Margin="0,0,0,15"/>
+
+            <TextBlock Text="Contraseña" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
+            <PasswordBox x:Name="TxtPassword"
+                         Height="40"
+                         Padding="10"
+                         FontSize="14"
+                         Background="White"
+                         BorderThickness="1"
+                         BorderBrush="#d0d0d0"
+                         Margin="0,0,0,25"/>
+
+            <Button x:Name="BtnLogin"
+                    Content="Iniciar Sesión"
+                    Height="45"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#208090"
+                    Foreground="White"
+                    Click="BtnLogin_Click"
+                    Cursor="Hand"/>
+
+            <TextBlock x:Name="TxtError"
+                       Foreground="Red"
+                       TextWrapping="Wrap"
+                       Margin="0,15,0,0"
+                       FontSize="12"/>
+        </StackPanel>
     </Grid>
 </Window>

@@ -60,5 +60,7 @@ namespace Hotel_Pere_Maria.Views
             listReservas listReservas = new listReservas();
             listReservas.ShowDialog();
         }
+
+
     }
 }
