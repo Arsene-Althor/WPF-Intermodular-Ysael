@@ -70,7 +70,8 @@ namespace Hotel_Pere_Maria.Views
                 //Si estan todos los elementos rellenados los enviamos a la api para insertar la reserva
                 try
                 {
-                    double price = double.Parse(lblPrecio.Text);
+                    double price = 1.00;
+                    lblPrecio.Text = price+"€";
                     Reservation r = new Reservation();
 
                     r.room_id = txtRoomId.Text;
