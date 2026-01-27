@@ -62,5 +62,12 @@ namespace Hotel_Pere_Maria.Views
         }
 
 
+        private void click_abrirRooms(object sender, RoutedEventArgs e)
+        {
+            DateTime fecha = DateTime.Now;
+            SelectedRoom room = new SelectedRoom(fecha.AddDays(-5), fecha);
+            room.ShowDialog();
+
+        }
     }
 }
