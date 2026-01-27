@@ -11,9 +11,10 @@ namespace Hotel_Pere_Maria.Services
     {
         ///<summary>
         ///Login: envia email + password al API
-        /// </summary>
-        /// 
+        /// </summary> 
 
+        // Este método hace el login de verdad
+        // Se llama desde MainWindow.xaml.cs cuando el usuario da click en "Iniciar Sesión"
         public static async Task<LoginResponse> LoginAsync(string email, string password)
         {
             try
@@ -24,6 +25,7 @@ namespace Hotel_Pere_Maria.Services
                     password = password
                 };
 
+                // Convertir el objeto C# a JSON para mandarlo por HTTP
                 // Serializar a JSON
                 string json = JsonSerializer.Serialize(request);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -42,12 +44,16 @@ namespace Hotel_Pere_Maria.Services
                     throw new Exception($"Error {response.StatusCode}: {responseContent}");
                 }
 
-                // Deserializar respuesta
+                // Si todo está bien, convertir la respuesta JSON a objeto LoginResponse
+                // PropertyNameCaseInsensitive = true es para que sea flexible con mayúsculas/minúsculas
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 return JsonSerializer.Deserialize<LoginResponse>(responseContent, opciones);
             }
             catch (Exception ex)
             {
+
+                // Si algo falla, lanzar excepción con el mensaje
+                // Esta excepción se captura en MainWindow.xaml.cs en el método ManejarError()
                 throw new Exception($"Error en login: {ex.Message}");
             }
         }

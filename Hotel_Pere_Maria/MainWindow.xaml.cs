@@ -17,7 +17,7 @@ namespace Hotel_Pere_Maria
         {
             try
             {
-                // Limpiar error anterior
+                // Limpiar cualquier error que haya de antes
                 TxtError.Text = "";
 
                 // Obtener valores
