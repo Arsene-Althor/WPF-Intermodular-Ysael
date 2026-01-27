@@ -1,6 +1,7 @@
 ﻿using Hotel_Pere_Maria.Services;
 using Hotel_Pere_Maria.Views;
 using System;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Windows;
 
@@ -63,11 +64,13 @@ namespace Hotel_Pere_Maria
 
                 // Guardar en sesión global
                 Session.Token = response.token;
-                Session.User = response.user;
+                Session.User = response.user; 
+                //Asignando token al servicio
+                ApiService._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.token);
 
                 MessageBox.Show(
                     $"¡Bienvenido {response.user.name}!\nRol: {response.user.role.ToUpper()}",
-                    "Login Exitoso ✅",
+                    "Login Exitoso",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
                 );
