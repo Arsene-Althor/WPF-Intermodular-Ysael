@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Añadir Reserva" Height="600" Width="500">
+        Title="Añadir Reserva" Height="600" Width="500"
+        WindowStartupLocation="CenterScreen" Background="#F5F6F7">
     <Grid>
         <Border Background="White" CornerRadius="10" Padding="20" Margin="20" 
         BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Top">
@@ -30,8 +31,9 @@
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="Numero de Habitación" Margin="0,10,0,5" FontWeight="SemiBold" />
-                <TextBox x:Name="txtRoomId" Padding="8" BorderBrush="#CCCCCC" Text="HAB-" IsEnabled="False" MouseDoubleClick="Select_Room" />
+                <TextBlock Text="Numero de Habitación" Margin="0,10,0,5" FontWeight="SemiBold"/>
+
+                <TextBox x:Name="txtRoomId" Padding="8" BorderBrush="#CCCCCC" Text="HAB-" IsEnabled="False" PreviewMouseDoubleClick="Select_Room"/>
 
                 <TextBlock Text="Cliente" Margin="0,10,0,5" FontWeight="SemiBold"/>
                 <TextBox x:Name="txtUserId" Padding="8" BorderBrush="#CCCCCC" Text="USER-" IsEnabled="False" MouseDoubleClick="Select_Client"/>

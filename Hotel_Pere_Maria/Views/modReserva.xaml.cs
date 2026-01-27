@@ -105,6 +105,10 @@ namespace Hotel_Pere_Maria.Views
         //Cargamos los datos de la reserva a modificar en el formulario
         private void relleanForm() {
             nReserva.Text = nReserva.Text + _reserva.reservation_id;
+            dpCheckIn.SelectedDate = _reserva.check_in;
+            dpCheckOut.SelectedDate = _reserva.check_out;
+            txtUserId.Text = _reserva.user_id;
+            txtRoomId.Text = _reserva.room_id;
         }
         private async void Click_Guardar(object sender, RoutedEventArgs e)
         { 

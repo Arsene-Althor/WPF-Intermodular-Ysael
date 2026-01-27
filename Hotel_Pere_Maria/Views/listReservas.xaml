@@ -5,78 +5,124 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="listReservas" Height="450" Width="800">
-    <Grid Margin="10">
+        Title="listReservas" Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen" Background="#F5F6F7">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Border>
+            <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" FontFamily="Segoe UI Black">Listado de Reservas</TextBlock>
+        </Border>
 
-        <StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel Margin="5">
-                    <TextBlock Text="ID Reserva:"/>
-                    <TextBox x:Name="txtFiltroIdReserva" Width="100" TextChanged="FiltrarDatos"/>
-                </StackPanel>
+        <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
+            </Border.Effect>
 
-                <StackPanel Margin="5">
-                    <TextBlock Text="Estado:"/>
-                    <CheckBox x:Name="chkCanceladas" Content="Canceladas" VerticalAlignment="Center" Margin="0,5,0,0" Click="FiltrarDatos" IsChecked="True"/>
-                </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Filtros de Búsqueda" FontWeight="Bold" FontSize="14" Foreground="#2C3E50" Margin="0,0,0,15"/>
 
-                <StackPanel Margin="5">
-                    <TextBlock Text="Check-In Desde:"/>
-                    <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
-                </StackPanel>
-                <StackPanel Margin="5">
-                    <TextBlock Text="Check-In Hasta:"/>
-                    <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
-                </StackPanel>
+                <UniformGrid Columns="4">
+                    <StackPanel Margin="5">
+                        <TextBlock Text="ID Reserva" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBox x:Name="txtFiltroIdReserva" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                    </StackPanel>
 
-                <Button Content="Limpiar Filtros" Click="Click_LimpiarFiltros" 
-            VerticalAlignment="Bottom" Margin="10,5" Padding="10,2"/>
+                    <StackPanel Margin="5">
+                        <TextBlock Text="Usuario" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBox x:Name="txtFiltroUser" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="5">
+                        <TextBlock Text="Habitación" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBox x:Name="txtFiltroRoom" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="5" VerticalAlignment="Center">
+                        <CheckBox x:Name="chkCanceladas" Content="Ver Canceladas" VerticalAlignment="Center" Margin="0,15,0,0" Click="FiltrarDatos" IsChecked="True"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Margin="5">
+                        <TextBlock Text="Check-In Desde" FontSize="11"/>
+                        <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <TextBlock Text="Check-In Hasta" FontSize="11"/>
+                        <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Margin="15,5">
+                        <DockPanel>
+                            <TextBlock Text="Rango de Precio:" FontSize="11"/>
+                            <TextBlock Text="{Binding ElementName=slMin, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left" Margin="10,0,0,0"/>
+                            <TextBlock Text=" - " FontSize="11" DockPanel.Dock="Left"/>
+                            <TextBlock Text="{Binding ElementName=slMax, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left"/>
+                        </DockPanel>
+                        <Grid>
+                            <Slider x:Name="slMin" Minimum="0" Maximum="5000" Value="0" ValueChanged="FiltrarDatos" Margin="0,5"/>
+                            <Slider x:Name="slMax" Minimum="0" Maximum="5000" Value="5000" ValueChanged="FiltrarDatos" Margin="0,20,0,0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Button Grid.Column="3" Content="Limpiar" Click="Click_LimpiarFiltros" 
+                            Width="80" Height="35" VerticalAlignment="Bottom" Margin="5"
+                            Background="#E74C3C" Foreground="White" FontWeight="Bold">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+        </Border>
 
-                <StackPanel Margin="5">
-                    <TextBlock Text="Usuario:"/>
-                    <TextBox x:Name="txtFiltroUser" Width="100" TextChanged="FiltrarDatos"/>
-                </StackPanel>
-                <StackPanel Margin="5">
-                    <TextBlock Text="Habitación:"/>
-                    <TextBox x:Name="txtFiltroRoom" Width="100" TextChanged="FiltrarDatos"/>
-                </StackPanel>
-                <StackPanel Margin="5,5" Width="200">
-                    <DockPanel>
-                        <TextBlock Text="Mín: " DockPanel.Dock="Left"/>
-                        <TextBlock Text="{Binding ElementName=slMin, Path=Value, StringFormat={}{0:N0}€}" DockPanel.Dock="Right"/>
-                    </DockPanel>
-                    <Slider x:Name="slMin" Minimum="0" Maximum="10000" Value="0" ValueChanged="FiltrarDatos" TickFrequency="10" IsSnapToTickEnabled="True"/>
-                </StackPanel>
+        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="10">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
+            </Border.Effect>
+            <DataGrid x:Name="dgReservas" 
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True"
+                      GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="#F0F0F0"
+                      RowHeight="40"
+                      Background="White"
+                      BorderThickness="0"
+                      MouseDoubleClick="dbClick_modReserva">
 
-                <StackPanel Margin="0,5" Width="200">
-                    <DockPanel>
-                        <TextBlock Text="Máx: " DockPanel.Dock="Left"/>
-                        <TextBlock Text="{Binding ElementName=slMax, Path=Value, StringFormat={}{0:N0}€}" DockPanel.Dock="Right"/>
-                    </DockPanel>
-                    <Slider x:Name="slMax" Minimum="0" Maximum="10000" Value="10000" ValueChanged="FiltrarDatos" TickFrequency="10" IsSnapToTickEnabled="True"/>
-                </StackPanel>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="#34495E"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="10,5"/>
+                        <Setter Property="Height" Value="40"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
 
-            </StackPanel>
-
-        </StackPanel>
-
-        <DataGrid x:Name="dgReservas" Grid.Row="1" AutoGenerateColumns="False" 
-                  IsReadOnly="True" AlternatingRowBackground="#F0F0F0" MouseDoubleClick="dbClick_modReserva">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="ID Reserva" Binding="{Binding reservation_id}" Width="*"/>
-                <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="*"/>
-                <DataGridTextColumn Header="Usuario" Binding="{Binding user_id}" Width="*"/>
-                <DataGridTextColumn Header="Check-In" Binding="{Binding check_in, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
-                <DataGridTextColumn Header="Check-Out" Binding="{Binding check_out, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
-                <DataGridTextColumn Header="Fecha de cancelación" Binding="{Binding cancelation_date, StringFormat='dd/MM/yyyy HH:mm'}" Width="1.5*"/>
-                <DataGridTextColumn Header="Precio" Binding="{Binding price}" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding reservation_id}" Width="*"/>
+                    <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="*"/>
+                    <DataGridTextColumn Header="Usuario" Binding="{Binding user_id}" Width="*"/>
+                    <DataGridTextColumn Header="Entrada" Binding="{Binding check_in, StringFormat='dd/MM/yyyy'}" Width="*"/>
+                    <DataGridTextColumn Header="Salida" Binding="{Binding check_out, StringFormat='dd/MM/yyyy'}" Width="*"/>
+                    <DataGridTextColumn Header="Precio" Binding="{Binding price, StringFormat={}{0:N2}€}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
     </Grid>
 </Window>
