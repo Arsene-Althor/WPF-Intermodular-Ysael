@@ -64,7 +64,8 @@ namespace Hotel_Pere_Maria
 
                 // Guardar en sesión global
                 Session.Token = response.token;
-                Session.User = response.user;
+                Session.User = response.user; 
+                //Asignando token al servicio
                 ApiService._httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.token);
 
                 MessageBox.Show(
