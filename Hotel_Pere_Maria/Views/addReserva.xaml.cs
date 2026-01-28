@@ -45,7 +45,9 @@ namespace Hotel_Pere_Maria.Views
         }
         public void Select_Client(object sender, MouseButtonEventArgs e)
         {
-            MessageBox.Show("Busqueda Cliente");
+            SelectedUser selectedUser = new SelectedUser(null);
+            selectedUser.Owner = this;
+            selectedUser.ShowDialog();
         }
 
         public void fecha_select(object sender, SelectionChangedEventArgs e) {
@@ -92,6 +94,7 @@ namespace Hotel_Pere_Maria.Views
                     r.check_in = dpCheckIn.SelectedDate ?? DateTime.Now;
                     r.check_out = dpCheckOut.SelectedDate ?? DateTime.Now;
                     r.price = price;
+                    r.createdBy = Session.User.user_id;
 
                     var (esOk, respuestaapi) = await ReservationService.InsertarReserva(r);
 

@@ -117,5 +117,11 @@ namespace Hotel_Pere_Maria.Views
         {
         }
 
+        private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
+        {
+            SelectedUser selected = new SelectedUser(null);
+            selected.Show();
+        }
+
     }
 }

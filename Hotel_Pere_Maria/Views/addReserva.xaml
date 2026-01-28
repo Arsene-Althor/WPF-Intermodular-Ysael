@@ -10,6 +10,9 @@
     <Grid>
         <Border Background="White" CornerRadius="10" Padding="20" Margin="20" 
         BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Top">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
+            </Border.Effect>
             <StackPanel>
                 <TextBlock Text="Nueva Reserva" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" Foreground="#2C3E50"/>
 
