@@ -122,6 +122,7 @@
                     <DataGridTextColumn Header="Salida" Binding="{Binding check_out, StringFormat='dd/MM/yyyy'}" Width="*"/>
                     <DataGridTextColumn Header="Precio" Binding="{Binding price, StringFormat={}{0:N2}€}" Width="*"/>
                     <DataGridTextColumn Header="Creado Por" Binding="{Binding createdBy}" Width="*"/>
+                    <DataGridTextColumn Header="Fecha Cancelación" Binding="{Binding cancelation_date, StringFormat='dd/MM/yyyy'}" Width="*"/>
                     
                 </DataGrid.Columns>
             </DataGrid>

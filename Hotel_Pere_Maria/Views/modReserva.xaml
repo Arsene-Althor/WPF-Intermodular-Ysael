@@ -21,13 +21,11 @@
                     <StackPanel>
                         <TextBlock Text="DATOS GENERALES" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
 
-                        <TextBlock Text="ID Cliente" FontSize="11"/>
-                        <TextBox x:Name="txtUserId" Margin="0,5,0,15" Height="30" 
-                                 VerticalContentAlignment="Center" TextChanged="RecalcularPrecio" MouseDoubleClick="dbClick_SelectUser"/>
-
                         <TextBlock Text="ID Habitación" FontSize="11"/>
-                        <TextBox x:Name="txtRoomId" Margin="0,5,0,0" Height="30" 
-                                 VerticalContentAlignment="Center" TextChanged="RecalcularPrecio"/>
+                        <TextBox x:Name="txtRoomId" Margin="0,5,0,0" Height="30" VerticalContentAlignment="Center" TextChanged="RecalcularPrecio"/>
+
+                        <TextBlock Text="ID Cliente" FontSize="11"/>
+                        <TextBox x:Name="txtUserId" Margin="0,5,0,15" Height="30" VerticalContentAlignment="Center" TextChanged="RecalcularPrecio" MouseDoubleClick="dbClick_SelectUser"/>
                     </StackPanel>
                 </Border>
 

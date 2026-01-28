@@ -26,7 +26,7 @@ namespace Hotel_Pere_Maria.Models
 
         // Precio por noche
         [JsonPropertyName("price_per_night")]
-        public decimal PricePerNight { get; set; }
+        public double PricePerNight { get; set; }
 
         // Valoración (0 - 5)
         [JsonPropertyName("rate")]

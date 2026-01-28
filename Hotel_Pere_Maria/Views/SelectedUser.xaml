@@ -102,14 +102,14 @@
             </Border.Effect>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 
-                <Button Content="ACEPTAR" Margin="5" Height="40" Width="200" Background="#2ECC71" Foreground="White" FontWeight="Bold" BorderThickness="0">
+                <Button Content="ACEPTAR" Margin="5" Height="40" Width="200" Background="#2ECC71" Foreground="White" FontWeight="Bold" BorderThickness="1" BorderBrush="Black">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="10"/>
                         </Style>
                     </Button.Resources>
                 </Button>
-                <Button Content="CANCELAR" Margin="5" Height="40" Width="200" Background="#E74C3C" Foreground="White" BorderThickness="0">
+                <Button Content="CANCELAR" Margin="5" Height="40" Width="200" Background="#E74C3C" Foreground="White" BorderThickness="1" BorderBrush="Black">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="10"/>

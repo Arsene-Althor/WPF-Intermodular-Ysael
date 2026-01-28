@@ -22,10 +22,12 @@ namespace Hotel_Pere_Maria.Views
     {
         //La variable _reserva es la reserva que vamos a modificar
         private Reservation _reserva;
+        double precionew;
         public modReserva(Reservation reserva)
         {
             InitializeComponent();
             this._reserva = reserva;
+            nReserva.Text = nReserva.Text + " "+reserva.reservation_id;
             relleanForm();
 
         }
@@ -41,11 +43,7 @@ namespace Hotel_Pere_Maria.Views
             DateTime ahora = DateTime.Now;
             ahora = ahora.AddDays(-1);
 
-            if (newCheckIn < ahora) {
-                MessageBox.Show("No es posible modificar la fehca de entrada a antes de hoy");
-                dpCheckIn.SelectedDate = null;
-                return;
-            }
+
             if (newCheckOut < ahora) {
                 MessageBox.Show("No es posible modificar la fehca de salida a antes de hoy");
                 dpCheckOut.SelectedDate = null; 
@@ -58,9 +56,9 @@ namespace Hotel_Pere_Maria.Views
                 return;
             }
 
-            double precioAmpliacion = Reservation.CalcularPrecio(_reserva,newuser_id,newroom_id,newCheckIn, newCheckOut);
+            precionew = Reservation.CalcularPrecio(_reserva,null,null,newCheckIn, newCheckOut);
 
-            lblPrecioFinal.Text = precioAmpliacion + " €";
+            lblPrecioFinal.Text = precionew + " €";
 
         }
 
@@ -87,6 +85,7 @@ namespace Hotel_Pere_Maria.Views
                     if (esOk)
                     {
                         MessageBox.Show("Reserva cancleada", "Cancelación realizada!");
+                        
                         this.Close();
                     }
                     //En caso contrario mostramos la respuesta de la api
@@ -104,17 +103,58 @@ namespace Hotel_Pere_Maria.Views
 
         //Cargamos los datos de la reserva a modificar en el formulario
         private void relleanForm() {
-            nReserva.Text = nReserva.Text + _reserva.reservation_id;
+            if (_reserva.check_in <= DateTime.Now) { 
+                dpCheckIn.IsEnabled = false;
+            }
             dpCheckIn.SelectedDate = _reserva.check_in;
             dpCheckOut.SelectedDate = _reserva.check_out;
             txtUserId.Text = _reserva.user_id;
             txtRoomId.Text = _reserva.room_id;
+            lblPrecioFinal.Text = " 0 €";
         }
         private async void Click_Guardar(object sender, RoutedEventArgs e)
-        { 
+        {
+            try
+            {
+                DateTime newCheckIn = dpCheckIn.SelectedDate ?? DateTime.Now;
+                DateTime newCheckOut = dpCheckOut.SelectedDate ?? DateTime.Now;
+
+                String newuser_id = txtUserId.Text;
+                String newroom_id = txtRoomId.Text;
+
+                Reservation modreservation = new Reservation();
+                modreservation.reservation_id = _reserva.reservation_id;
+                modreservation.user_id = newuser_id;
+                modreservation.room_id = newroom_id;
+                modreservation.check_in = newCheckIn;
+                modreservation.check_out = newCheckOut;
+                modreservation.price = precionew;
+
+                var (esOk, respuestaapi) = await ReservationService.updateReservation(modreservation);
+                //Si la respusta es afirmativa mostramos un mensaje y cerramos la ventan de modificación
+                if (esOk)
+                {
+                    MessageBox.Show("Reserva Modificada", "Modificación aceptada");
+                    this.Close();
+                }
+                //En caso contrario mostramos la respuesta de la api
+                else
+                {
+                    MessageBox.Show(respuestaapi, "Error de modificación");
+                    relleanForm();
+                }
+
+
+
+            }
+            catch (Exception err) { 
+            }
+
+
         }
         private async void Click_Cancelar(object sender, RoutedEventArgs e)
         {
+            this.Close();
         }
 
         private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)

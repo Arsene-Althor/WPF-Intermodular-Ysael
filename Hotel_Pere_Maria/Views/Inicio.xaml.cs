@@ -50,15 +50,17 @@ namespace Hotel_Pere_Maria.Views
         }
 
         //Metodos para abrir otras ventanas
-        private void click_abriraddReserva(object sender, RoutedEventArgs e) { 
+        private async void click_abriraddReserva(object sender, RoutedEventArgs e) { 
             addReserva addreserva = new addReserva();
             addreserva.ShowDialog();
+            await Cargar_Reservas();
             
         }
 
-        private void click_abrirallReservas(object sender, RoutedEventArgs e) { 
+        private async void click_abrirallReservas(object sender, RoutedEventArgs e) { 
             listReservas listReservas = new listReservas();
             listReservas.ShowDialog();
+            await Cargar_Reservas();
         }
 
 
