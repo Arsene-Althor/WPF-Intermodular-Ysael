@@ -21,9 +21,7 @@ namespace Hotel_Pere_Maria.Views
     /// </summary>
     public partial class addReserva : Window
     {
-        private Usuario? usuario = null;
-        private Room? habitacion = null;
-        private double precio = 0;
+        private double precioReserva = 0;
         //Controlador de la ventana para añadir reservas
         public addReserva()
         {
@@ -40,13 +38,10 @@ namespace Hotel_Pere_Maria.Views
             // (opcional) si quieres que se abra modal
             if (win.ShowDialog() == true && win.SelectedRoomResult != null)
             {
-                habitacion = win.SelectedRoomResult;
+                Room habitacion = win.SelectedRoomResult;
 
                 // ejemplo: poner el id en el textbox
                 txtRoomId.Text = habitacion.RoomId.ToString(); //room.RoomId ?? ""; 
-                if (habitacion != null || usuario != null) {
-                    precio = Reservation.CalcularPrecio(null,usuario,habitacion,dpCheckIn.SelectedDate, dpCheckOut.SelectedDate);
-                }
             }
         }
         public void Select_Client(object sender, MouseButtonEventArgs e)
@@ -54,10 +49,10 @@ namespace Hotel_Pere_Maria.Views
             SelectedUser selectedUser = new SelectedUser(null);
             selectedUser.Owner = this;
             selectedUser.ShowDialog();
-            
+
         }
 
-        public void fecha_select(object sender, SelectionChangedEventArgs e) {
+        public async void fecha_select(object sender, EventArgs e) {
             if (dpCheckIn.SelectedDate != null && dpCheckOut.SelectedDate != null) {
 
                 DateTime ayeronce = DateTime.Today.AddDays(-1).AddHours(11);
@@ -69,13 +64,24 @@ namespace Hotel_Pere_Maria.Views
                     txtUserId.IsEnabled = false;
                     dpCheckIn.SelectedDate = null;
                     dpCheckOut.SelectedDate = null;
-                    usuario = null;
-                    habitacion = null;
+                    txtUserId.Text = "CLI-";
+                    txtRoomId.Text = "HAB-";
+                    lblPrecio.Text = "0 €";
                     return;
                 }
                 else { 
                     txtRoomId.IsEnabled=true;
                     txtUserId.IsEnabled=true;
+                    if (txtUserId.Text != "CLI-" && txtRoomId.Text != "HAB-") {
+                        var (esOk, respuesta, precio) = await ReservationService.getPriceReservation(txtUserId.Text, txtRoomId.Text, dpCheckIn.SelectedDate, dpCheckOut.SelectedDate);
+
+                        if (esOk)
+                        {
+                            precioReserva = precio;
+                            lblPrecio.Text = precioReserva + " €";
+                        }
+                        
+                    }
                 }
             }
 
@@ -94,15 +100,13 @@ namespace Hotel_Pere_Maria.Views
                 //Si estan todos los elementos rellenados los enviamos a la api para insertar la reserva
                 try
                 {
-                    double price = 1.00;
-                    lblPrecio.Text = price+"€";
                     Reservation r = new Reservation();
 
                     r.room_id = txtRoomId.Text;
                     r.user_id = txtUserId.Text;
                     r.check_in = dpCheckIn.SelectedDate ?? DateTime.Now;
                     r.check_out = dpCheckOut.SelectedDate ?? DateTime.Now;
-                    r.price = price;
+                    r.price = precioReserva;
                     r.createdBy = Session.User.user_id;
 
                     var (esOk, respuestaapi) = await ReservationService.InsertarReserva(r);

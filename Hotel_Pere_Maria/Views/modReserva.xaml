@@ -67,9 +67,15 @@
                         <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
                     </Border.Effect>
                     <DockPanel>
-                        <TextBlock Text="PRECIO RECALCULADO" VerticalAlignment="Center" Foreground="White" FontSize="12" Opacity="0.7"/>
-                        <TextBlock x:Name="lblPrecioFinal" Text="0.00€" DockPanel.Dock="Right" 
-                                   HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#2ECC71"/>
+                        <StackPanel DockPanel.Dock="Left">
+                            <TextBlock FontSize="10" FontWeight="Bold">PRECIO ACTUAL</TextBlock>
+                            <TextBlock x:Name="lblPrecioOld" Text="0.00€" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#FFCC9B2E"/>
+                        </StackPanel>
+                        <StackPanel  DockPanel.Dock="Left">
+                            <TextBlock HorizontalAlignment="Right" FontSize="10" FontWeight="Bold">PRECIO NUEVO</TextBlock>
+                            <TextBlock x:Name="lblPrecioFinal" Text="0.00€" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#2ECC71"/>
+                        </StackPanel>
+                        
                     </DockPanel>
                 </Border>
 

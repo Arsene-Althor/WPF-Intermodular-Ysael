@@ -12,6 +12,51 @@ namespace Hotel_Pere_Maria.Services
 {
     public static class ReservationService
     {
+        public static async Task<(bool exito, string mensaje, double precio)> getPriceReservation(string user_id, string room_id, DateTime? check_in, DateTime? check_out) {
+            try
+            {
+                //Convertimos el objeto a json para mandarlo a la api
+                var datos = new
+                {
+                    user_id = user_id,
+                    room_id = room_id,
+                    check_in = check_in,
+                    check_out = check_out
+                };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/getPrice", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                //Es la api la que realiza las validaciones, si el resultado es correcto devolvemos true y el mensaje del servidor
+                //De lo contrario devolvemos false y el mensaje del servidor
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // 3. Intentamos extraer el precio del JSON que devuelve la API
+                    // Asumiendo que la API devuelve algo como: {"mensaje": "OK", "precio": 150.50}
+                    using (JsonDocument doc = JsonDocument.Parse(mensajeServidor))
+                    {
+                        double precioExtraido = 0.0;
+                        if (doc.RootElement.TryGetProperty("precio", out JsonElement precioElement))
+                        {
+                            precioExtraido = precioElement.GetDouble();
+                        }
+
+                        return (true, "Precio calculado", precioExtraido);
+                    }
+                }
+                else
+                {
+                    return (false, "Error en la API: " + mensajeServidor, 0.0);
+                }
+            }
+            catch (Exception err)
+            {
+                return (false, "Error de conexión" ,0.0);
+            }
+        }
         public static async Task<(bool exito, string mensaje)> updateReservation(Reservation reservamod) {
             try
             {
