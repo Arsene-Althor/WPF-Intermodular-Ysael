@@ -107,11 +107,19 @@ namespace Hotel_Pere_Maria.Views
 
         //Al pulsar doble click en una reserva de la lista abrimos una nueva ventana para modificar esta
 
-        private void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
+        private async void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
             var resSelect = dgReservas.SelectedItem as Reservation;
-            if (resSelect != null) { 
-                modReserva modReserva = new modReserva(resSelect);
-                modReserva.ShowDialog();
+            if (resSelect != null)
+            {
+                if (resSelect.cancelation_date == null)
+                {
+                    modReserva modReserva = new modReserva(resSelect);
+                    modReserva.ShowDialog();
+                    await Cargar_Reservas();
+                }
+                else {
+                    MessageBox.Show("No es posibile modificar una reserva cancelada");
+                }
             }
         }
     }

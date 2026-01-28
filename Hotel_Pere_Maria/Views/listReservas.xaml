@@ -19,7 +19,7 @@
 
         <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,20">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
+                <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
             </Border.Effect>
 
             <StackPanel>
@@ -27,22 +27,22 @@
 
                 <UniformGrid Columns="4">
                     <StackPanel Margin="5">
-                        <TextBlock Text="ID Reserva" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBlock Text="ID Reserva" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
                         <TextBox x:Name="txtFiltroIdReserva" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
-                        <TextBlock Text="Usuario" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBlock Text="Usuario" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
                         <TextBox x:Name="txtFiltroUser" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
-                        <TextBlock Text="Habitación" FontSize="11" Margin="0,0,0,3"/>
+                        <TextBlock Text="Habitación" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
                         <TextBox x:Name="txtFiltroRoom" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
                     </StackPanel>
 
                     <StackPanel Margin="5" VerticalAlignment="Center">
-                        <CheckBox x:Name="chkCanceladas" Content="Ver Canceladas" VerticalAlignment="Center" Margin="0,15,0,0" Click="FiltrarDatos" IsChecked="True"/>
+                        <CheckBox x:Name="chkCanceladas" Content="Ver Canceladas" VerticalAlignment="Center" Margin="0,15,0,0" Click="FiltrarDatos" IsChecked="True" FontWeight="SemiBold"/>
                     </StackPanel>
                 </UniformGrid>
 
@@ -55,18 +55,18 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Margin="5">
-                        <TextBlock Text="Check-In Desde" FontSize="11"/>
+                        <TextBlock Text="Check-In Desde" FontSize="11" FontWeight="SemiBold"/>
                         <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="5">
-                        <TextBlock Text="Check-In Hasta" FontSize="11"/>
+                        <TextBlock Text="Check-In Hasta" FontSize="11" FontWeight="SemiBold"/>
                         <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Margin="15,5">
                         <DockPanel>
-                            <TextBlock Text="Rango de Precio:" FontSize="11"/>
+                            <TextBlock Text="Rango de Precio:" FontSize="11" FontWeight="SemiBold"/>
                             <TextBlock Text="{Binding ElementName=slMin, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left" Margin="10,0,0,0"/>
                             <TextBlock Text=" - " FontSize="11" DockPanel.Dock="Left"/>
                             <TextBlock Text="{Binding ElementName=slMax, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left"/>
@@ -92,7 +92,7 @@
 
         <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="10">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
+                <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
             </Border.Effect>
             <DataGrid x:Name="dgReservas" 
                       AutoGenerateColumns="False" 
@@ -108,19 +108,22 @@
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="Foreground" Value="#34495E"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
                         <Setter Property="Padding" Value="10,5"/>
                         <Setter Property="Height" Value="40"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding reservation_id}" Width="*"/>
+                    <DataGridTextColumn Header="ID" Binding="{Binding reservation_id}" Width="*" FontWeight="SemiBold"/>
                     <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="*"/>
                     <DataGridTextColumn Header="Usuario" Binding="{Binding user_id}" Width="*"/>
                     <DataGridTextColumn Header="Entrada" Binding="{Binding check_in, StringFormat='dd/MM/yyyy'}" Width="*"/>
                     <DataGridTextColumn Header="Salida" Binding="{Binding check_out, StringFormat='dd/MM/yyyy'}" Width="*"/>
                     <DataGridTextColumn Header="Precio" Binding="{Binding price, StringFormat={}{0:N2}€}" Width="*"/>
+                    <DataGridTextColumn Header="Creado Por" Binding="{Binding createdBy}" Width="*"/>
+                    <DataGridTextColumn Header="Fecha Cancelación" Binding="{Binding cancelation_date, StringFormat='dd/MM/yyyy'}" Width="*"/>
+                    
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

@@ -21,6 +21,9 @@ namespace Hotel_Pere_Maria.Views
     /// </summary>
     public partial class addReserva : Window
     {
+        private Usuario? usuario = null;
+        private Room? habitacion = null;
+        private double precio = 0;
         //Controlador de la ventana para añadir reservas
         public addReserva()
         {
@@ -37,15 +40,21 @@ namespace Hotel_Pere_Maria.Views
             // (opcional) si quieres que se abra modal
             if (win.ShowDialog() == true && win.SelectedRoomResult != null)
             {
-                var room = win.SelectedRoomResult;
+                habitacion = win.SelectedRoomResult;
 
                 // ejemplo: poner el id en el textbox
-                txtRoomId.Text = room.RoomId.ToString(); //room.RoomId ?? ""; 
+                txtRoomId.Text = habitacion.RoomId.ToString(); //room.RoomId ?? ""; 
+                if (habitacion != null || usuario != null) {
+                    precio = Reservation.CalcularPrecio(null,usuario,habitacion,dpCheckIn.SelectedDate, dpCheckOut.SelectedDate);
+                }
             }
         }
         public void Select_Client(object sender, MouseButtonEventArgs e)
         {
-            MessageBox.Show("Busqueda Cliente");
+            SelectedUser selectedUser = new SelectedUser(null);
+            selectedUser.Owner = this;
+            selectedUser.ShowDialog();
+            
         }
 
         public void fecha_select(object sender, SelectionChangedEventArgs e) {
@@ -60,6 +69,8 @@ namespace Hotel_Pere_Maria.Views
                     txtUserId.IsEnabled = false;
                     dpCheckIn.SelectedDate = null;
                     dpCheckOut.SelectedDate = null;
+                    usuario = null;
+                    habitacion = null;
                     return;
                 }
                 else { 
@@ -92,6 +103,7 @@ namespace Hotel_Pere_Maria.Views
                     r.check_in = dpCheckIn.SelectedDate ?? DateTime.Now;
                     r.check_out = dpCheckOut.SelectedDate ?? DateTime.Now;
                     r.price = price;
+                    r.createdBy = Session.User.user_id;
 
                     var (esOk, respuestaapi) = await ReservationService.InsertarReserva(r);
 
