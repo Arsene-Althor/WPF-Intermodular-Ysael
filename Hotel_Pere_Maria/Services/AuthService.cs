@@ -15,11 +15,11 @@ namespace Hotel_Pere_Maria.Services
 
         // Este método hace el login de verdad
         // Se llama desde MainWindow.xaml.cs cuando el usuario da click en "Iniciar Sesión"
-        public static async Task<LoginResponse> LoginAsync(string email, string password)
+        public static async Task<Usuario> LoginAsync(string email, string password)
         {
             try
             {
-                var request = new LoginRequest
+                var request = new Usuario
                 {
                     email = email,
                     password = password
@@ -47,7 +47,7 @@ namespace Hotel_Pere_Maria.Services
                 // Si todo está bien, convertir la respuesta JSON a objeto LoginResponse
                 // PropertyNameCaseInsensitive = true es para que sea flexible con mayúsculas/minúsculas
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<LoginResponse>(responseContent, opciones);
+                return JsonSerializer.Deserialize<Usuario>(responseContent, opciones);
             }
             catch (Exception ex)
             {
