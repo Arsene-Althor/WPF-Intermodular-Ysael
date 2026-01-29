@@ -28,12 +28,13 @@ namespace Hotel_Pere_Maria.Views
             InitializeComponent();
             this._reserva = reserva;
             nReserva.Text = nReserva.Text + " "+reserva.reservation_id;
+            lblPrecioOld.Text = reserva.price + " €";
             relleanForm();
 
         }
 
         //Esta función muestra el precio de la modificación dinamicamente
-        private void RecalcularPrecio(object sender, EventArgs e) {
+        private async void RecalcularPrecio(object sender, EventArgs e) {
             DateTime? newCheckIn = dpCheckIn.SelectedDate;
             DateTime? newCheckOut = dpCheckOut.SelectedDate;
 
@@ -56,9 +57,16 @@ namespace Hotel_Pere_Maria.Views
                 return;
             }
 
-            precionew = Reservation.CalcularPrecio(_reserva,null,null,newCheckIn, newCheckOut);
+            if (newCheckIn != _reserva.check_in || newCheckOut != _reserva.check_out || newuser_id != _reserva.user_id || newroom_id != _reserva.room_id)
+            {
+                var (esOk, respuesta, precio) = await ReservationService.getPriceReservation(newuser_id, newroom_id, newCheckIn, newCheckOut);
 
-            lblPrecioFinal.Text = precionew + " €";
+                if (esOk)
+                {
+                    precionew = precio;
+                    lblPrecioFinal.Text = precionew + " €";
+                }
+            }
 
         }
 
@@ -106,11 +114,12 @@ namespace Hotel_Pere_Maria.Views
             if (_reserva.check_in <= DateTime.Now) { 
                 dpCheckIn.IsEnabled = false;
             }
-            dpCheckIn.SelectedDate = _reserva.check_in;
-            dpCheckOut.SelectedDate = _reserva.check_out;
             txtUserId.Text = _reserva.user_id;
             txtRoomId.Text = _reserva.room_id;
-            lblPrecioFinal.Text = " 0 €";
+            lblPrecioFinal.Text = _reserva.price + " €";
+            dpCheckIn.SelectedDate = _reserva.check_in;
+            dpCheckOut.SelectedDate = _reserva.check_out;
+            
         }
         private async void Click_Guardar(object sender, RoutedEventArgs e)
         {
@@ -163,5 +172,21 @@ namespace Hotel_Pere_Maria.Views
             selected.Show();
         }
 
+        private async void ClickCalcularPrecio(object sender, RoutedEventArgs e)
+        {
+            DateTime newCheckIn = dpCheckIn.SelectedDate ?? DateTime.Now;
+            DateTime newCheckOut = dpCheckOut.SelectedDate ?? DateTime.Now ;
+
+            String? newuser_id = txtUserId.Text ?? null;
+            String? newroom_id = txtRoomId.Text ?? null;
+
+            var (esOk, respuesta, precio) = await ReservationService.getPriceReservation(newuser_id, newroom_id, newCheckIn, newCheckOut);
+
+            if (esOk)
+            {
+                lblPrecioFinal.Text = precio + " €";
+            }
+
+        }
     }
 }
