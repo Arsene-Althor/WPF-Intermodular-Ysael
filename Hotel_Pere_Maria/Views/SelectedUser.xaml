@@ -13,7 +13,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Border>
             <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" FontFamily="Segoe UI Black">Listado de Usuarios</TextBlock>
@@ -93,30 +92,9 @@
                     <DataGridTextColumn Header="Apellido" Binding="{Binding surname}" Width="*"/>
                     <DataGridTextColumn Header="Email" Binding="{Binding email}" Width="*"/>
                     <DataGridTextColumn Header="Descuento" Binding="{Binding discont, StringFormat={}{0:N2}€}" Width="*"/>
+                    <DataGridTextColumn Header="Role" Binding="{Binding role}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
-        </Border>
-        <Border Grid.Row="4" Background="White" CornerRadius="12" Padding="15" Margin="0,20,0,0">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
-            </Border.Effect>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                
-                <Button Content="ACEPTAR" Margin="5" Height="40" Width="200" Background="#2ECC71" Foreground="White" FontWeight="Bold" BorderThickness="1" BorderBrush="Black">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="10"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-                <Button Content="CANCELAR" Margin="5" Height="40" Width="200" Background="#E74C3C" Foreground="White" BorderThickness="1" BorderBrush="Black">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="10"/>
-                        </Style>
-                    </Button.Resources>
-                </Button>
-            </StackPanel>
         </Border>
     </Grid>
 </Window>

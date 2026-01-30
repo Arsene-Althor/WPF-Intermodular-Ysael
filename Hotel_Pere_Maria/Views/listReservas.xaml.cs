@@ -61,6 +61,7 @@ namespace Hotel_Pere_Maria.Views
             DateTime? fechaHasta = dpHasta.SelectedDate;
 
             bool verCanceladas = chkCanceladas.IsChecked ?? false;
+            bool verVencidas = chkVencidas.IsChecked ?? false;
 
             double pMin = slMin.Value;
             double pMax = slMax.Value;
@@ -71,18 +72,29 @@ namespace Hotel_Pere_Maria.Views
                 bool cPrecio = r.price >= pMin && r.price <= pMax;
 
                 bool cEstado;
+                bool vEstado;
+                DateTime hoy = DateTime.Now;
+
+                if (verVencidas == true)
+                {
+                    vEstado = true;
+                }
+                else { 
+                    vEstado = (r.check_out >= hoy);
+                }
 
                 if (verCanceladas == true)
                 {
                     cEstado = (r.cancelation_date == null || r.cancelation_date != null);
                 }
-                else { 
+                else
+                {
                     cEstado = (r.cancelation_date == null);
                 }
 
                 bool cDesde = !fechaDesde.HasValue || r.check_in.Date >= fechaDesde.Value.Date;
                 bool cHasta = !fechaHasta.HasValue || r.check_in.Date <= fechaHasta.Value.Date;
-                return cId && cPrecio && cEstado && cDesde && cHasta;
+                return cId && cPrecio && cEstado && cDesde && cHasta && vEstado;
 
             }).ToList();
 
@@ -111,14 +123,15 @@ namespace Hotel_Pere_Maria.Views
             var resSelect = dgReservas.SelectedItem as Reservation;
             if (resSelect != null)
             {
-                if (resSelect.cancelation_date == null)
+                DateTime ahora = DateTime.Now;
+                if (resSelect.cancelation_date == null && resSelect.check_out > ahora)
                 {
                     modReserva modReserva = new modReserva(resSelect);
                     modReserva.ShowDialog();
                     await Cargar_Reservas();
                 }
                 else {
-                    MessageBox.Show("No es posibile modificar una reserva cancelada");
+                    MessageBox.Show("No es posibile modificar una reserva cancelada o vencida");
                 }
             }
         }

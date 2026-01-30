@@ -44,11 +44,37 @@ namespace Hotel_Pere_Maria.Views
                 txtRoomId.Text = habitacion.RoomId.ToString(); //room.RoomId ?? ""; 
             }
         }
-        public void Select_Client(object sender, MouseButtonEventArgs e)
+        public async void Select_Client(object sender, MouseButtonEventArgs e)
         {
-            SelectedUser selectedUser = new SelectedUser(null);
-            selectedUser.Owner = this;
-            selectedUser.ShowDialog();
+            try
+            {
+                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
+                List<Usuario> clientes = new List<Usuario>();
+                foreach(Usuario u in usuarios) {
+                    if (u.role.Equals("client")) {
+                        clientes.Add(u);
+                    }
+                }
+                if (clientes.Count != 0)
+                {
+                    var res = new SelectedUser(clientes);
+                    res.Owner = this;
+                    if (res.ShowDialog() == true || res.SelecUser != null) { 
+                        Usuario usuario = res.SelecUser;
+                        txtUserId.Text = usuario.user_id;
+                    }
+                    
+                }
+                else {
+                    MessageBox.Show("No hay usuarios");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
+            }
+            
+            
 
         }
 

@@ -166,10 +166,39 @@ namespace Hotel_Pere_Maria.Views
             this.Close();
         }
 
-        private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
+        private async void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
         {
-            SelectedUser selected = new SelectedUser(null);
-            selected.Show();
+            try
+            {
+                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
+                List<Usuario> clientes = new List<Usuario>();
+                foreach (Usuario u in usuarios)
+                {
+                    if (u.role.Equals("client"))
+                    {
+                        clientes.Add(u);
+                    }
+                }
+                if (clientes.Count != 0)
+                {
+                    var res = new SelectedUser(clientes);
+                    res.Owner = this;
+                    if (res.ShowDialog() == true || res.SelecUser != null)
+                    {
+                        Usuario usuario = res.SelecUser;
+                        txtUserId.Text = usuario.user_id;
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("No hay usuarios");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
+            }
         }
 
         private async void ClickCalcularPrecio(object sender, RoutedEventArgs e)
