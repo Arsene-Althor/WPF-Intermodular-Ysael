@@ -200,5 +200,26 @@ namespace Hotel_Pere_Maria
             // Por defecto, mostrar el mensaje con prefijo
             return $"{errorMsg}";
         }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (checkpass.IsChecked.Value)
+            {
+
+                txtPasswordVisible.Text = TxtPassword.Password;
+                TxtPassword.Visibility = Visibility.Collapsed;
+                txtPasswordVisible.Visibility = Visibility.Visible;
+                txtPasswordVisible.Focus();
+                txtPasswordVisible.SelectionStart = txtPasswordVisible.Text.Length;
+            }
+            else {
+                TxtPassword.Visibility = Visibility.Visible;
+                txtPasswordVisible.Visibility = Visibility.Collapsed;
+                TxtPassword.Focus();
+            }
+        }
+        private void TexChanget_Contra(object sender, EventArgs e) { 
+            TxtPassword.Password = txtPasswordVisible.Text;
+        }
     }
 }

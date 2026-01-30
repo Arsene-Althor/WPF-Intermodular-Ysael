@@ -62,7 +62,7 @@ namespace Hotel_Pere_Maria.Views
         }
         private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
         {
-            if ((this.Owner is addReserva || this.Owner is modReserva) && dgUsuarios.SelectedItem is Usuario user)
+            if ((this.Owner is addReserva || this.Owner is modReserva || this.Owner is listReservas) && dgUsuarios.SelectedItem is Usuario user)
             {
                 SelecUser = user;
                 DialogResult = true;

@@ -57,6 +57,8 @@ namespace Hotel_Pere_Maria.Views
             if (_todasLasReservas == null || slMin == null || slMax == null) return;
 
             string fId = txtFiltroIdReserva.Text.ToLower().Trim();
+            string fuser_id = txtFiltroUser.Text.ToLower().Trim();
+            string froom_id = txtFiltroRoom.Text.ToLower().Trim();
             DateTime? fechaDesde = dpDesde.SelectedDate;
             DateTime? fechaHasta = dpHasta.SelectedDate;
 
@@ -69,6 +71,8 @@ namespace Hotel_Pere_Maria.Views
             var resultado = _todasLasReservas.Where(r =>
             {
                 bool cId = string.IsNullOrEmpty(fId) || r.reservation_id.ToString().ToLower().Contains(fId);
+                bool cuser_id = string.IsNullOrEmpty(fuser_id) || r.user_id.ToString().ToLower().Contains(fuser_id);
+                bool croom_id = string.IsNullOrEmpty(froom_id) || r.room_id.ToString().ToLower().Contains(froom_id);
                 bool cPrecio = r.price >= pMin && r.price <= pMax;
 
                 bool cEstado;
@@ -94,7 +98,7 @@ namespace Hotel_Pere_Maria.Views
 
                 bool cDesde = !fechaDesde.HasValue || r.check_in.Date >= fechaDesde.Value.Date;
                 bool cHasta = !fechaHasta.HasValue || r.check_in.Date <= fechaHasta.Value.Date;
-                return cId && cPrecio && cEstado && cDesde && cHasta && vEstado;
+                return cId && cPrecio && cEstado && cDesde && cHasta && vEstado && cuser_id && croom_id;
 
             }).ToList();
 
@@ -133,6 +137,32 @@ namespace Hotel_Pere_Maria.Views
                 else {
                     MessageBox.Show("No es posibile modificar una reserva cancelada o vencida");
                 }
+            }
+        }
+        private async void dbClick_selectUser(object sender, MouseButtonEventArgs e) {
+            try
+            {
+                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
+               
+                if (usuarios.Count != 0)
+                {
+                    var res = new SelectedUser(usuarios);
+                    res.Owner = this;
+                    if (res.ShowDialog() == true || res.SelecUser != null)
+                    {
+                        Usuario usuario = res.SelecUser;
+                        txtFiltroUser.Text = usuario.user_id;
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("No hay usuarios");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
             }
         }
     }
