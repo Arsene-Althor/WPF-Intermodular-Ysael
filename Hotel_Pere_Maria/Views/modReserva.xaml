@@ -8,7 +8,7 @@
         Title="Modificar Reserva" Height="650" Width="600"
         WindowStartupLocation="CenterScreen" Background="#F5F6F7"
         >
-    <Border CornerRadius="20" ClipToBounds="True">
+    <Border CornerRadius="20" ClipToBounds="True" VerticalAlignment="Center">
 
         <Grid>
             <StackPanel Margin="25">

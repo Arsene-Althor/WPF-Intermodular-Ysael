@@ -8,8 +8,7 @@
         Title="Añadir Reserva" Height="600" Width="500"
         WindowStartupLocation="CenterScreen" Background="#F5F6F7">
     <Grid>
-        <Border Background="White" CornerRadius="10" Padding="20" Margin="20" 
-        BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Top">
+        <Border Background="White" CornerRadius="10" Padding="20" Margin="20" BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Center">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
             </Border.Effect>

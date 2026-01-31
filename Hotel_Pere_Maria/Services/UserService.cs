@@ -15,8 +15,6 @@ namespace Hotel_Pere_Maria.Services
     /// </summary>
     public static class UserService
     {
-        private const string BaseUrl = "http://localhost:3000/api";
-        private static HttpClient _client = ApiService._httpClient;
 
         /// <summary>
         /// Obtiene todos los usuarios del sistema
@@ -25,7 +23,7 @@ namespace Hotel_Pere_Maria.Services
         {
             try
             {
-                var response = await _client.GetAsync($"{BaseUrl}/employees");
+                var response = await ApiService._httpClient.GetAsync($"{ApiService.BaseUrl}user/get");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
@@ -60,7 +58,7 @@ namespace Hotel_Pere_Maria.Services
                 ValidarUsuarioParaCreacion(usuario);
 
                 var content = JsonContent.Create(usuario);
-                var response = await _client.PostAsync($"{BaseUrl}/employees", content);
+                var response = await ApiService._httpClient.PostAsync($"{ApiService.BaseUrl}/employees", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -95,7 +93,7 @@ namespace Hotel_Pere_Maria.Services
                 ValidarUsuarioParaActualizacion(usuarioActualizado);
 
                 var content = JsonContent.Create(usuarioActualizado);
-                var response = await _client.PatchAsync($"{BaseUrl}/employees/{userId}", content);
+                var response = await ApiService._httpClient.PatchAsync($"{ApiService.BaseUrl}/employees/{userId}", content);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -127,7 +125,7 @@ namespace Hotel_Pere_Maria.Services
         {
             try
             {
-                var response = await _client.DeleteAsync($"{BaseUrl}/employees/{userId}");
+                var response = await ApiService._httpClient.DeleteAsync($"{ApiService.BaseUrl}/employees/{userId}");
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -150,7 +148,7 @@ namespace Hotel_Pere_Maria.Services
         {
             try
             {
-                var response = await _client.GetAsync($"{BaseUrl}/employees/{userId}");
+                var response = await ApiService._httpClient.GetAsync($"{ApiService.BaseUrl}/employees/{userId}");
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
