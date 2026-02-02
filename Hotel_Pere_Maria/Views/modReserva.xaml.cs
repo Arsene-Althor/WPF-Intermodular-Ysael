@@ -75,38 +75,45 @@ namespace Hotel_Pere_Maria.Views
         public async void Click_CancelarReserva(object sender, RoutedEventArgs e) { 
             //Obtenemos la fecha actual y caluclamos el precio que hay que devolver al cliente con esta
             DateTime fechaCancelacion = DateTime.Now;
-            double precioCancel = _reserva.CalcularPrecioCancelacion(fechaCancelacion);
+            var (esOk, respuesta, precio) = await ReservationService.getCancelationPrice(_reserva.reservation_id, fechaCancelacion);
 
-            //Mostramos un mensaje para convirmar la cancelación
+            if (esOk)
+            {
+                //Mostramos un mensaje para confirmar la cancelación
+                double devolución = _reserva.price - precio;
+                MessageBoxResult respuestaMS = MessageBox.Show(
+                    "La devolución por cancelación serian: " + devolución + " €\n" +
+                    "¿Está seguro de que quieres cancelar la reserva?", "Cancelación de reserva", MessageBoxButton.YesNo);
 
-            MessageBoxResult respuesta = MessageBox.Show(
-                "La devolución por cancelación serian: " + precioCancel + " €\n" +
-                "¿Está seguro de que quieres cancelar la reserva?","Cancelación de reserva", MessageBoxButton.YesNo);
-
-            //Si la respuesta es afriamtiva mandamos la peticion a la api
-            if (respuesta == MessageBoxResult.Yes) {
-
-                try
+                //Si la respuesta es afriamtiva mandamos la peticion a la api
+                if (respuestaMS == MessageBoxResult.Yes)
                 {
-                    var (esOk, respuestaapi) = await ReservationService.cancelReservation(_reserva, precioCancel);
-                    //Si la respusta es afirmativa mostramos un mensaje y cerramos la ventan de modificación
-                    if (esOk)
-                    {
-                        MessageBox.Show("Reserva cancleada", "Cancelación realizada!");
-                        
-                        this.Close();
-                    }
-                    //En caso contrario mostramos la respuesta de la api
-                    else {
-                        MessageBox.Show(respuestaapi, "Error de cancelación");
-                    }
-                }
-                catch (Exception ex) { 
-                    MessageBox.Show(ex.Message);
-                }
 
-                
-            } 
+                    try
+                    {
+                        var (esOk2, respuestaapi) = await ReservationService.cancelReservation(_reserva, precio);
+                        //Si la respusta es afirmativa mostramos un mensaje y cerramos la ventan de modificación
+                        if (esOk2)
+                        {
+                            MessageBox.Show("Reserva cancleada:\nRealizada devolución de "+devolución+" €", "Cancelación realizada!");
+
+                            this.Close();
+                        }
+                        //En caso contrario mostramos la respuesta de la api
+                        else
+                        {
+                            MessageBox.Show(respuestaapi, "Error de cancelación");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+            }
+            else {
+                MessageBox.Show(respuesta);
+            }
         }
 
         //Cargamos los datos de la reserva a modificar en el formulario
@@ -143,7 +150,20 @@ namespace Hotel_Pere_Maria.Views
                 //Si la respusta es afirmativa mostramos un mensaje y cerramos la ventan de modificación
                 if (esOk)
                 {
-                    MessageBox.Show("Reserva Modificada", "Modificación aceptada");
+                    string mensaje = "";
+                    double diferencia = precionew - _reserva.price;
+                    if (diferencia > 0)
+                    {
+                        mensaje = "\nSumado cargo de " + diferencia + " € a la reserva.";
+                    }
+                    else if (diferencia < 0)
+                    {
+                        mensaje = "\nDevolución de " + (diferencia * -1) + " € a la reserva.";
+                    }
+                    else {
+                        mensaje = " sin cargos";
+                    }
+                        MessageBox.Show("Reserva Modificada" + mensaje, "Modificación aceptada");
                     this.Close();
                 }
                 //En caso contrario mostramos la respuesta de la api
