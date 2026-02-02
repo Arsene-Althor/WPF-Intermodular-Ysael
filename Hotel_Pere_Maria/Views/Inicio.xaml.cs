@@ -76,5 +76,13 @@ namespace Hotel_Pere_Maria.Views
 
         }
 
+        private void click_abrirGestionUsuarios(object sender, RoutedEventArgs e)
+        {
+            GestionUsuarios ventanaGestion = new GestionUsuarios();
+            ventanaGestion.ShowDialog();
+        }
+
+
+
     }
 }

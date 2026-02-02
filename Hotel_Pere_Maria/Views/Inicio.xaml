@@ -18,7 +18,7 @@
                 </Menu.ItemsPanel>
                 
                 <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios"/>
+                    <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios" Click="click_abrirGestionUsuarios"/>
                 </MenuItem>
 
                 <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Hotel_Pere_Maria.Models
 {
@@ -22,9 +23,10 @@ namespace Hotel_Pere_Maria.Models
         public string role { get; set; }
 
         // Estado y privilegios
+        [JsonPropertyName("discount")]
+        public double Discount { get; set; }
         public bool isVIP { get; set; }
         public bool isActive { get; set; }
-        public double vipDiscount { get; set; } // Descuento VIP entre 10 y 30
 
         // Timestamps
         public DateTime createdAt { get; set; }
@@ -35,9 +37,6 @@ namespace Hotel_Pere_Maria.Models
         /// </summary>
         public string FullName => $"{name} {surname}";
 
-        /// <summary>
-        /// Determina si el usuario es un empleado (admin o employee)
-        /// </summary>
         public bool IsEmployee => role == "admin" || role == "employee";
 
         /// <summary>
@@ -48,12 +47,20 @@ namespace Hotel_Pere_Maria.Models
         /// <summary>
         /// Obtiene el estado del usuario en formato legible
         /// </summary>
-        public string StatusDisplay => isActive ? "✅ Activo" : "❌ Inactivo";
+        public string StatusDisplay => isActive ? "Activo" : "Inactivo";
 
-        /// <summary>
-        /// Obtiene el estado VIP en formato legible con descuento
-        /// </summary>
-        public string VIPDisplay => isVIP ? $"⭐ VIP {vipDiscount:F0}%" : "- Normal";
+        // Esta propiedad convierte "0.2" en "20%" para que se lea bien en la tabla
+        public string DiscountDisplay
+        {
+            get
+            {
+                if (Discount <= 0) return "-";
+                return $"{Discount * 100:F0}%"; // F0 quita los decimales extra
+            }
+        }
+
+        // Modificamos VIPDisplay para que use el dato real
+        public string VIPDisplay => isVIP ? "VIP" : "Normal";
 
         /// <summary>
         /// Obtiene la edad actual del usuario
