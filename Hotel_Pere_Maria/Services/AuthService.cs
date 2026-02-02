@@ -57,5 +57,22 @@ namespace Hotel_Pere_Maria.Services
                 throw new Exception($"Error en login: {ex.Message}");
             }
         }
+
+        public static async Task LogoutAsync()
+        {
+            try
+            {
+                await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "auth/logout", null);
+            }
+            catch (Exception)
+            {
+                //Voy a ignorar el error de red, lo importante es limpiar en local
+            }
+            finally
+            {
+                //Limpiamos sesión local
+                Session.Clear();
+            }
+        }
     }
 }

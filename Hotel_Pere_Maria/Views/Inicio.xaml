@@ -42,8 +42,7 @@
                         </StackPanel>
                     </MenuItem.Header>
                     <MenuItem Header="Mi perfil"></MenuItem>
-                    <MenuItem Header="Ajustes"></MenuItem>
-                    <MenuItem Header="Cerrar Sesion"></MenuItem>
+                    <MenuItem Header="Cerrar Sesión" Click="Click_CerrarSesion" FontWeight="Bold" Foreground="#E74C3C"/>
                 </MenuItem>
             </Menu>
 
