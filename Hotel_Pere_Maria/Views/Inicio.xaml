@@ -18,7 +18,7 @@
                 </Menu.ItemsPanel>
                 
                 <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios"/>
+                    <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios" Click="click_abrirGestionUsuarios"/>
                 </MenuItem>
 
                 <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">
@@ -42,8 +42,7 @@
                         </StackPanel>
                     </MenuItem.Header>
                     <MenuItem Header="Mi perfil"></MenuItem>
-                    <MenuItem Header="Ajustes"></MenuItem>
-                    <MenuItem Header="Cerrar Sesion"></MenuItem>
+                    <MenuItem Header="Cerrar Sesión" Click="Click_CerrarSesion" FontWeight="Bold" Foreground="#E74C3C"/>
                 </MenuItem>
             </Menu>
 

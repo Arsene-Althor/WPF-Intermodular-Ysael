@@ -76,5 +76,27 @@ namespace Hotel_Pere_Maria.Views
 
         }
 
+        private void click_abrirGestionUsuarios(object sender, RoutedEventArgs e)
+        {
+            GestionUsuarios ventanaGestion = new GestionUsuarios();
+            ventanaGestion.ShowDialog();
+        }
+
+        private async void Click_CerrarSesion(object sender, RoutedEventArgs e)
+        {
+            var confrim = MessageBox.Show("¿Seguro que quieres cerrar sesion?", "Cerrar Sesion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (confrim == MessageBoxResult.Yes)
+            {
+                await AuthService.LogoutAsync();
+
+                MainWindow loginWindow = new MainWindow();
+                loginWindow.Show();
+
+                //Cerrar ventana actual
+                this.Close();
+            }
+        }
+
     }
 }

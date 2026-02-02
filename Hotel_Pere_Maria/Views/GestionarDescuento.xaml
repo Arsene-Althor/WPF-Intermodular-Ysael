@@ -1,0 +1,40 @@
+﻿<Window x:Class="Hotel_Pere_Maria.Views.GestionarDescuento"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Aplicar Descuento" Height="400" Width="600"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Background="#F5F6F7">
+
+    <Border Background="White" Margin="20" CornerRadius="10" Padding="20">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="10" Opacity="0.2"/>
+        </Border.Effect>
+
+        <StackPanel VerticalAlignment="Center">
+
+            <TextBlock Text="Gestionar Descuento" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="#2C3E50"/>
+
+            <TextBlock x:Name="lblUsuario" Text="Usuario: Nombre Apellido" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+            <TextBlock x:Name="lblTipo" Text="Tipo: Normal (Máx 30%)" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#7F8C8D" Margin="0,0,0,20"/>
+
+            <CheckBox x:Name="chkVIP" Content="Habilitar Estatus VIP (Hasta 50%)" 
+                      HorizontalAlignment="Center" Margin="0,0,0,15"
+                      FontWeight="Bold" Foreground="#F39C12"
+                      Checked="ChkVIP_CheckChanged" Unchecked="ChkVIP_CheckChanged"/>
+            <Grid Margin="10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+
+                <Slider x:Name="sliderDescuento" Grid.Column="0" Minimum="0" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="Slider_ValueChanged"/>
+
+                <TextBlock x:Name="lblPorcentaje" Grid.Column="1" Text="0%" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#27AE60"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,25,0,0">
+                <Button Content="Cancelar" Click="Click_Cancelar" Width="100" Height="30" Background="#95A5A6" Foreground="White" Margin="5"/>
+                <Button Content="Guardar" Click="Click_Guardar" Width="100" Height="30" Background="#27AE60" Foreground="White" FontWeight="Bold" Margin="5"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>
