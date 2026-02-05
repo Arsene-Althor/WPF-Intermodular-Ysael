@@ -57,10 +57,13 @@ namespace Hotel_Pere_Maria.Views
             if (_todasLasReservas == null || slMin == null || slMax == null) return;
 
             string fId = txtFiltroIdReserva.Text.ToLower().Trim();
+            string fuser_id = txtFiltroUser.Text.ToLower().Trim();
+            string froom_id = txtFiltroRoom.Text.ToLower().Trim();
             DateTime? fechaDesde = dpDesde.SelectedDate;
             DateTime? fechaHasta = dpHasta.SelectedDate;
 
             bool verCanceladas = chkCanceladas.IsChecked ?? false;
+            bool verVencidas = chkVencidas.IsChecked ?? false;
 
             double pMin = slMin.Value;
             double pMax = slMax.Value;
@@ -68,21 +71,34 @@ namespace Hotel_Pere_Maria.Views
             var resultado = _todasLasReservas.Where(r =>
             {
                 bool cId = string.IsNullOrEmpty(fId) || r.reservation_id.ToString().ToLower().Contains(fId);
+                bool cuser_id = string.IsNullOrEmpty(fuser_id) || r.user_id.ToString().ToLower().Contains(fuser_id);
+                bool croom_id = string.IsNullOrEmpty(froom_id) || r.room_id.ToString().ToLower().Contains(froom_id);
                 bool cPrecio = r.price >= pMin && r.price <= pMax;
 
                 bool cEstado;
+                bool vEstado;
+                DateTime hoy = DateTime.Now;
+
+                if (verVencidas == true)
+                {
+                    vEstado = true;
+                }
+                else { 
+                    vEstado = (r.check_out >= hoy);
+                }
 
                 if (verCanceladas == true)
                 {
                     cEstado = (r.cancelation_date == null || r.cancelation_date != null);
                 }
-                else { 
+                else
+                {
                     cEstado = (r.cancelation_date == null);
                 }
 
                 bool cDesde = !fechaDesde.HasValue || r.check_in.Date >= fechaDesde.Value.Date;
                 bool cHasta = !fechaHasta.HasValue || r.check_in.Date <= fechaHasta.Value.Date;
-                return cId && cPrecio && cEstado && cDesde && cHasta;
+                return cId && cPrecio && cEstado && cDesde && cHasta && vEstado && cuser_id && croom_id;
 
             }).ToList();
 
@@ -107,11 +123,46 @@ namespace Hotel_Pere_Maria.Views
 
         //Al pulsar doble click en una reserva de la lista abrimos una nueva ventana para modificar esta
 
-        private void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
+        private async void dbClick_modReserva(object sender, MouseButtonEventArgs e) {
             var resSelect = dgReservas.SelectedItem as Reservation;
-            if (resSelect != null) { 
-                modReserva modReserva = new modReserva(resSelect);
-                modReserva.ShowDialog();
+            if (resSelect != null)
+            {
+                DateTime ahora = DateTime.Now;
+                if (resSelect.cancelation_date == null && resSelect.check_out > ahora)
+                {
+                    modReserva modReserva = new modReserva(resSelect);
+                    modReserva.ShowDialog();
+                    await Cargar_Reservas();
+                }
+                else {
+                    MessageBox.Show("No es posibile modificar una reserva cancelada o vencida");
+                }
+            }
+        }
+        private async void dbClick_selectUser(object sender, MouseButtonEventArgs e) {
+            try
+            {
+                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
+               
+                if (usuarios.Count != 0)
+                {
+                    var res = new SelectedUser(usuarios);
+                    res.Owner = this;
+                    if (res.ShowDialog() == true || res.SelecUser != null)
+                    {
+                        Usuario usuario = res.SelecUser;
+                        txtFiltroUser.Text = usuario.user_id;
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("No hay usuarios");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
             }
         }
     }

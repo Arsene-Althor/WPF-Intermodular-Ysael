@@ -15,11 +15,11 @@ namespace Hotel_Pere_Maria.Services
 
         // Este método hace el login de verdad
         // Se llama desde MainWindow.xaml.cs cuando el usuario da click en "Iniciar Sesión"
-        public static async Task<LoginResponse> LoginAsync(string email, string password)
+        public static async Task<Usuario> LoginAsync(string email, string password)
         {
             try
             {
-                var request = new LoginRequest
+                var request = new Usuario
                 {
                     email = email,
                     password = password
@@ -47,7 +47,7 @@ namespace Hotel_Pere_Maria.Services
                 // Si todo está bien, convertir la respuesta JSON a objeto LoginResponse
                 // PropertyNameCaseInsensitive = true es para que sea flexible con mayúsculas/minúsculas
                 var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                return JsonSerializer.Deserialize<LoginResponse>(responseContent, opciones);
+                return JsonSerializer.Deserialize<Usuario>(responseContent, opciones);
             }
             catch (Exception ex)
             {
@@ -55,6 +55,23 @@ namespace Hotel_Pere_Maria.Services
                 // Si algo falla, lanzar excepción con el mensaje
                 // Esta excepción se captura en MainWindow.xaml.cs en el método ManejarError()
                 throw new Exception($"Error en login: {ex.Message}");
+            }
+        }
+
+        public static async Task LogoutAsync()
+        {
+            try
+            {
+                await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "auth/logout", null);
+            }
+            catch (Exception)
+            {
+                //Voy a ignorar el error de red, lo importante es limpiar en local
+            }
+            finally
+            {
+                //Limpiamos sesión local
+                Session.Clear();
             }
         }
     }

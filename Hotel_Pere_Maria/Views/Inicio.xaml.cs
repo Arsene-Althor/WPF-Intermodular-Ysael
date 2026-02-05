@@ -29,7 +29,8 @@ namespace Hotel_Pere_Maria.Views
         }
 
         //Este metodo lo usamos para refrescar la ventana lo asignamos al boton de refrescar e inicio de ventana
-        private async void Iniciar_Ventana(object sender, RoutedEventArgs e) {
+        private async void Iniciar_Ventana(object sender, RoutedEventArgs e)
+        {
             await Cargar_Reservas();
         }
 
@@ -44,21 +45,26 @@ namespace Hotel_Pere_Maria.Views
                     listReservation.ItemsSource = reservas;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show($"Error al conectar con la API: {ex.Message}");
             }
         }
 
         //Metodos para abrir otras ventanas
-        private void click_abriraddReserva(object sender, RoutedEventArgs e) { 
+        private async void click_abriraddReserva(object sender, RoutedEventArgs e)
+        {
             addReserva addreserva = new addReserva();
             addreserva.ShowDialog();
-            
+            await Cargar_Reservas();
+
         }
 
-        private void click_abrirallReservas(object sender, RoutedEventArgs e) { 
+        private async void click_abrirallReservas(object sender, RoutedEventArgs e)
+        {
             listReservas listReservas = new listReservas();
             listReservas.ShowDialog();
+            await Cargar_Reservas();
         }
 
 
@@ -75,5 +81,27 @@ namespace Hotel_Pere_Maria.Views
             listRoom listRoom = new listRoom();
             listRoom.ShowDialog();
         }
+        private void click_abrirGestionUsuarios(object sender, RoutedEventArgs e)
+        {
+            GestionUsuarios ventanaGestion = new GestionUsuarios();
+            ventanaGestion.ShowDialog();
+        }
+
+        private async void Click_CerrarSesion(object sender, RoutedEventArgs e)
+        {
+            var confrim = MessageBox.Show("¿Seguro que quieres cerrar sesion?", "Cerrar Sesion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (confrim == MessageBoxResult.Yes)
+            {
+                await AuthService.LogoutAsync();
+
+                MainWindow loginWindow = new MainWindow();
+                loginWindow.Show();
+
+                //Cerrar ventana actual
+                this.Close();
+            }
+        }
+
     }
 }

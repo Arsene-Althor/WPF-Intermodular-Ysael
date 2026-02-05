@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Hotel_Pere_Maria.Models;
 
@@ -11,6 +12,124 @@ namespace Hotel_Pere_Maria.Services
 {
     public static class ReservationService
     {
+        public static async Task<(bool exito, string mensaje, double precio)> getCancelationPrice(string reservation_id, DateTime? cancelation_date)
+        {
+            try
+            {
+                //Convertimos el objeto a json para mandarlo a la api
+                var datos = new
+                {
+                    reservation_id = reservation_id,
+                    cancelation_date = cancelation_date
+
+                };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/getCancelationPrice", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                //Es la api la que realiza las validaciones, si el resultado es correcto devolvemos true y el mensaje del servidor
+                //De lo contrario devolvemos false y el mensaje del servidor
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // 3. Intentamos extraer el precio del JSON que devuelve la API
+                    // Asumiendo que la API devuelve algo como: {"mensaje": "OK", "precio": 150.50}
+                    using (JsonDocument doc = JsonDocument.Parse(mensajeServidor))
+                    {
+                        double precioExtraido = 0.0;
+                        if (doc.RootElement.TryGetProperty("precio", out JsonElement precioElement))
+                        {
+                            precioExtraido = precioElement.GetDouble();
+                        }
+
+                        return (true, "Precio calculado", precioExtraido);
+                    }
+                }
+                else
+                {
+                    return (false, "Error en la API: " + mensajeServidor, 0.0);
+                }
+            }
+            catch (Exception err)
+            {
+                return (false, "Error de conexión", 0.0);
+            }
+        }
+        public static async Task<(bool exito, string mensaje, double precio)> getPriceReservation(string user_id, string room_id, DateTime? check_in, DateTime? check_out) {
+            try
+            {
+                //Convertimos el objeto a json para mandarlo a la api
+                var datos = new
+                {
+                    user_id = user_id,
+                    room_id = room_id,
+                    check_in = check_in,
+                    check_out = check_out
+                };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/getPrice", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                //Es la api la que realiza las validaciones, si el resultado es correcto devolvemos true y el mensaje del servidor
+                //De lo contrario devolvemos false y el mensaje del servidor
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // 3. Intentamos extraer el precio del JSON que devuelve la API
+                    // Asumiendo que la API devuelve algo como: {"mensaje": "OK", "precio": 150.50}
+                    using (JsonDocument doc = JsonDocument.Parse(mensajeServidor))
+                    {
+                        double precioExtraido = 0.0;
+                        if (doc.RootElement.TryGetProperty("precio", out JsonElement precioElement))
+                        {
+                            precioExtraido = precioElement.GetDouble();
+                        }
+
+                        return (true, "Precio calculado", precioExtraido);
+                    }
+                }
+                else
+                {
+                    return (false, "Error en la API: " + mensajeServidor, 0.0);
+                }
+            }
+            catch (Exception err)
+            {
+                return (false, "Error de conexión" ,0.0);
+            }
+        }
+        public static async Task<(bool exito, string mensaje)> updateReservation(Reservation reservamod) {
+            try
+            {
+                //Convertimos el objeto a json para mandarlo a la api
+                string json = JsonSerializer.Serialize(reservamod);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await ApiService._httpClient.PutAsync(ApiService.BaseUrl + "reservation/update", content);
+
+                string mensajeServidor = await response.Content.ReadAsStringAsync();
+
+                //Es la api la que realiza las validaciones, si el resultado es correcto devolvemos true y el mensaje del servidor
+                //De lo contrario devolvemos false y el mensaje del servidor
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, mensajeServidor);
+                }
+                else
+                {
+                    return (false, mensajeServidor);
+                }
+            }
+            catch (Exception err)
+            {
+                return (false, "Error de conexión");
+            }
+        }
         //Metodo para cancelar una resrva, recibimos la reserva y el precio que se descuenta al cliente al cancelar esta
         public static async Task<(bool exito, string mensaje)> cancelReservation(Reservation r, double precioCancel)
         {
@@ -18,14 +137,20 @@ namespace Hotel_Pere_Maria.Services
             {
                 //Calculamos el nuevo precio de la reserva restando al precio actual el precio de cancelación
                 //De este modo quedara constancia del precio final de la reserva
-                double precionew = r.price - precioCancel;
+                double? precionew = r.price - precioCancel;
                 //Creamos un Json con los datos para la api
                 var datos = new
                 {
                     reservation_id = r.reservation_id,
                     price = precionew
                 };
-                string json = JsonSerializer.Serialize(datos);
+                var opciones = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    // Esto asegura que no se ignoren valores por defecto como el 0
+                    DefaultIgnoreCondition = JsonIgnoreCondition.Never
+                };
+                string json = JsonSerializer.Serialize(datos,opciones);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 //Mandamos los datos y almacenamos la respuesta

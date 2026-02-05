@@ -46,11 +46,5 @@ namespace Hotel_Pere_Maria.Models
             return 10;
         }
 
-        //Metodo estatico para calcular el precio de una habitación
-        public static double CalcularPrecio(Reservation? r,String? usuario, String? habitacion, DateTime? entrada , DateTime? salida) {
-            return 10;
-        }
-
-
     }
 }
