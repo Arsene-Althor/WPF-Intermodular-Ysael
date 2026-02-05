@@ -60,8 +60,9 @@
 
             <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,5">
                 <TextBlock Text="Rol:"/>
-                <ComboBox x:Name="cbRol" Padding="5">
-                    <ComboBoxItem Content="employee" IsSelected="True"/>
+                <ComboBox x:Name="cbRol" Padding="5" SelectionChanged="cbRol_SelectionChanged">
+                    <ComboBoxItem Content="client" IsSelected="True"/>
+                    <ComboBoxItem Content="employee"/>
                     <ComboBoxItem Content="admin"/>
                 </ComboBox>
 

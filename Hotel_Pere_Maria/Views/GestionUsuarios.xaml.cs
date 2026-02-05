@@ -18,6 +18,7 @@ namespace Hotel_Pere_Maria.Views
             CargarUsuarios();
         }
 
+
         private async void CargarUsuarios()
         {
             try
@@ -167,6 +168,35 @@ namespace Hotel_Pere_Maria.Views
                 MessageBox.Show("Selecciona un usuario para aplicar descuento.");
             }
         }
+
+        //Esta propiedad publica la uso para poder devolder el usuario seleccionado
+        public Usuario UsuarioSeleccionado { get; private set; }
+
+        private void dgUsuarios_MouseDoubleClick ( object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            //if para validar que se de click en la fila correcta
+            if (dgUsuarios.SelectedItem is Usuario usuario)
+            {
+                //Compobar si tenemos una ventana "Dueña (Owner) asignada
+                if (this.Owner != null)
+                {
+                    //Detectamos si llamamos desde reservas
+                    //Es  esto uso coincidencia de tipos, para saber quien abri la ventana
+                    if (this.Owner is addReserva || this.Owner is modReserva || this.Owner is listReservas)
+                    {
+                        //Aqui creo un caso selector, asi guardamos lo que necesitamos y cerramos
+                        UsuarioSeleccionado = usuario;
+                        this.DialogResult = true;
+                        this.Close();
+                        return; //Salimos para no ejecutar la edicion
+                    }
+                }
+                //Si venimos de Inicio, editamos
+                Click_EditarUsuario(sender, e);
+            }
+        }
+
+
 
     }
 }

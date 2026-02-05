@@ -166,38 +166,26 @@ namespace Hotel_Pere_Maria.Views
             this.Close();
         }
 
-        private async void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
+        private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
-                List<Usuario> clientes = new List<Usuario>();
-                foreach (Usuario u in usuarios)
+                // Usamos la nueva lógica unificada
+                GestionUsuarios selector = new GestionUsuarios();
+                selector.Owner = this; //Esto nos permite activar el selector
+
+                if (selector.ShowDialog() == true)
                 {
-                    if (u.role.Equals("client"))
+                    Usuario usuario = selector.UsuarioSeleccionado;
+                    if (usuario != null)
                     {
-                        clientes.Add(u);
-                    }
-                }
-                if (clientes.Count != 0)
-                {
-                    var res = new SelectedUser(clientes);
-                    res.Owner = this;
-                    if (res.ShowDialog() == true || res.SelecUser != null)
-                    {
-                        Usuario usuario = res.SelecUser;
                         txtUserId.Text = usuario.user_id;
                     }
-
-                }
-                else
-                {
-                    MessageBox.Show("No hay usuarios");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 
