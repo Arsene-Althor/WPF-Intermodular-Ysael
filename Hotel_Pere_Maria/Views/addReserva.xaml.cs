@@ -33,15 +33,12 @@ namespace Hotel_Pere_Maria.Views
             DateTime checkIn = dpCheckIn.SelectedDate.Value;
             DateTime checkOut = dpCheckOut.SelectedDate.Value;
 
-            var win = new SelectedRoom(checkIn, checkOut);
+            var win = new listRoom(checkIn, checkOut);
 
-            // (opcional) si quieres que se abra modal
             if (win.ShowDialog() == true && win.SelectedRoomResult != null)
             {
-                Room habitacion = win.SelectedRoomResult;
-
-                // ejemplo: poner el id en el textbox
-                txtRoomId.Text = habitacion.RoomId.ToString(); //room.RoomId ?? ""; 
+                var room = win.SelectedRoomResult;
+                txtRoomId.Text = room.RoomId;
             }
         }
         public async void Select_Client(object sender, MouseButtonEventArgs e)
@@ -149,14 +146,8 @@ namespace Hotel_Pere_Maria.Views
                 }
                 catch (Exception err) {
                     MessageBox.Show(err.Message, "Error al insertar ");
-                }
-
-                
-            }
-
-           
-
-                
+                }   
+            } 
         }
     }
 }

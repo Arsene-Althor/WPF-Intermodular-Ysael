@@ -22,7 +22,7 @@
                 </MenuItem>
 
                 <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Ver Disponibilidad" x:Name="menuHabitaciones" Click="click_abrirRooms" />
+                    <MenuItem Header="Ver Disponibilidad" x:Name="menuHabitaciones" Click="click_abrirallRooms" />
                 </MenuItem>
 
                 <MenuItem Header="Reservas" FontSize="14" Padding="10,5">
