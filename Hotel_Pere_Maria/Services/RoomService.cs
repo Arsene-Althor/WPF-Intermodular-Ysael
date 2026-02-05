@@ -63,7 +63,7 @@ namespace Hotel_Pere_Maria.Services
         /// </summary>
         public static async Task<List<Room>> GetAllRoomsAsync()
         {
-            string url = $"{ApiService.BaseUrl}/room/all";
+            string url = $"{ApiService.BaseUrl}room/all";
             var rooms = await ApiService._httpClient.GetFromJsonAsync<List<Room>>(url);
             return rooms ?? new List<Room>();
         }
@@ -80,13 +80,26 @@ namespace Hotel_Pere_Maria.Services
 
             // Importante: escapar por si lleva espacios o caracteres raros
             string safeId = Uri.EscapeDataString(roomId);
-            string url = $"{ApiService.BaseUrl}/room/one{safeId}";
+            string url = $"{ApiService.BaseUrl}room/one{safeId}";
 
             // Si tu API devuelve 404, mejor controlarlo con HttpClient normal:
             using HttpResponseMessage resp = await ApiService._httpClient.GetAsync(url);
             if (!resp.IsSuccessStatusCode) return null;
 
             return await resp.Content.ReadFromJsonAsync<Room>();
+        }
+
+        public static async Task UpdateRoomAsync(object payload)
+        {
+            string url = $"{ApiService.BaseUrl}room/update";
+
+            var response = await ApiService._httpClient.PutAsJsonAsync(url, payload);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                string body = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Status {(int)response.StatusCode}\n{body}");
+            }
         }
     }
 }
