@@ -139,30 +139,29 @@ namespace Hotel_Pere_Maria.Views
                 }
             }
         }
-        private async void dbClick_selectUser(object sender, MouseButtonEventArgs e) {
+        private void dbClick_selectUser(object sender, MouseButtonEventArgs e)
+        {
             try
             {
-                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
-               
-                if (usuarios.Count != 0)
-                {
-                    var res = new SelectedUser(usuarios);
-                    res.Owner = this;
-                    if (res.ShowDialog() == true || res.SelecUser != null)
-                    {
-                        Usuario usuario = res.SelecUser;
-                        txtFiltroUser.Text = usuario.user_id;
-                    }
+                GestionUsuarios selector = new GestionUsuarios();
+                selector.Owner = this; //Permite usar el selector
 
-                }
-                else
+                if (selector.ShowDialog() == true)
                 {
-                    MessageBox.Show("No hay usuarios");
+                    Usuario usuario = selector.UsuarioSeleccionado;
+                    if (usuario != null)
+                    {
+                        // Aquí actualizamos el campo de filtro
+                        txtFiltroUser.Text = usuario.user_id;
+
+                        //Forzar el refresco de la lista automáticamente
+                        FiltrarDatos(null, null);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
     }

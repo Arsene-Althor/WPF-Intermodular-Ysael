@@ -41,39 +41,44 @@ namespace Hotel_Pere_Maria.Views
                 txtRoomId.Text = room.RoomId;
             }
         }
-        public async void Select_Client(object sender, MouseButtonEventArgs e)
+        public void Select_Client(object sender, MouseButtonEventArgs e)
         {
             try
             {
-                List<Usuario> usuarios = await UserService.GetAllUsersAsync();
-                List<Usuario> clientes = new List<Usuario>();
-                foreach(Usuario u in usuarios) {
-                    if (u.role.Equals("client")) {
-                        clientes.Add(u);
-                    }
-                }
-                if (clientes.Count != 0)
+                //Creamos la instancia de la ventana de gestión
+                GestionUsuarios selector = new GestionUsuarios();
+
+                //Indicamos que addReservas es el Owner
+                //Esto activa la logica para recoger el usuario, la logica esta implementada en GestionUsuarios, dgUsuarios_MouseDoubleClick
+                selector.Owner = this;
+
+                //Mostramos la ventana y esperamos
+                if (selector.ShowDialog() == true)
                 {
-                    var res = new SelectedUser(clientes);
-                    res.Owner = this;
-                    if (res.ShowDialog() == true || res.SelecUser != null) { 
-                        Usuario usuario = res.SelecUser;
-                        txtUserId.Text = usuario.user_id;
+                    //Recuperamos el usuario seleccionado
+                    Usuario usuario = selector.UsuarioSeleccionado;
+
+                    if (usuario != null)
+                    {
+                        //Validar si es cliente, como capa de seguridad extra
+                        if (usuario.role == "client")
+                        {
+                            txtUserId.Text = usuario.user_id;
+                        }
+                        else
+                        {
+                            MessageBox.Show("El usuario seleccionado no es un cliente.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
                     }
-                    
-                }
-                else {
-                    MessageBox.Show("No hay usuarios");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al conectar con la API: {ex.Message}");
+                MessageBox.Show($"Error al abrir selector: {ex.Message}");
             }
-            
-            
-
         }
+            
+            
 
         public async void fecha_select(object sender, EventArgs e) {
             if (dpCheckIn.SelectedDate != null && dpCheckOut.SelectedDate != null) {

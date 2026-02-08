@@ -58,7 +58,8 @@
         </StackPanel>
 
         <DataGrid Grid.Row="3" x:Name="dgUsuarios" AutoGenerateColumns="False" IsReadOnly="True" 
-                  Background="White" RowHeight="35" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEE">
+                  Background="White" RowHeight="35" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEE"
+                  MouseDoubleClick="dgUsuarios_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding user_id}" Width="80"/>
                 <DataGridTextColumn Header="DNI" Binding="{Binding dni}" Width="100"/>

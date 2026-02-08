@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Windows;
-using System.Windows.Controls; // Necesario para ComboBoxItem
+using System.Windows.Controls;
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.Services;
+using System.Text.RegularExpressions;
 
 namespace Hotel_Pere_Maria.Views
 {
@@ -66,7 +67,7 @@ namespace Hotel_Pere_Maria.Views
         {
             try
             {
-                // 1. Validaciones Básicas (Requisito PDF)
+                //Validar campos vacíos
                 if (string.IsNullOrWhiteSpace(txtNombre.Text) || string.IsNullOrWhiteSpace(txtApellido.Text) ||
                     string.IsNullOrWhiteSpace(txtDNI.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
                 {
@@ -74,12 +75,28 @@ namespace Hotel_Pere_Maria.Views
                     return;
                 }
 
-                // 2. Construir objeto Usuario
+                //Validamos el formato del dni, y cambiamos la letras a mayusculas para evitar errores
+                string dniInput = txtDNI.Text.ToUpper();
+                if (!EsDNIValido(dniInput))
+                {
+                    MessageBox.Show("El DNI no es válido.\nDebe tener 8 números y la letra correcta (Ej: 12345678Z).");
+                    return;
+                }
+
+                //Validar Formato Email
+                if (!EsEmailValido(txtEmail.Text))
+                {
+                    MessageBox.Show("El formato del correo electrónico no es válido.");
+                    return;
+                }
+
+
+
                 Usuario nuevoUsuario = _esEdicion ? _usuarioEdicion : new Usuario();
 
                 nuevoUsuario.name = txtNombre.Text;
                 nuevoUsuario.surname = txtApellido.Text;
-                nuevoUsuario.dni = txtDNI.Text;
+                nuevoUsuario.dni = dniInput; //Usamos el DNI ya en mayusculas
                 nuevoUsuario.email = txtEmail.Text;
                 nuevoUsuario.city = cbCiudad.Text;
                 nuevoUsuario.birthDate = dpFechaNacimiento.SelectedDate ?? DateTime.Now;
@@ -144,5 +161,34 @@ namespace Hotel_Pere_Maria.Views
         {
             this.Close();
         }
+
+        private void cbRol_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        //Funcion para las regex (Expresiones regulares) asi a la hora de ingresar el email use el formato valido
+        private bool EsEmailValido(string email)
+        {
+            // Patrón simple: texto + @ + texto + . + texto
+            string patron = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, patron);
+        }
+
+        private bool EsDNIValido(string dni)
+        {
+            //Validar formato (8 dígitos y 1 letra)
+            string patron = @"^\d{8}[A-Z]$";
+            if (!Regex.IsMatch(dni, patron)) return false;
+
+            //Validamos que la letra este bien usando formula matematica
+            string letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+            string numeros = dni.Substring(0, 8);
+            char letraDada = dni[8];
+
+            int resto = int.Parse(numeros) % 23;
+            return letras[resto] == letraDada;
+        }
+
     }
 }
