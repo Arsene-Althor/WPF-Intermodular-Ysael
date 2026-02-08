@@ -62,6 +62,21 @@ namespace Hotel_Pere_Maria.Models
         // Modificamos VIPDisplay para que use el dato real
         public string VIPDisplay => isVIP ? "VIP" : "Normal";
 
+        // Propiedad para mostrar el género de forma legible
+        public string GenderDisplay
+        {
+            get
+            {
+                return gender switch
+                {
+                    "M" => "Masculino",
+                    "F" => "Femenino",
+                    "Other" => "Otro",
+                    _ => gender ?? "-"
+                };
+            }
+        }
+
         /// <summary>
         /// Obtiene la edad actual del usuario
         /// </summary>

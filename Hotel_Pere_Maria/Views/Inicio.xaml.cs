@@ -31,7 +31,38 @@ namespace Hotel_Pere_Maria.Views
         //Este metodo lo usamos para refrescar la ventana lo asignamos al boton de refrescar e inicio de ventana
         private async void Iniciar_Ventana(object sender, RoutedEventArgs e)
         {
+            CargarImagenPerfil();
+
             await Cargar_Reservas();
+        }
+
+        private void CargarImagenPerfil()
+        {
+            try
+            {
+                // Verificamos si hay usuario y si tiene imagen
+                if (Session.User != null && !string.IsNullOrEmpty(Session.User.profileImage))
+                {
+                    // Construimos la URL. 
+                    // ApiService.BaseUrl suele ser "http://localhost:3000/api/"
+                    // Las imagenes están en "http://localhost:3000/uploads/..."
+                    // Así que quitamos el "api/" para obtener la raíz.
+                    string baseUrl = ApiService.BaseUrl.Replace("api/", "");
+                    string fullUrl = $"{baseUrl}{Session.User.profileImage}";
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(fullUrl, UriKind.Absolute);
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+                    imgAvatar.ImageSource = bitmap;
+                }
+            }
+            catch (Exception)
+            {
+                // Si falla, se queda la imagen por defecto del XAML (/Resources/userIcon.png)
+            }
         }
 
         //Cargamos los datos de las reservas activas en la lista de listReservation 
@@ -96,6 +127,12 @@ namespace Hotel_Pere_Maria.Views
                 //Cerrar ventana actual
                 this.Close();
             }
+        }
+
+        private void Click_AbrirPerfil(object sender, RoutedEventArgs e)
+        {
+            PerfilUsuario perfil = new PerfilUsuario();
+            perfil.ShowDialog();
         }
 
     }
