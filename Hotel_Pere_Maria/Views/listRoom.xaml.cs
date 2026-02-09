@@ -22,8 +22,14 @@ namespace Hotel_Pere_Maria.Views
     /// <summary>
     /// Lógica de interacción para listRoom.xaml
     /// </summary>
+    /// 
+
+
     public partial class listRoom : Window
     {
+
+        private readonly bool _editMode;
+        private bool _closing = false;
 
         private readonly DateTime? _checkIn;
         private readonly DateTime? _checkOut;
@@ -31,8 +37,6 @@ namespace Hotel_Pere_Maria.Views
         private List<Hotel_Pere_Maria.Models.Room> allRooms = new();
 
         public Room SelectedRoomResult { get; private set; }
-
-        private readonly bool _editMode;
 
         // MODO: ver todas
         public listRoom()
@@ -207,30 +211,29 @@ namespace Hotel_Pere_Maria.Views
 
         private async void dgRooms_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (dgRooms.SelectedItem is not Hotel_Pere_Maria.Models.Room room) return;
+            if (_closing) return;
+            if (dgRooms.SelectedItem is not Room room) return;
 
-            // ✅ MODO GESTIÓN: editar
+            // ✅ MODO HABITACIONES (editar)
             if (_editMode)
             {
                 var editWin = new modRoom(room);
 
                 if (editWin.ShowDialog() == true)
                 {
-                    // recargar tras guardar para verlo al instante
-                    if (_checkIn.HasValue && _checkOut.HasValue)
-                        allRooms = await RoomService.GetAvailableRoomsAsync(_checkIn.Value, _checkOut.Value, 1);
-                    else
-                        allRooms = await RoomService.GetAllRoomsAsync();
-
+                    // Recarga para ver cambios al instante
+                    allRooms = await RoomService.GetAllRoomsAsync();
                     dgRooms.ItemsSource = allRooms;
                 }
-
                 return;
             }
 
-            // ✅ MODO RESERVA: seleccionar y cerrar
+            // ✅ MODO RESERVA (seleccionar y cerrar)
+            _closing = true;
             SelectedRoomResult = room;
-            DialogResult = true;
+
+            try { DialogResult = true; } catch { /* por si acaso */ }
+
             Close();
         }
     }
