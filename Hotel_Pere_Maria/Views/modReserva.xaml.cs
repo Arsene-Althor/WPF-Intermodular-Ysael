@@ -186,6 +186,27 @@ namespace Hotel_Pere_Maria.Views
             this.Close();
         }
 
+        private void dbClick_SelectRoom(object sender, MouseButtonEventArgs e)
+        {
+            if (!dpCheckIn.SelectedDate.HasValue || !dpCheckOut.SelectedDate.HasValue)
+            {
+                MessageBox.Show("Selecciona Check-In y Check-Out primero");
+                return;
+            }
+
+            DateTime checkIn = dpCheckIn.SelectedDate.Value;
+            DateTime checkOut = dpCheckOut.SelectedDate.Value;
+            var win = new listRoom(checkIn, checkOut);
+
+            // ✅ MUY IMPORTANTE:
+            bool? result = win.ShowDialog();
+
+            if (result == true && win.SelectedRoomResult != null)
+            {
+                txtRoomId.Text = win.SelectedRoomResult.RoomId;
+            }
+        }
+
         private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
         {
             try

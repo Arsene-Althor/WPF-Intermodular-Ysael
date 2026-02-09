@@ -117,6 +117,8 @@ namespace Hotel_Pere_Maria.Views
             if (slMax != null) slMax.Value = 10000;
 
             if (chkCanceladas != null) chkCanceladas.IsChecked = true;
+            if (txtFiltroRoom != null) txtFiltroRoom.Text = "";
+            if (txtFiltroUser != null) txtFiltroUser.Text = "";
 
             FiltrarDatos(null, null);
         }
@@ -137,6 +139,20 @@ namespace Hotel_Pere_Maria.Views
                 else {
                     MessageBox.Show("No es posibile modificar una reserva cancelada o vencida");
                 }
+            }
+        }
+
+        private void click_seletRooms(object sender, RoutedEventArgs e)
+        {
+
+            var win = new listRoom(null,null);
+
+            // ✅ MUY IMPORTANTE:
+            bool? result = win.ShowDialog();
+
+            if (result == true && win.SelectedRoomResult != null)
+            {
+                txtFiltroRoom.Text = win.SelectedRoomResult.RoomId;
             }
         }
         private void dbClick_selectUser(object sender, MouseButtonEventArgs e)

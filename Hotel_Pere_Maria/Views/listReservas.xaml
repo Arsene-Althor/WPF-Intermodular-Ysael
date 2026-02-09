@@ -32,13 +32,13 @@
                     </StackPanel>
 
                     <StackPanel Margin="5">
-                        <TextBlock Text="Usuario" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
+                        <TextBlock Text="Cliente" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
                         <TextBox x:Name="txtFiltroUser" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos" MouseDoubleClick="dbClick_selectUser"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
                         <TextBlock Text="Habitación" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroRoom" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos" />
+                        <TextBox x:Name="txtFiltroRoom" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos" MouseDoubleClick="click_seletRooms" />
                     </StackPanel>
 
                     <StackPanel Margin="5" VerticalAlignment="Center" Orientation="Horizontal">

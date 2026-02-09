@@ -49,13 +49,15 @@ namespace Hotel_Pere_Maria.Views
         }
 
         // MODO: ver disponibles entre fechas
-        public listRoom(DateTime checkIn, DateTime checkOut)
+        public listRoom(DateTime? checkIn, DateTime? checkOut)
         {
             InitializeComponent();
+            if (checkIn != null || checkOut != null) {
+                _checkIn = checkIn.Value.Date;
+                _checkOut = checkOut.Value.Date;
+            }
 
-            _checkIn = checkIn.Date;
-            _checkOut = checkOut.Date;
-
+            
             _editMode = false;
 
             Loaded += ListRooms_Loaded;

@@ -22,7 +22,7 @@
                 </MenuItem>
 
                 <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Ver Disponibilidad" x:Name="menuHabitaciones" Click="click_abrirallRooms" />
+                    <MenuItem Header="Gestionar Habitaciones" x:Name="menuHabitaciones" Click="click_abrirallRooms" />
                 </MenuItem>
 
                 <MenuItem Header="Reservas" FontSize="14" Padding="10,5">
@@ -95,8 +95,8 @@
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock Text="{Binding reservation_id}" FontWeight="Bold" FontSize="20" FontFamily="Segoe UI" HorizontalAlignment="Center"/>
                                             <TextBlock Text="{Binding room_id}" FontSize="14" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="{Binding check_in,StringFormat='{}{0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="Green"/>
-                                            <TextBlock Text="{Binding check_out,StringFormat='{}{0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="DarkRed"/>
+                                            <TextBlock Text="{Binding check_in,StringFormat='{}E: {0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="Green"/>
+                                            <TextBlock Text="{Binding check_out,StringFormat='{}S: {0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="DarkRed"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
