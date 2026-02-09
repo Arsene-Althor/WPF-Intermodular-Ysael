@@ -30,15 +30,23 @@ namespace Hotel_Pere_Maria.Views
 
         public void Select_Room(object sender, MouseButtonEventArgs e)
         {
+            if (!dpCheckIn.SelectedDate.HasValue || !dpCheckOut.SelectedDate.HasValue)
+            {
+                MessageBox.Show("Selecciona Check-In y Check-Out primero");
+                return;
+            }
+
             DateTime checkIn = dpCheckIn.SelectedDate.Value;
             DateTime checkOut = dpCheckOut.SelectedDate.Value;
 
             var win = new listRoom(checkIn, checkOut);
 
-            if (win.ShowDialog() == true && win.SelectedRoomResult != null)
+            // ✅ MUY IMPORTANTE:
+            bool? result = win.ShowDialog();
+
+            if (result == true && win.SelectedRoomResult != null)
             {
-                var room = win.SelectedRoomResult;
-                txtRoomId.Text = room.RoomId;
+                txtRoomId.Text = win.SelectedRoomResult.RoomId;
             }
         }
         public void Select_Client(object sender, MouseButtonEventArgs e)
