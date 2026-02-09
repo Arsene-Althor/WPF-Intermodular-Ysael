@@ -151,6 +151,7 @@ namespace Hotel_Pere_Maria.Views
                     if (esOk)
                     {
                         MessageBox.Show("¡Reserva confirmada!", "Nueva reserva creada");
+                        this.Close();
                     }
                     else
                     {
