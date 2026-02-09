@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Hotel_Pere_Maria.Views.GestionUsuarios"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Gestión de Usuarios" Height="650" Width="1000"
+        Title="Gestión de Usuarios" Height="750" Width="1100"
         WindowStartupLocation="CenterScreen" Background="#F5F6F7">
 
     <Grid Margin="20">
@@ -9,66 +9,142 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock Text="Gestión Integral de Usuarios" FontSize="24" FontWeight="Bold" 
-                   Foreground="#2C3E50" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                   Foreground="#2C3E50" HorizontalAlignment="Center" Margin="0,0,0,15"/>
 
-        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="10" Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+        <!-- Primera fila de filtros -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+            <WrapPanel Orientation="Horizontal">
 
                 <StackPanel Margin="5">
-                    <TextBlock Text="Filtrar por DNI:" FontWeight="SemiBold"/>
-                    <TextBox x:Name="txtFiltroDNI" Width="120" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBlock Text="DNI:" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBox x:Name="txtFiltroDNI" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
-                    <TextBlock Text="Filtrar por Apellido:" FontWeight="SemiBold"/>
-                    <TextBox x:Name="txtFiltroApellido" Width="120" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBlock Text="Nombre:" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBox x:Name="txtFiltroNombre" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
                 </StackPanel>
 
-                <StackPanel Margin="20,5,5,5">
-                    <TextBlock Text="Tipo de Usuario:" FontWeight="SemiBold"/>
-                    <ComboBox x:Name="cbFiltroRol" Width="150" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Apellido:" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBox x:Name="txtFiltroApellido" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Email:" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBox x:Name="txtFiltroEmail" Width="140" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Ciudad:" FontWeight="SemiBold" FontSize="11"/>
+                    <TextBox x:Name="txtFiltroCiudad" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                </StackPanel>
+
+                <StackPanel Margin="10,5,5,5">
+                    <TextBlock Text="Rol:" FontWeight="SemiBold" FontSize="11"/>
+                    <ComboBox x:Name="cbFiltroRol" Width="110" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
                         <ComboBoxItem Content="Todos"/>
-                        <ComboBoxItem Content="Clientes (CLI)"/>
-                        <ComboBoxItem Content="Empleados (EMP/ADM)"/>
+                        <ComboBoxItem Content="Admin"/>
+                        <ComboBoxItem Content="Empleado"/>
+                        <ComboBoxItem Content="Cliente"/>
                     </ComboBox>
                 </StackPanel>
 
-                <StackPanel Margin="20,5,5,5">
-                    <TextBlock Text="Estado:" FontWeight="SemiBold"/>
-                    <ComboBox x:Name="cbFiltroEstado" Width="120" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Estado:" FontWeight="SemiBold" FontSize="11"/>
+                    <ComboBox x:Name="cbFiltroEstado" Width="90" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Activos"/>
                         <ComboBoxItem Content="Inactivos"/>
                     </ComboBox>
                 </StackPanel>
 
-            </StackPanel>
+            </WrapPanel>
         </Border>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
-            <Button Content="🔄 Recargar Lista" Click="Click_RecargarUsuarios" Background="#3498DB" Foreground="White" Padding="10,5" Margin="5"/>
+        <!-- Segunda fila de filtros -->
+        <Border Grid.Row="2" Background="White" CornerRadius="8" Padding="10" Margin="0,0,0,8">
+            <WrapPanel Orientation="Horizontal">
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="VIP:" FontWeight="SemiBold" FontSize="11"/>
+                    <ComboBox x:Name="cbFiltroVIP" Width="90" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                        <ComboBoxItem Content="Todos"/>
+                        <ComboBoxItem Content="Solo VIP"/>
+                        <ComboBoxItem Content="No VIP"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Género:" FontWeight="SemiBold" FontSize="11"/>
+                    <ComboBox x:Name="cbFiltroGenero" Width="100" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                        <ComboBoxItem Content="Todos"/>
+                        <ComboBoxItem Content="Masculino"/>
+                        <ComboBoxItem Content="Femenino"/>
+                        <ComboBoxItem Content="Otro"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Descuento:" FontWeight="SemiBold" FontSize="11"/>
+                    <ComboBox x:Name="cbFiltroDescuento" Width="120" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                        <ComboBoxItem Content="Todos"/>
+                        <ComboBoxItem Content="Con descuento"/>
+                        <ComboBoxItem Content="Sin descuento"/>
+                        <ComboBoxItem Content="10% o más"/>
+                        <ComboBoxItem Content="20% o más"/>
+                        <ComboBoxItem Content="30% o más"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Margin="15,5,5,5">
+                    <TextBlock Text="Registrado desde:" FontWeight="SemiBold" FontSize="11"/>
+                    <DatePicker x:Name="dpFechaDesde" Width="120" SelectedDateChanged="FiltrarUsuarios_TextChanged"/>
+                </StackPanel>
+
+                <StackPanel Margin="5">
+                    <TextBlock Text="Registrado hasta:" FontWeight="SemiBold" FontSize="11"/>
+                    <DatePicker x:Name="dpFechaHasta" Width="120" SelectedDateChanged="FiltrarUsuarios_TextChanged"/>
+                </StackPanel>
+
+                <Button Content="🧹 Limpiar Filtros" Click="Click_LimpiarFiltros" 
+                        Background="#95A5A6" Foreground="White" Padding="10,5" Margin="20,15,5,5" 
+                        VerticalAlignment="Bottom" Height="28"/>
+
+            </WrapPanel>
+        </Border>
+
+        <!-- Botones de acción -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+            <Button Content="🔄 Recargar" Click="Click_RecargarUsuarios" Background="#3498DB" Foreground="White" Padding="10,5" Margin="5"/>
             <Button Content="💸 Descuento" Click="Click_GestionarDescuento" Background="#8E44AD" Foreground="White" Padding="10,5" Margin="5"/>
             <Button Content="➕ Nuevo Usuario" Click="Click_NuevoUsuario" Background="#27AE60" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="✏️ Editar Seleccionado" Click="Click_EditarUsuario" Background="#F39C12" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="🗑️ Eliminar Usuario" Click="Click_EliminarUsuario" Background="#E74C3C" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="✏️ Editar" Click="Click_EditarUsuario" Background="#F39C12" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="🗑️ Eliminar" Click="Click_EliminarUsuario" Background="#E74C3C" Foreground="White" Padding="10,5" Margin="5"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="3" x:Name="dgUsuarios" AutoGenerateColumns="False" IsReadOnly="True" 
+        <!-- DataGrid -->
+        <DataGrid Grid.Row="4" x:Name="dgUsuarios" AutoGenerateColumns="False" IsReadOnly="True" 
                   Background="White" RowHeight="35" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEE"
                   MouseDoubleClick="dgUsuarios_MouseDoubleClick">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="ID" Binding="{Binding user_id}" Width="80"/>
-                <DataGridTextColumn Header="DNI" Binding="{Binding dni}" Width="100"/>
-                <DataGridTextColumn Header="Nombre" Binding="{Binding name}" Width="*"/>
-                <DataGridTextColumn Header="Apellido" Binding="{Binding surname}" Width="*"/>
-                <DataGridTextColumn Header="Descuento" Binding="{Binding DiscountDisplay}" Width="80" FontWeight="Bold" Foreground="#27AE60"/>
+                <DataGridTextColumn Header="ID" Binding="{Binding user_id}" Width="75"/>
+                <DataGridTextColumn Header="DNI" Binding="{Binding dni}" Width="85"/>
+                <DataGridTextColumn Header="Nombre" Binding="{Binding name}" Width="90"/>
+                <DataGridTextColumn Header="Apellido" Binding="{Binding surname}" Width="90"/>
                 <DataGridTextColumn Header="Email" Binding="{Binding email}" Width="150"/>
-                <DataGridTextColumn Header="Rol" Binding="{Binding role}" Width="80"/>
-                <DataGridTextColumn Header="Estado" Binding="{Binding StatusDisplay}" Width="80"/>
+                <DataGridTextColumn Header="Ciudad" Binding="{Binding city}" Width="80"/>
+                <DataGridTextColumn Header="Género" Binding="{Binding GenderDisplay}" Width="70"/>
+                <DataGridTextColumn Header="Rol" Binding="{Binding role}" Width="65"/>
+                <DataGridTextColumn Header="VIP" Binding="{Binding VIPDisplay}" Width="55"/>
+                <DataGridTextColumn Header="Dto." Binding="{Binding DiscountDisplay}" Width="45" FontWeight="Bold" Foreground="#27AE60"/>
+                <DataGridTextColumn Header="Estado" Binding="{Binding StatusDisplay}" Width="60"/>
+                <DataGridTextColumn Header="Registro" Binding="{Binding createdAt, StringFormat=dd/MM/yyyy}" Width="80"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Hotel_Pere_Maria.Services
 {
@@ -133,6 +134,61 @@ namespace Hotel_Pere_Maria.Services
             {
                 string error = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Error al actualizar descuento: {error}");
+            }
+        }
+
+        public static async Task<(bool success, string message, string newImagePath)> UpdateProfileImageAsync(string userId, string filePath)
+        {
+            try
+            {
+                using (var content = new MultipartFormDataContent())
+                {
+                    //Leemos el archivo del disco
+                    if (File.Exists(filePath))
+                    {
+                        var fileBytes = File.ReadAllBytes(filePath);
+                        var imageContent = new ByteArrayContent(fileBytes);
+
+                        //Ajustamos el tipo de contenido (header)
+                        string extension = Path.GetExtension(filePath).ToLower();
+                        string mimeType = extension == ".png" ? "image/png" : "image/jpeg";
+                        imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mimeType);
+
+                        //Lo añadimos al formulario con la clave "profileImage"
+                        content.Add(imageContent, "profileImage", Path.GetFileName(filePath));
+                    }
+
+                    // Enviamos la petición PATCH
+                    var response = await ApiService._httpClient.PatchAsync(ApiService.BaseUrl + $"user/modify/{userId}", content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Obtener la nueva ruta de la imagen
+                        var jsonString = await response.Content.ReadAsStringAsync();
+
+                        using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                        {
+                            // Navegamos por el JSON: { "user": { "profileImage": "..." } }
+                            string serverPath = null;
+
+                            if (doc.RootElement.TryGetProperty("user", out JsonElement userElement) &&
+                               userElement.TryGetProperty("profileImage", out JsonElement imageElement))
+                            {
+                                serverPath = imageElement.GetString();
+                            }
+
+                            return (true, "Imagen actualizada correctamente", serverPath);
+                        }
+                    }
+                    else
+                    {
+                        return (false, "Error al subir la imagen", null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
             }
         }
 

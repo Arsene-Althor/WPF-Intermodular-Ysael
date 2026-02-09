@@ -36,12 +36,12 @@
                             <TextBlock VerticalAlignment="Center" Margin="5,0" FontWeight="Bold"> Mi cuenta</TextBlock>
                             <Ellipse Width="25" Height="25" Margin="0,0,8,0">
                                 <Ellipse.Fill>
-                                    <ImageBrush ImageSource="/Resources/userIcon.png" Stretch="UniformToFill"/>
+                                    <ImageBrush x:Name="imgAvatar" ImageSource="/Resources/userIcon.png" Stretch="UniformToFill"/>
                                 </Ellipse.Fill>
                             </Ellipse>
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="Mi perfil"></MenuItem>
+                    <MenuItem Header="Mi perfil" Click="Click_AbrirPerfil"></MenuItem>
                     <MenuItem Header="Cerrar Sesión" Click="Click_CerrarSesion" FontWeight="Bold" Foreground="#E74C3C"/>
                 </MenuItem>
             </Menu>
