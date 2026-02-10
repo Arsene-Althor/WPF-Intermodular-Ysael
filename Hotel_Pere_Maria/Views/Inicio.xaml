@@ -18,31 +18,31 @@
                 </Menu.ItemsPanel>
                 
                 <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Usuarios" x:Name="menuUsuarios" Click="click_abrirGestionUsuarios"/>
+                    <MenuItem Header="Gestionar Usuarios" Command="{Binding AbrirGestionUsuariosCommand}"/>
                 </MenuItem>
 
                 <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Habitaciones" x:Name="menuHabitaciones" Click="click_abrirallRooms" />
+                    <MenuItem Header="Gestionar Habitaciones" Command="{Binding AbrirAllRoomsCommand}" />
                 </MenuItem>
 
                 <MenuItem Header="Reservas" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Añadir reserva" Click="click_abriraddReserva" />
-                    <MenuItem Header="Lista de reservas" Click="click_abrirallReservas"/>
+                    <MenuItem Header="Añadir reserva" Command="{Binding AbrirAddReservaCommand}" />
+                    <MenuItem Header="Lista de reservas" Command="{Binding AbrirAllReservasCommand}"/>
                 </MenuItem>
 
                 <MenuItem DockPanel.Dock="Right" HorizontalAlignment="Right">
                     <MenuItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center" Margin="5,0" FontWeight="Bold"> Mi cuenta</TextBlock>
+                            <TextBlock VerticalAlignment="Center" Margin="5,0" FontWeight="Bold" Text="{Binding NombreUsuario, StringFormat='Hola, {0}'}"></TextBlock>
                             <Ellipse Width="25" Height="25" Margin="0,0,8,0">
                                 <Ellipse.Fill>
-                                    <ImageBrush x:Name="imgAvatar" ImageSource="/Resources/userIcon.png" Stretch="UniformToFill"/>
+                                    <ImageBrush ImageSource="{Binding ImagenPerfil}" Stretch="UniformToFill"/>
                                 </Ellipse.Fill>
                             </Ellipse>
                         </StackPanel>
                     </MenuItem.Header>
-                    <MenuItem Header="Mi perfil" Click="Click_AbrirPerfil"></MenuItem>
-                    <MenuItem Header="Cerrar Sesión" Click="Click_CerrarSesion" FontWeight="Bold" Foreground="#E74C3C"/>
+                    <MenuItem Header="Mi perfil" Command="{Binding AbrirPerfilCommand}"></MenuItem>
+                    <MenuItem Header="Cerrar Sesión" Command="{Binding CerrarSesionCommand}" FontWeight="Bold" Foreground="#E74C3C"/>
                 </MenuItem>
             </Menu>
 
@@ -62,7 +62,7 @@
                         <TextBlock Text="Bienvenido al Sistema de Gestión" FontSize="24" FontWeight="Bold" Foreground="#2C3E50"/>
                         <TextBlock Text="Panel de control de reservas y clientes" FontSize="14" Foreground="Gray"/>
                     </StackPanel>
-                    <Button Click="Iniciar_Ventana" Width="40" Height="40" HorizontalAlignment="Right" Margin="0,0,30,0" Background="Transparent" BorderBrush="Transparent">
+                    <Button Command="{Binding CargarDatosCommand}" Width="40" Height="40" HorizontalAlignment="Right" Margin="0,0,30,0" Background="Transparent" BorderBrush="Transparent">
                         <Image Source="/Resources/565469 (1).png" ></Image>
                     </Button>
                 </Grid>
@@ -78,7 +78,7 @@
                         <ScrollViewer.Background>
                             <ImageBrush ImageSource="/Resources/HotelLogo.png" Stretch="Uniform" Opacity="0.5"/>
                         </ScrollViewer.Background>
-                        <ItemsControl x:Name="listReservation" Margin="10">
+                        <ItemsControl ItemsSource="{Binding ReservasActivas}" Margin="10">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <UniformGrid Columns="5"/>
