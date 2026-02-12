@@ -102,11 +102,16 @@ namespace Hotel_Pere_Maria.Views
         private void click_abrirRooms(object sender, RoutedEventArgs e)
         {
             DateTime fecha = DateTime.Now;
-            SelectedRoom room = new SelectedRoom(fecha.AddDays(-5), fecha);
+            listRoom room = new listRoom(fecha.AddDays(-5), fecha);
             room.ShowDialog();
 
         }
 
+        private void click_abrirallRooms(object sender, RoutedEventArgs e)
+        {
+            listRoom listRoom = new listRoom();
+            listRoom.ShowDialog();
+        }
         private void click_abrirGestionUsuarios(object sender, RoutedEventArgs e)
         {
             GestionUsuarios ventanaGestion = new GestionUsuarios();
