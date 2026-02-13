@@ -11,29 +11,46 @@
 
         <StackPanel VerticalAlignment="Center">
 
-            <TextBlock Text="Gestionar Descuento" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="#2C3E50"/>
+            <TextBlock Text="Gestionar Descuento" FontSize="18" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,15" Foreground="#2C3E50"/>
 
-            <TextBlock x:Name="lblUsuario" Text="Usuario: Nombre Apellido" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-            <TextBlock x:Name="lblTipo" Text="Tipo: Normal (Máx 30%)" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#7F8C8D" Margin="0,0,0,20"/>
+            <TextBlock Text="{Binding NombreUsuario}" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+            <TextBlock Text="{Binding TipoTexto}" FontWeight="Bold"
+                       HorizontalAlignment="Center" Margin="0,0,0,20">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="#7F8C8D"/>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
-            <CheckBox x:Name="chkVIP" Content="Habilitar Estatus VIP (Hasta 50%)" 
+            <CheckBox Content="{Binding VipTexto}"
+                      IsChecked="{Binding EsVIP}"
+                      IsEnabled="{Binding VipHabilitado}"
                       HorizontalAlignment="Center" Margin="0,0,0,15"
-                      FontWeight="Bold" Foreground="#F39C12"
-                      Checked="ChkVIP_CheckChanged" Unchecked="ChkVIP_CheckChanged"/>
+                      FontWeight="Bold" Foreground="#F39C12"/>
+
             <Grid Margin="10,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="50"/>
                 </Grid.ColumnDefinitions>
 
-                <Slider x:Name="sliderDescuento" Grid.Column="0" Minimum="0" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="Slider_ValueChanged"/>
+                <Slider Grid.Column="0" Minimum="0"
+                        Maximum="{Binding MaxDescuento}"
+                        Value="{Binding ValorDescuento}"
+                        TickFrequency="1" IsSnapToTickEnabled="True" VerticalAlignment="Center"/>
 
-                <TextBlock x:Name="lblPorcentaje" Grid.Column="1" Text="0%" FontSize="16" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#27AE60"/>
+                <TextBlock Grid.Column="1" Text="{Binding PorcentajeTexto}"
+                           FontSize="16" FontWeight="Bold" HorizontalAlignment="Right"
+                           VerticalAlignment="Center" Foreground="#27AE60"/>
             </Grid>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,25,0,0">
-                <Button Content="Cancelar" Click="Click_Cancelar" Width="100" Height="30" Background="#95A5A6" Foreground="White" Margin="5"/>
-                <Button Content="Guardar" Click="Click_Guardar" Width="100" Height="30" Background="#27AE60" Foreground="White" FontWeight="Bold" Margin="5"/>
+                <Button Content="Cancelar" Command="{Binding CancelarCommand}" Width="100" Height="30"
+                        Background="#95A5A6" Foreground="White" Margin="5"/>
+                <Button Content="Guardar" Command="{Binding GuardarCommand}" Width="100" Height="30"
+                        Background="#27AE60" Foreground="White" FontWeight="Bold" Margin="5"/>
             </StackPanel>
         </StackPanel>
     </Border>
