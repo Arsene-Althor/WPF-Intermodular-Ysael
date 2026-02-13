@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="listRoom" Height="700" Width="800">
+        Title="listRoom" Height="700" Width="1030">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -49,11 +49,12 @@
                     </StackPanel>
 
                     <StackPanel Margin="5">
-                        <TextBlock Text="Tipo (Individual/Doble/Matrimonio...)" FontSize="11" Margin="0,0,0,3"/>
-                        <TextBox x:Name="txtTipo"
-                             Height="30"
-                             VerticalContentAlignment="Center"
-                             TextChanged="Filtros_Changed"/>
+                        <TextBlock Text="Tipo (Individual/Doble/Suite...)" FontSize="11" Margin="0,0,0,3"/>
+                        <ComboBox Height="30" SelectionChanged="Filtros_Changed" Name="cmbType">
+                            <ComboBoxItem Content="Individual"/>
+                            <ComboBoxItem Content="Doble"/>
+                            <ComboBoxItem Content="Suite"/>
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel Margin="5" VerticalAlignment="Center">
@@ -75,46 +76,90 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- Capacidad mínima -->
                     <StackPanel Grid.Column="0" Margin="5">
                         <TextBlock Text="Capacidad mínima" FontSize="11" Margin="0,0,0,3"/>
-                        <TextBox x:Name="txtCapMin"
-                             Height="30"
-                             VerticalContentAlignment="Center"
-                             TextChanged="Filtros_Changed"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider x:Name="sldCapMin"
+                    Minimum="1"
+                    Maximum="10"
+                    Value="1"
+                    TickFrequency="1"
+                    IsSnapToTickEnabled="True"
+                    ValueChanged="Filtros_Changed"
+                    Width="180"/>
+                            <TextBlock Text="{Binding ElementName=sldCapMin, Path=Value, StringFormat={}{0:0}}"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </StackPanel>
 
+                    <!-- Precio mínimo -->
                     <StackPanel Grid.Column="1" Margin="5">
                         <TextBlock Text="Precio mín." FontSize="11" Margin="0,0,0,3"/>
-                        <TextBox x:Name="txtPrecioMin"
-                             Height="30"
-                             VerticalContentAlignment="Center"
-                             TextChanged="Filtros_Changed"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider x:Name="sldPrecioMin"
+                    Minimum="0"
+                    Maximum="1000"
+                    Value="0"
+                    TickFrequency="10"
+                    IsSnapToTickEnabled="True"
+                    ValueChanged="Filtros_Changed"
+                    Width="180"/>
+                            <TextBlock Text="{Binding ElementName=sldPrecioMin, Path=Value, StringFormat={}{0:0}€}"
+                       Margin="10,0,0,0"
+                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </StackPanel>
 
+                    <!-- Precio máximo -->
                     <StackPanel Grid.Column="2" Margin="5">
                         <TextBlock Text="Precio máx." FontSize="11" Margin="0,0,0,3"/>
-                        <TextBox x:Name="txtPrecioMax"
-                             Height="30"
-                             VerticalContentAlignment="Center"
-                             TextChanged="Filtros_Changed"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Slider x:Name="sldPrecioMax"
+                                Minimum="0"
+                                Maximum="1000"
+                                Value="1000"
+                                TickFrequency="10"
+                                IsSnapToTickEnabled="True"
+                                ValueChanged="Filtros_Changed"
+                                Width="180"/>
+                            <TextBlock Text="{Binding ElementName=sldPrecioMax, Path=Value, StringFormat={}{0:0}€}"
+                                Margin="10,0,0,0"
+                                VerticalAlignment="Center"/> 
+                        </StackPanel>
                     </StackPanel>
 
-                    <Button Grid.Column="3"
-                        Content="Limpiar"
-                        Click="BtnLimpiar_Click"
-                        Width="80"
-                        Height="35"
-                        VerticalAlignment="Bottom"
-                        Margin="5"
-                        Background="#E74C3C"
-                        Foreground="White"
-                        FontWeight="Bold">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="5"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="5">
+                        <Button Content="Crear"
+                            Click="BtnCrear_Click"
+                            Width="80"
+                            Height="35"
+                            Margin="0,0,8,0"
+                            Background="#2ECC71"
+                            Foreground="White"
+                            FontWeight="Bold">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+
+                        <Button Content="Limpiar"
+                            Click="BtnLimpiar_Click"
+                            Width="80"
+                            Height="35"
+                            Background="#E74C3C"
+                            Foreground="White"
+                            FontWeight="Bold">      
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="5"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </StackPanel>
         </Border>
@@ -125,39 +170,134 @@
                 <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
             </Border.Effect>
 
-            <DataGrid x:Name="dgRooms"
-                  MouseDoubleClick="dgRooms_MouseDoubleClick"
-                  AutoGenerateColumns="False"
-                  CanUserAddRows="False"
-                  IsReadOnly="True"
-                  GridLinesVisibility="Horizontal"
-                  HorizontalGridLinesBrush="#F0F0F0"
-                  RowHeight="40"
-                  Background="White"
-                  BorderThickness="0"
-                  Margin="0">
+            <ListView x:Name="lvRooms"
+              ItemsSource="{Binding Rooms}"
+              SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+              BorderThickness="0"
+              Background="Transparent"
+              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+              ScrollViewer.VerticalScrollBarVisibility="Auto">
 
-                <DataGrid.ColumnHeaderStyle>
-                    <Style TargetType="DataGridColumnHeader">
+                <!-- Rejilla tipo cards -->
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+
+                <!-- Estilo + selección + doble click (TODO en UNO) -->
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Margin" Value="10"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Cursor" Value="Hand"/>
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="Foreground" Value="#34495E"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Padding" Value="10,5"/>
-                        <Setter Property="Height" Value="40"/>
-                    </Style>
-                </DataGrid.ColumnHeaderStyle>
 
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding RoomId}" Width="*"/>
-                    <DataGridTextColumn Header="Tipo" Binding="{Binding Type}" Width="*"/>
-                    <DataGridTextColumn Header="Máx. Ocup." Binding="{Binding MaxOccupancy}" Width="*"/>
-                    <DataGridTextColumn Header="Precio/Noche" Binding="{Binding PricePerNight}" Width="*"/>
-                    <DataGridTextColumn Header="Rate" Binding="{Binding Rate}" Width="*"/>
-                    <DataGridCheckBoxColumn Header="Disponible" Binding="{Binding IsAvailable}" Width="*"/>
-                    <DataGridTextColumn Header="Descripción" Binding="{Binding Description}" Width="2*"/>
-                </DataGrid.Columns>
-            </DataGrid>
+                        <!-- Doble click -->
+                        <EventSetter Event="MouseDoubleClick" Handler="LvRooms_MouseDoubleClick"/>
+
+                        <!-- Plantilla para pintar selección (borde azul + fondo suave) -->
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Border x:Name="Bd"
+                                    CornerRadius="12"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="Transparent"
+                                    BorderThickness="2">
+                                        <ContentPresenter/>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="#3498DB"/>
+                                            <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                                            <Setter TargetName="Bd" Property="Background" Value="#F2F8FF"/>
+                                        </Trigger>
+
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="#D0D7DE"/>
+                                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <!-- Card -->
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="280"
+                        CornerRadius="12"
+                        Background="White"
+                        Padding="14"
+                        BorderBrush="#E0E0E0"
+                        BorderThickness="1">
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="140"/> <!-- Imagen -->
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Imagen -->
+                                <Border Grid.Row="0" CornerRadius="8" Margin="0,0,0,10">
+                                    <Image Source="{Binding Image}" Stretch="UniformToFill"/>
+                                </Border>
+
+                                <!-- Cabecera -->
+                                <StackPanel Grid.Row="1">
+                                    <TextBlock Text="{Binding Type}"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#34495E"/>
+                                    <TextBlock Text="{Binding RoomId, StringFormat=ID: {0}}"
+                                       Foreground="#7F8C8D"
+                                       FontSize="12"
+                                       Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Datos -->
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock Text="Máx: " Foreground="#7F8C8D"/>
+                                    <TextBlock Text="{Binding MaxOccupancy}" FontWeight="SemiBold" Foreground="#34495E"/>
+                                    <TextBlock Text="   |   " Foreground="#BDC3C7" Margin="8,0"/>
+                                    <TextBlock Text="{Binding Rate, StringFormat=Rate: {0}}" Foreground="#34495E"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,6,0,0">
+                                    <TextBlock Text="Precio/noche: " Foreground="#7F8C8D"/>
+                                    <TextBlock Text="{Binding PricePerNight, StringFormat={}{0} €}"
+                                       FontWeight="SemiBold"
+                                       Foreground="#2C3E50"/>
+                                </StackPanel>
+
+                                <!-- Disponible -->
+                                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock Text="Disponible: " Foreground="#7F8C8D"/>
+                                    <CheckBox IsChecked="{Binding IsAvailable}" IsEnabled="False"/>
+                                </StackPanel>
+
+                                <!-- Descripción -->
+                                <TextBlock Grid.Row="5"
+                                   Text="{Binding Description}"
+                                   TextWrapping="Wrap"
+                                   Foreground="#34495E"
+                                   Margin="0,10,0,0"
+                                   MaxHeight="60"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Border>
     </Grid>
-
 </Window>

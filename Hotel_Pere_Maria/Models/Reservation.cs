@@ -18,6 +18,9 @@ namespace Hotel_Pere_Maria.Models
         public double price { get; set; }
         public string createdBy { get; set; }
 
+        // Propiedad para la imagen de la habitación (agregada por backend)
+        public string RoomImage { get; set; }
+
         //La fecha de cancelación puede ser nula 
         private DateTime? _cancelation_date { get; set; }
 

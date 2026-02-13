@@ -2,6 +2,7 @@
 using Hotel_Pere_Maria.Services;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Runtime;
@@ -62,7 +63,7 @@ namespace Hotel_Pere_Maria.Views
 
             Loaded += ListRooms_Loaded;
 
-            dgRooms.ItemsSource = allRooms;
+            lvRooms.ItemsSource = allRooms;
         }
 
         private async void ListRooms_Loaded(object sender, RoutedEventArgs e)
@@ -81,7 +82,7 @@ namespace Hotel_Pere_Maria.Views
                     allRooms = await RoomService.GetAllRoomsAsync();
                 }
 
-                dgRooms.ItemsSource = allRooms;
+                lvRooms.ItemsSource = allRooms;
             }
             catch (Exception ex)
             {
@@ -89,24 +90,64 @@ namespace Hotel_Pere_Maria.Views
             }
         }
 
-
         private void Filtros_Changed(object sender, RoutedEventArgs e)
         {
+
+            if (!IsLoaded) return;          // <-- clave
+            if (sldPrecioMin == null) return; // <-- por si acaso
+
             AplicarFiltros();
         }
 
         private void BtnLimpiar_Click(object sender, RoutedEventArgs e)
         {
             txtIdRoom.Text = "";
-            txtTipo.Text = "";
-            txtCapMin.Text = "";
-            txtPrecioMin.Text = "";
-            txtPrecioMax.Text = "";
+            cmbType.SelectedIndex = -1;
             chkSoloDisponibles.IsChecked = false;
 
-            dgRooms.ItemsSource = allRooms;
-        }
+            sldCapMin.Value = 1;
+            sldPrecioMin.Value = 0;
+            sldPrecioMax.Value = 1000;
+            chkSoloDisponibles.IsChecked = false;
 
+            lvRooms.ItemsSource = allRooms;
+        }
+        private async void BtnCrear_Click(object sender, RoutedEventArgs e)
+        {
+            // Si quieres: solo permitir crear en el apartado "Habitaciones"
+            // (si esta misma ventana la reutilizas para Reservas, esto evita líos)
+            if (!_editMode)
+            {
+                MessageBox.Show("No se pueden crear habitaciones desde el modo reserva.");
+                return;
+            }
+
+            // Creamos un Room vacío (tu modelo)
+            var newRoom = new Room
+            {
+                RoomId = "HAB-",        // placeholder, o déjalo vacío si lo permite tu modRoom
+                Type = "Individual",
+                Description = "",
+                Image = "",
+                PricePerNight = 0,
+                Rate = 0,
+                MaxOccupancy = 1,
+                IsAvailable = true
+            };
+
+            // Abrir modRoom en modo "crear"
+            var win = new modRoom(newRoom, isCreate: true);
+
+            if (win.ShowDialog() == true)
+            {
+                // Recarga la lista para ver la nueva habitación al instante
+                allRooms = await RoomService.GetAllRoomsAsync();
+                lvRooms.ItemsSource = allRooms;
+
+                // Si usas ListView cards:
+                // lvRooms.ItemsSource = allRooms;
+            }
+        }
         private void AplicarFiltros()
         {
             var q = allRooms.AsEnumerable();
@@ -116,29 +157,37 @@ namespace Hotel_Pere_Maria.Views
                 q = q.Where(r => (r.RoomId ?? "").Contains(txtIdRoom.Text, StringComparison.OrdinalIgnoreCase));
 
             // Type
-            if (!string.IsNullOrWhiteSpace(txtTipo.Text))
-                q = q.Where(r => (r.Type ?? "").Contains(txtTipo.Text, StringComparison.OrdinalIgnoreCase));
+            var type = (cmbType.SelectedItem as ComboBoxItem)?.Content?.ToString()?.Trim();
 
-            // MaxOccupancy min/max
-            if (int.TryParse(txtCapMin.Text, out int occMin))
-                q = q.Where(r => r.MaxOccupancy >= occMin);
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                q = q.Where(r => r.Type == type);
+            }
 
-            if (int.TryParse(txtCapMin.Text, out int occMax))
-                q = q.Where(r => r.MaxOccupancy <= occMax);
+            // Capacidad mínima (Slider)
+            int occMin = (int)sldCapMin.Value;
+            q = q.Where(r => r.MaxOccupancy >= occMin);
 
-            // PricePerNight min/max
-            if (TryParseDouble(txtPrecioMin.Text, out double pMin))
-                q = q.Where(r => r.PricePerNight >= pMin);
+            // Precios (Sliders)
+            double pMin = sldPrecioMin.Value;
+            double pMax = sldPrecioMax.Value;
 
-            if (TryParseDouble(txtPrecioMax.Text, out double pMax))
-                q = q.Where(r => r.PricePerNight <= pMax);
+            // Evitar min > max
+            if (pMin > pMax)
+            {
+                // opción simple: intercambiarlos
+                (pMin, pMax) = (pMax, pMin);
+            }
 
-            // IsAvailable
+            q = q.Where(r => r.PricePerNight >= pMin && r.PricePerNight <= pMax);
+
+            // Solo disponibles
             if (chkSoloDisponibles.IsChecked == true)
                 q = q.Where(r => r.IsAvailable);
 
+
             // IMPORTANTÍSIMO: actualizar el DataGrid
-            dgRooms.ItemsSource = q.ToList();
+            lvRooms.ItemsSource = q.ToList();
         }
         private static bool TryParseDouble(string text, out double value)
         {
@@ -176,15 +225,15 @@ namespace Hotel_Pere_Maria.Views
         */
 
         // ================================
-        // ====== CARGAR EL DATAGRID ======
+        // ====== CARGAR DISPONIBLES ======
         // ================================
         private async Task CargarHabitacionesAsync(DateTime checkIn, DateTime checkOut)
         {
             try
             {
-                dgRooms.ItemsSource = null;
+                lvRooms.ItemsSource = null;
                 var disponibles = await GetRoomsDisponiblesAsync(checkIn, checkOut);
-                dgRooms.ItemsSource = disponibles;
+                lvRooms.ItemsSource = disponibles;
             }
             catch (Exception ex)
             {
@@ -211,10 +260,12 @@ namespace Hotel_Pere_Maria.Views
         }
 
 
-        private async void dgRooms_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void LvRooms_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (_closing) return;
-            if (dgRooms.SelectedItem is not Room room) return;
+
+            if ((sender as ListViewItem)?.DataContext is not Room room)
+                return;
 
             // ✅ MODO HABITACIONES (editar)
             if (_editMode)
@@ -225,7 +276,7 @@ namespace Hotel_Pere_Maria.Views
                 {
                     // Recarga para ver cambios al instante
                     allRooms = await RoomService.GetAllRoomsAsync();
-                    dgRooms.ItemsSource = allRooms;
+                    lvRooms.ItemsSource = allRooms;
                 }
                 return;
             }
