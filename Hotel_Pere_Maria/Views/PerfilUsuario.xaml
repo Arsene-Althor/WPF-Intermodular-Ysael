@@ -16,11 +16,11 @@
 
             <Border Width="120" Height="120" CornerRadius="60" BorderThickness="2" BorderBrush="#3498DB" Margin="0,0,0,10">
                 <Border.Background>
-                    <ImageBrush x:Name="imgPerfil" ImageSource="/Resources/userIcon.png" Stretch="UniformToFill"/>
+                    <ImageBrush ImageSource="{Binding ImagenPerfil}" Stretch="UniformToFill"/>
                 </Border.Background>
             </Border>
 
-            <Button Content="📷 Cambiar Foto" Click="Click_CambiarFoto" 
+            <Button Content="📷 Cambiar Foto" Command="{Binding CambiarFotoCommand}" 
                     Background="Transparent" BorderThickness="0" Foreground="#3498DB" 
                     Cursor="Hand" Margin="0,0,0,20" FontWeight="Bold"/>
 
@@ -37,19 +37,19 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Text="Nombre:" FontWeight="Bold" Grid.Row="0" VerticalAlignment="Center"/>
-                <TextBlock x:Name="txtNombre" Text="-" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding NombreCompleto}" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
 
                 <TextBlock Text="Email:" FontWeight="Bold" Grid.Row="1" VerticalAlignment="Center"/>
-                <TextBlock x:Name="txtEmail" Text="-" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Email}" Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
 
                 <TextBlock Text="Rol:" FontWeight="Bold" Grid.Row="2" VerticalAlignment="Center"/>
-                <TextBlock x:Name="txtRol" Text="-" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding Rol}" Grid.Row="2" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
 
                 <TextBlock Text="ID:" FontWeight="Bold" Grid.Row="3" VerticalAlignment="Center"/>
-                <TextBlock x:Name="txtID" Text="-" Grid.Row="3" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding UserId}" Grid.Row="3" Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"/>
             </Grid>
 
-            <Button Content="Cerrar" Click="Click_Cerrar" Width="100" Height="35" Margin="0,20,0,0"
+            <Button Content="Cerrar" Command="{Binding CerrarCommand}" Width="100" Height="35" Margin="0,20,0,0"
                     Background="#95A5A6" Foreground="White" FontWeight="Bold">
                 <Button.Resources>
                     <Style TargetType="Border">

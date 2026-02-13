@@ -24,21 +24,26 @@
 
                 <TextBlock Text="Email" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
                 <TextBox x:Name="TxtEmail"
-              Height="40"
-              Padding="10"
-              FontSize="14"
-              Background="White"
-              BorderThickness="1"
-              BorderBrush="#d0d0d0"
-              Margin="0,0,0,15"/>
+                         Height="40" Padding="10" FontSize="14"
+                         Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,15"
+                         Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Text="Contraseña" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
-                <PasswordBox x:Name="TxtPassword" Height="40" Padding="10" FontSize="14" Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,10" Visibility="Visible"/>
-                <TextBox x:Name="txtPasswordVisible" Height="40" Padding="10" FontSize="14" Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,10" Visibility="Collapsed" TextChanged="TexChanget_Contra"/>
+                <PasswordBox x:Name="TxtPassword" Height="40" Padding="10" FontSize="14"
+                             Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,10"
+                             Visibility="Visible"/>
+                <TextBox x:Name="txtPasswordVisible" Height="40" Padding="10" FontSize="14"
+                         Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,10"
+                         Visibility="Collapsed" TextChanged="TexChanget_Contra"/>
 
-                <CheckBox HorizontalAlignment="Right" x:Name="checkpass" Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Mostrar contraseña</CheckBox>
+                <CheckBox HorizontalAlignment="Right" x:Name="checkpass"
+                          Checked="CheckBox_Checked" Unchecked="CheckBox_Checked">Mostrar contraseña</CheckBox>
 
-                <Button x:Name="BtnLogin" Margin="0,20,0,0" Content="Iniciar Sesión" Padding="12" Background="#27AE60" Foreground="White" FontWeight="Bold" Click="BtnLogin_Click" Cursor="Hand">
+                <Button x:Name="BtnLogin" Margin="0,20,0,0" Padding="12"
+                        Background="#27AE60" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                        Content="{Binding LoginButtonText}"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding IsLoginEnabled}">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -46,7 +51,10 @@
                     </Button.Resources>
                 </Button>
 
-                <TextBlock x:Name="TxtError" Foreground="Red" TextWrapping="Wrap" Margin="0,15,0,0" FontSize="12" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="TxtError" TextWrapping="Wrap" Margin="0,15,0,0" FontSize="12"
+                           HorizontalAlignment="Center"
+                           Text="{Binding ErrorMessage}"
+                           Foreground="{Binding ErrorColor}"/>
             </StackPanel>
         </Border>
 
