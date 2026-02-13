@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="modRoom" Height="450" Width="800">
+        Title="modRoom" Height="600" Width="800">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -56,7 +56,8 @@
                     <TextBlock Text="Tipo" FontSize="11" Margin="0,0,0,3"/>
                     <ComboBox x:Name="cmbType"
                                 Height="30"
-                                IsEditable="False">
+                                IsEditable="False"
+                                SelectionChanged="CmbType_SelectionChanged">
                         <ComboBoxItem Content="Individual"/>
                         <ComboBoxItem Content="Doble"/>
                         <ComboBoxItem Content="Suite"/>
@@ -69,8 +70,8 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Max. Ocupación" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtMaxOcc" Height="30" VerticalContentAlignment="Center"/>
+                    <TextBlock Text="Max. Ocupación (automático)" FontSize="11" Margin="0,0,0,3"/>
+                    <TextBox x:Name="txtMaxOcc" Height="30" VerticalContentAlignment="Center" IsReadOnly="True" Background="#F0F0F0"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">

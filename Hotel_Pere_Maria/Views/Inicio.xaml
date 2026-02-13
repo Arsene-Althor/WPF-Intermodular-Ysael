@@ -92,12 +92,14 @@
                                             <SolidColorBrush Color="White"/>
                                         </Border.Background>
 
-                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                            <TextBlock Text="{Binding reservation_id}" FontWeight="Bold" FontSize="20" FontFamily="Segoe UI" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="{Binding room_id}" FontSize="14" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="{Binding check_in}" FontSize="12" HorizontalAlignment="Center" Foreground="Green"/>
-                                            <TextBlock Text="{Binding check_out}" FontSize="12" HorizontalAlignment="Center" Foreground="DarkRed"/>
-                                        </StackPanel>
+                                        <Grid>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding reservation_id}" FontWeight="Bold" FontSize="20" FontFamily="Segoe UI" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding room_id}" FontSize="14" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding check_in, StringFormat={}{0:dd/MM/yyyy}}" FontSize="12" HorizontalAlignment="Center" Foreground="Green"/>
+                                                <TextBlock Text="{Binding check_out, StringFormat={}{0:dd/MM/yyyy}}" FontSize="12" HorizontalAlignment="Center" Foreground="DarkRed"/>
+                                            </StackPanel>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

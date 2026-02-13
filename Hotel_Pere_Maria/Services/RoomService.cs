@@ -101,5 +101,15 @@ namespace Hotel_Pere_Maria.Services
                 throw new Exception($"Status {(int)response.StatusCode}\n{body}");
             }
         }
+
+        public static async Task CreateRoomAsync(object payload)
+        {
+            string url = $"{ApiService.BaseUrl}room/create";
+            using var resp = await ApiService._httpClient.PostAsJsonAsync(url, payload);
+
+            string body = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw new Exception(body);
+        }
     }
 }

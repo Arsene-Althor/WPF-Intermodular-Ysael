@@ -22,6 +22,7 @@ namespace Hotel_Pere_Maria.Models
         public string Description { get; set; }
 
         // URL o nombre de imagen
+        [JsonPropertyName("image")]
         public string Image { get; set; }
 
         // Precio por noche

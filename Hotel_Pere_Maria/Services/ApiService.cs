@@ -16,7 +16,7 @@ namespace Hotel_Pere_Maria.Services
     {
         // Creada conexión http y url base para conexiones
         public static readonly HttpClient _httpClient = new HttpClient();
-        public const string BaseUrl = "http://localhost:3000/";
+        public const string BaseUrl = "http://51.255.198.93:3000/";
 
     }
 
