@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
         Title="SelectedUser" Height="650" Width="1000"
         WindowStartupLocation="CenterScreen" Background="#F5F6F7">
@@ -29,29 +28,36 @@
                 <UniformGrid Columns="5">
                     <StackPanel Margin="5">
                         <TextBlock Text="ID Usuario" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroIdUser" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center"
+                                 Text="{Binding FiltroIdUser, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Margin="5">
                         <TextBlock Text="DNI" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroDNI" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center"
+                                 Text="{Binding FiltroDNI, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
                         <TextBlock Text="Nombre" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroNombre" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center"
+                                 Text="{Binding FiltroNombre, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
                         <TextBlock Text="Apellido" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroApellido" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center"
+                                 Text="{Binding FiltroApellido, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
                         <TextBlock Text="Email" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroEmail" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center"
+                                 Text="{Binding FiltroEmail, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </UniformGrid>
-                <Button Grid.Column="3" Content="Limpiar" Click="Click_LimpiarFiltros" Width="80" Height="35" VerticalAlignment="Bottom" Margin="5" Background="#E74C3C" Foreground="White" FontWeight="Bold">
+                <Button Content="Limpiar" Command="{Binding LimpiarFiltrosCommand}"
+                        Width="80" Height="35" VerticalAlignment="Bottom" Margin="5"
+                        Background="#E74C3C" Foreground="White" FontWeight="Bold">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="5"/>
@@ -73,6 +79,8 @@
                   RowHeight="40"
                   Background="White"
                   BorderThickness="0"
+                  ItemsSource="{Binding UsuariosFiltrados}"
+                  SelectedItem="{Binding UsuarioSeleccionado}"
                   MouseDoubleClick="dbClick_SelectUser">
 
                 <DataGrid.ColumnHeaderStyle>

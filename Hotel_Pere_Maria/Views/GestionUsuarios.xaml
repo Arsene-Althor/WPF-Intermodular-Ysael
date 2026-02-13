@@ -4,6 +4,20 @@
         Title="Gestión de Usuarios" Height="750" Width="1100"
         WindowStartupLocation="CenterScreen" Background="#F5F6F7">
 
+    <!-- ============================================================
+         MVVM: Ya NO usamos Click="..." ni x:Name="..." para la lógica.
+         En su lugar usamos:
+           - Text="{Binding Propiedad}"           → para TextBox
+           - SelectedIndex="{Binding Propiedad}"   → para ComboBox
+           - SelectedDate="{Binding Propiedad}"    → para DatePicker
+           - Command="{Binding NombreCommand}"     → para Button
+           - ItemsSource="{Binding Lista}"         → para DataGrid
+           - SelectedItem="{Binding Seleccionado}" → para DataGrid
+
+         El DataContext se asigna en el code-behind (GestionUsuarios.xaml.cs)
+         y apunta al GestionUsuariosViewModel.
+         ============================================================ -->
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -22,32 +36,41 @@
 
                 <StackPanel Margin="5">
                     <TextBlock Text="DNI:" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBox x:Name="txtFiltroDNI" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <!-- MVVM: Bindeamos Text a FiltroDNI del ViewModel.
+                         UpdateSourceTrigger=PropertyChanged hace que filtre letra a letra -->
+                    <TextBox Width="100" Padding="4"
+                             Text="{Binding FiltroDNI, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Nombre:" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBox x:Name="txtFiltroNombre" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBox Width="100" Padding="4"
+                             Text="{Binding FiltroNombre, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Apellido:" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBox x:Name="txtFiltroApellido" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBox Width="100" Padding="4"
+                             Text="{Binding FiltroApellido, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Email:" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBox x:Name="txtFiltroEmail" Width="140" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBox Width="140" Padding="4"
+                             Text="{Binding FiltroEmail, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Ciudad:" FontWeight="SemiBold" FontSize="11"/>
-                    <TextBox x:Name="txtFiltroCiudad" Width="100" TextChanged="FiltrarUsuarios_TextChanged" Padding="4"/>
+                    <TextBox Width="100" Padding="4"
+                             Text="{Binding FiltroCiudad, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Margin="10,5,5,5">
                     <TextBlock Text="Rol:" FontWeight="SemiBold" FontSize="11"/>
-                    <ComboBox x:Name="cbFiltroRol" Width="110" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                    <!-- MVVM: Bindeamos SelectedIndex al ViewModel -->
+                    <ComboBox Width="110" Padding="4"
+                              SelectedIndex="{Binding FiltroRolIndex}">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Admin"/>
                         <ComboBoxItem Content="Empleado"/>
@@ -57,7 +80,8 @@
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Estado:" FontWeight="SemiBold" FontSize="11"/>
-                    <ComboBox x:Name="cbFiltroEstado" Width="90" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                    <ComboBox Width="90" Padding="4"
+                              SelectedIndex="{Binding FiltroEstadoIndex}">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Activos"/>
                         <ComboBoxItem Content="Inactivos"/>
@@ -73,7 +97,8 @@
 
                 <StackPanel Margin="5">
                     <TextBlock Text="VIP:" FontWeight="SemiBold" FontSize="11"/>
-                    <ComboBox x:Name="cbFiltroVIP" Width="90" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                    <ComboBox Width="90" Padding="4"
+                              SelectedIndex="{Binding FiltroVIPIndex}">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Solo VIP"/>
                         <ComboBoxItem Content="No VIP"/>
@@ -82,7 +107,8 @@
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Género:" FontWeight="SemiBold" FontSize="11"/>
-                    <ComboBox x:Name="cbFiltroGenero" Width="100" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                    <ComboBox Width="100" Padding="4"
+                              SelectedIndex="{Binding FiltroGeneroIndex}">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Masculino"/>
                         <ComboBoxItem Content="Femenino"/>
@@ -92,7 +118,8 @@
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Descuento:" FontWeight="SemiBold" FontSize="11"/>
-                    <ComboBox x:Name="cbFiltroDescuento" Width="120" SelectionChanged="FiltrarUsuarios_TextChanged" SelectedIndex="0" Padding="4">
+                    <ComboBox Width="120" Padding="4"
+                              SelectedIndex="{Binding FiltroDescuentoIndex}">
                         <ComboBoxItem Content="Todos"/>
                         <ComboBoxItem Content="Con descuento"/>
                         <ComboBoxItem Content="Sin descuento"/>
@@ -104,15 +131,19 @@
 
                 <StackPanel Margin="15,5,5,5">
                     <TextBlock Text="Registrado desde:" FontWeight="SemiBold" FontSize="11"/>
-                    <DatePicker x:Name="dpFechaDesde" Width="120" SelectedDateChanged="FiltrarUsuarios_TextChanged"/>
+                    <DatePicker Width="120"
+                                SelectedDate="{Binding FiltroFechaDesde}"/>
                 </StackPanel>
 
                 <StackPanel Margin="5">
                     <TextBlock Text="Registrado hasta:" FontWeight="SemiBold" FontSize="11"/>
-                    <DatePicker x:Name="dpFechaHasta" Width="120" SelectedDateChanged="FiltrarUsuarios_TextChanged"/>
+                    <DatePicker Width="120"
+                                SelectedDate="{Binding FiltroFechaHasta}"/>
                 </StackPanel>
 
-                <Button Content="🧹 Limpiar Filtros" Click="Click_LimpiarFiltros" 
+                <!-- MVVM: Command en vez de Click -->
+                <Button Content="🧹 Limpiar Filtros"
+                        Command="{Binding LimpiarFiltrosCommand}"
                         Background="#95A5A6" Foreground="White" Padding="10,5" Margin="20,15,5,5" 
                         VerticalAlignment="Bottom" Height="28"/>
 
@@ -121,16 +152,19 @@
 
         <!-- Botones de acción -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
-            <Button Content="🔄 Recargar" Click="Click_RecargarUsuarios" Background="#3498DB" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="💸 Descuento" Click="Click_GestionarDescuento" Background="#8E44AD" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="➕ Nuevo Usuario" Click="Click_NuevoUsuario" Background="#27AE60" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="✏️ Editar" Click="Click_EditarUsuario" Background="#F39C12" Foreground="White" Padding="10,5" Margin="5"/>
-            <Button Content="🗑️ Eliminar" Click="Click_EliminarUsuario" Background="#E74C3C" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="🔄 Recargar" Command="{Binding RecargarCommand}" Background="#3498DB" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="💸 Descuento" Command="{Binding GestionarDescuentoCommand}" Background="#8E44AD" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="➕ Nuevo Usuario" Command="{Binding NuevoUsuarioCommand}" Background="#27AE60" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="✏️ Editar" Command="{Binding EditarUsuarioCommand}" Background="#F39C12" Foreground="White" Padding="10,5" Margin="5"/>
+            <Button Content="🗑️ Eliminar" Command="{Binding EliminarUsuarioCommand}" Background="#E74C3C" Foreground="White" Padding="10,5" Margin="5"/>
         </StackPanel>
 
         <!-- DataGrid -->
+        <!-- MVVM: ItemsSource y SelectedItem via Binding -->
         <DataGrid Grid.Row="4" x:Name="dgUsuarios" AutoGenerateColumns="False" IsReadOnly="True" 
                   Background="White" RowHeight="35" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#EEE"
+                  ItemsSource="{Binding UsuariosFiltrados}"
+                  SelectedItem="{Binding UsuarioSeleccionado}"
                   MouseDoubleClick="dgUsuarios_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding user_id}" Width="75"/>

@@ -28,22 +28,30 @@
                 <UniformGrid Columns="4">
                     <StackPanel Margin="5">
                         <TextBlock Text="ID Reserva" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
-                        <TextBox x:Name="txtFiltroIdReserva" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center" Text="{Binding FiltroId, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Margin="5">
-                        <TextBlock Text="Usuario" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroUser" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos" MouseDoubleClick="dbClick_selectUser"/>
+                        <TextBlock Text="Cliente" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
+                        <TextBox Height="30" VerticalContentAlignment="Center" Text="{Binding FiltroUser, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding SeleccionarClienteCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                     </StackPanel>
 
                     <StackPanel Margin="5">
                         <TextBlock Text="Habitación" FontSize="11" Margin="0,0,0,3" FontWeight="SemiBold"/>
-                        <TextBox x:Name="txtFiltroRoom" Height="30" VerticalContentAlignment="Center" TextChanged="FiltrarDatos" />
+                        <TextBox Height="30" VerticalContentAlignment="Center" Text="{Binding FiltroRoom, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding SeleccionarRoomCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                     </StackPanel>
 
                     <StackPanel Margin="5" VerticalAlignment="Center" Orientation="Horizontal">
-                        <CheckBox x:Name="chkCanceladas" Content="Ver Canceladas" VerticalAlignment="Center" Margin="0,15,0,0" Click="FiltrarDatos" IsChecked="True" FontWeight="SemiBold"/>
-                        <CheckBox x:Name="chkVencidas" Content="Ver Vencidas" VerticalAlignment="Center" Margin="15,15,0,0" Click="FiltrarDatos" IsChecked="True" FontWeight="SemiBold"/>
+                        <CheckBox Content="Ver Canceladas" VerticalAlignment="Center" Margin="0,15,0,0" IsChecked="{Binding VerCanceladas}" FontWeight="SemiBold"/>
+                        <CheckBox Content="Ver Vencidas" VerticalAlignment="Center" Margin="15,15,0,0" IsChecked="{Binding VerVencidas}" FontWeight="SemiBold"/>
                     </StackPanel>
                     
                 </UniformGrid>
@@ -58,28 +66,28 @@
 
                     <StackPanel Grid.Column="0" Margin="5">
                         <TextBlock Text="Check-In Desde" FontSize="11" FontWeight="SemiBold"/>
-                        <DatePicker x:Name="dpDesde" SelectedDateChanged="FiltrarDatos"/>
+                        <DatePicker SelectedDate="{Binding FechaDesde}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Margin="5">
                         <TextBlock Text="Check-In Hasta" FontSize="11" FontWeight="SemiBold"/>
-                        <DatePicker x:Name="dpHasta" SelectedDateChanged="FiltrarDatos"/>
+                        <DatePicker SelectedDate="{Binding FechaHasta}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Margin="15,5">
                         <DockPanel>
                             <TextBlock Text="Rango de Precio:" FontSize="11" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding ElementName=slMin, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left" Margin="10,0,0,0"/>
+                            <TextBlock Text="{Binding PrecioMin, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left" Margin="10,0,0,0"/>
                             <TextBlock Text=" - " FontSize="11" DockPanel.Dock="Left"/>
-                            <TextBlock Text="{Binding ElementName=slMax, Path=Value, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left"/>
+                            <TextBlock Text="{Binding PrecioMax, StringFormat={}{0:N0}€}" FontSize="11" FontWeight="Bold" DockPanel.Dock="Left"/>
                         </DockPanel>
                         <Grid>
-                            <Slider x:Name="slMin" Minimum="0" Maximum="5000" Value="0" ValueChanged="FiltrarDatos" Margin="0,5"/>
-                            <Slider x:Name="slMax" Minimum="0" Maximum="5000" Value="5000" ValueChanged="FiltrarDatos" Margin="0,20,0,0"/>
+                            <Slider Minimum="0" Maximum="5000" Value="{Binding PrecioMin}" Margin="0,5"/>
+                            <Slider Minimum="0" Maximum="5000" Value="{Binding PrecioMax}" Margin="0,20,0,0"/>
                         </Grid>
                     </StackPanel>
 
-                    <Button Grid.Column="3" Content="Limpiar" Click="Click_LimpiarFiltros" 
+                    <Button Grid.Column="3" Content="Limpiar" Command="{Binding LimpiarFiltrosCommand}" 
                             Width="80" Height="35" VerticalAlignment="Bottom" Margin="5"
                             Background="#E74C3C" Foreground="White" FontWeight="Bold">
                         <Button.Resources>
@@ -96,15 +104,19 @@
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
             </Border.Effect>
-            <DataGrid x:Name="dgReservas" 
+            <DataGrid ItemsSource="{Binding ReservasFiltradas}"
                       AutoGenerateColumns="False" 
                       IsReadOnly="True"
                       GridLinesVisibility="Horizontal"
                       HorizontalGridLinesBrush="#F0F0F0"
                       RowHeight="40"
                       Background="White"
-                      BorderThickness="0"
-                      MouseDoubleClick="dbClick_modReserva">
+                      BorderThickness="0">
+                <DataGrid.InputBindings>
+                <MouseBinding MouseAction="LeftDoubleClick" 
+                                  Command="{Binding ModificarReservaCommand}" 
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=DataGrid}, Path=SelectedItem}"/>
+                </DataGrid.InputBindings>
 
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">

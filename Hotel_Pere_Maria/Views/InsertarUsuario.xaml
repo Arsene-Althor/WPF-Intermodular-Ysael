@@ -29,22 +29,22 @@
 
             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,5">
                 <TextBlock Text="Nombre:"/>
-                <TextBox x:Name="txtNombre" Padding="5"/>
+                <TextBox Padding="5" Text="{Binding Nombre, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,5">
                 <TextBlock Text="DNI:"/>
-                <TextBox x:Name="txtDNI" Padding="5"/>
+                <TextBox Padding="5" Text="{Binding DNI, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,5">
                 <TextBlock Text="Email:"/>
-                <TextBox x:Name="txtEmail" Padding="5"/>
+                <TextBox Padding="5" Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,5">
                 <TextBlock Text="Ciudad:"/>
-                <ComboBox x:Name="cbCiudad" Padding="5">
+                <ComboBox Padding="5" SelectedIndex="{Binding CiudadIndex}">
                     <ComboBoxItem Content="Benidorm"/>
                     <ComboBoxItem Content="Alicante"/>
                     <ComboBoxItem Content="Valencia"/>
@@ -55,17 +55,16 @@
 
             <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,5">
                 <TextBlock Text="Apellidos:"/>
-                <TextBox x:Name="txtApellido" Padding="5"/>
+                <TextBox Padding="5" Text="{Binding Apellido, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
             <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,5">
                 <TextBlock Text="Rol:"/>
-                <ComboBox x:Name="cbRol" Padding="5" SelectionChanged="cbRol_SelectionChanged">
+                <ComboBox x:Name="cbRol" Padding="5" SelectedIndex="{Binding RolIndex}">
                     <ComboBoxItem Content="client" IsSelected="True"/>
                     <ComboBoxItem Content="employee"/>
-                    <ComboBoxItem Content="admin"/>
+                    <ComboBoxItem x:Name="cbRolAdmin" Content="admin"/>
                 </ComboBox>
-
             </StackPanel>
 
             <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,5">
@@ -81,21 +80,21 @@
             <StackPanel Grid.Row="5" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,15">
                 <StackPanel Margin="0,0,20,0">
                     <TextBlock Text="Fecha Nacimiento:"/>
-                    <DatePicker x:Name="dpFechaNacimiento" Width="150"/>
+                    <DatePicker Width="150" SelectedDate="{Binding FechaNacimiento}"/>
                 </StackPanel>
 
                 <StackPanel>
                     <TextBlock Text="Sexo:"/>
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton x:Name="rbHombre" Content="Hombre" Margin="5"/>
-                        <RadioButton x:Name="rbMujer" Content="Mujer" Margin="5"/>
-                        <RadioButton x:Name="rbOtro" Content="Otro" Margin="5"/>
+                        <RadioButton Content="Hombre" Margin="5" IsChecked="{Binding EsHombre}"/>
+                        <RadioButton Content="Mujer" Margin="5" IsChecked="{Binding EsMujer}"/>
+                        <RadioButton Content="Otro" Margin="5" IsChecked="{Binding EsOtro}"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
 
             <StackPanel Grid.Row="6" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                <Button Content="Cancelar" Click="Click_Cancelar" Width="100" Height="35" Background="Gray" Foreground="White" Margin="10,0"/>
+                <Button Content="Cancelar" Command="{Binding CancelarCommand}" Width="100" Height="35" Background="Gray" Foreground="White" Margin="10,0"/>
                 <Button Content="Guardar" Click="Click_Guardar" Width="100" Height="35" Background="#27AE60" Foreground="White" FontWeight="Bold"/>
             </StackPanel>
         </Grid>

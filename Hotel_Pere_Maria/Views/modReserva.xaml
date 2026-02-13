@@ -12,7 +12,7 @@
 
         <Grid>
             <StackPanel Margin="25">
-                <TextBlock x:Name="nReserva" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" FontFamily="Segoe UI Black">Modificar Reserva: </TextBlock>
+                <TextBlock FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" FontFamily="Segoe UI Black" Text="{Binding ReservationId, StringFormat='Modificar Reserva: {0}'}">Modificar Reserva: </TextBlock>
 
                 <Border Background="White" CornerRadius="12" Padding="15" Margin="10,0,10,20">
                     <Border.Effect>
@@ -22,10 +22,18 @@
                         <TextBlock Text="DATOS GENERALES" FontSize="10" FontWeight="Bold" Margin="0,0,0,10"/>
 
                         <TextBlock Text="ID Habitación" FontSize="11"/>
-                        <TextBox x:Name="txtRoomId" Margin="0,5,0,0" Height="30" VerticalContentAlignment="Center" TextChanged="RecalcularPrecio"/>
+                        <TextBox Margin="0,5,0,0" Height="30" VerticalContentAlignment="Center" Text="{Binding RoomId, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding SeleccionarHabitacionCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
 
                         <TextBlock Text="ID Cliente" FontSize="11"/>
-                        <TextBox x:Name="txtUserId" Margin="0,5,0,15" Height="30" VerticalContentAlignment="Center" TextChanged="RecalcularPrecio" MouseDoubleClick="dbClick_SelectUser"/>
+                        <TextBox Margin="0,5,0,15" Height="30" VerticalContentAlignment="Center" Text="{Binding UserId, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding SeleccionarClienteCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
                     </StackPanel>
                 </Border>
 
@@ -42,17 +50,17 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                 <TextBlock Text="Check-In" FontSize="11"/>
-                                <DatePicker x:Name="dpCheckIn" Margin="0,5" SelectedDateChanged="RecalcularPrecio"/>
+                                <DatePicker Margin="0,5" SelectedDate="{Binding CheckIn}" IsEnabled="{Binding CheckInEnabled}" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Margin="8,0,0,0">
                                 <TextBlock Text="Check-Out" FontSize="11"/>
-                                <DatePicker x:Name="dpCheckOut" Margin="0,5" SelectedDateChanged="RecalcularPrecio"/>
+                                <DatePicker Margin="0,5" SelectedDate="{Binding CheckOut}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <Button Content="CANCELAR ESTA RESERVA" Click="Click_CancelarReserva" 
+                <Button Content="CANCELAR ESTA RESERVA" Command="{Binding CancelarReservaCommand}"
                         Background="#E74C3C" Foreground="White" BorderBrush="Black"
                         BorderThickness="1" Height="35" Cursor="Hand" Margin="10,0,10,20">
                     <Button.Resources>
@@ -69,25 +77,25 @@
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Left">
                             <TextBlock FontSize="10" FontWeight="Bold">PRECIO ACTUAL</TextBlock>
-                            <TextBlock x:Name="lblPrecioOld" Text="0.00€" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#FFCC9B2E"/>
+                            <TextBlock Text="{Binding PrecioOriginal, StringFormat={}{0:N2}€}" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#FFCC9B2E"/>
                         </StackPanel>
                         <StackPanel  DockPanel.Dock="Left">
                             <TextBlock HorizontalAlignment="Right" FontSize="10" FontWeight="Bold">PRECIO NUEVO</TextBlock>
-                            <TextBlock x:Name="lblPrecioFinal" Text="0.00€" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#2ECC71"/>
+                            <TextBlock Text="{Binding PrecioNuevo, StringFormat={}{0:N2}€}" HorizontalAlignment="Right" FontSize="26" FontWeight="Bold" Foreground="#2ECC71"/>
                         </StackPanel>
                         
                     </DockPanel>
                 </Border>
 
                 <UniformGrid Columns="2" Margin="10,0,10,20">
-                    <Button Content="GUARDAR CAMBIOS" Click="Click_Guardar" Margin="5" Height="40" Background="#2ECC71" Foreground="White" FontWeight="Bold" BorderThickness="1" BorderBrush="Black">
+                    <Button Content="GUARDAR CAMBIOS" Command="{Binding GuardarCommand}" Margin="5" Height="40" Background="#2ECC71" Foreground="White" FontWeight="Bold" BorderThickness="1" BorderBrush="Black">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="10"/>
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <Button Content="CANCELAR" Click="Click_Cancelar" Margin="5" Height="40" 
+                    <Button Content="CANCELAR" Command="{Binding CerrarCommand}" Margin="5" Height="40" 
                             Background="#E74C3C" Foreground="White" BorderThickness="1" BorderBrush="Black">
                         <Button.Resources>
                             <Style TargetType="Border">
