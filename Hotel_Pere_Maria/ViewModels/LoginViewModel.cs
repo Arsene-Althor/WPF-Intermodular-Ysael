@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Windows;
@@ -20,6 +21,12 @@ namespace Hotel_Pere_Maria.ViewModels
         private bool _isLoginEnabled = true;
         private string _loginButtonText = "Iniciar Sesión";
         private bool _mostrarPassword = false;
+        private bool _recordarPassword = false;
+
+        // Ruta del archivo donde se guarda el email recordado
+        private static readonly string _archivoRecordar = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "HotelPereMaria", "recordar.txt");
 
         // ==========================================
         // PROPIEDADES PÚBLICAS
@@ -66,6 +73,12 @@ namespace Hotel_Pere_Maria.ViewModels
             set { _mostrarPassword = value; OnPropertyChanged(); }
         }
 
+        public bool RecordarPassword
+        {
+            get => _recordarPassword;
+            set { _recordarPassword = value; OnPropertyChanged(); }
+        }
+
         // ==========================================
         // COMMANDS
         // ==========================================
@@ -80,6 +93,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public LoginViewModel()
         {
             LoginCommand = new RelayCommand(async () => await ExecuteLogin());
+            CargarEmailRecordado();
         }
 
         // ==========================================
@@ -137,6 +151,12 @@ namespace Hotel_Pere_Maria.ViewModels
                 Session.User = response.user;
                 ApiService._httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", response.token);
+
+                // Guardar o borrar email según checkbox "Recordar contraseña"
+                if (RecordarPassword)
+                    GuardarEmail(email);
+                else
+                    BorrarEmailGuardado();
 
                 MessageBox.Show(
                     $"¡Bienvenido {response.user.name}!\nRol: {response.user.role.ToUpper()}",
@@ -220,24 +240,63 @@ namespace Hotel_Pere_Maria.ViewModels
             ErrorColor = "Red";
         }
 
+        /// <summary>
+        /// Requisito de seguridad: NO especificar si falló el email o la contraseña.
+        /// Siempre devolver un mensaje genérico.
+        /// </summary>
         private string FormatearMensajeError(string? errorMsg)
         {
             if (string.IsNullOrEmpty(errorMsg))
-                return "Error de autenticación";
+                return "Credenciales incorrectas";
 
-            if (errorMsg.Contains("no existe") || errorMsg.Contains("no found") || errorMsg.Contains("not found"))
-                return "Usuario no encontrado\n\nVerifica que el email sea correcto";
-
-            if (errorMsg.Contains("contraseña") || errorMsg.Contains("password") || errorMsg.Contains("incorrecta"))
-                return "Contraseña incorrecta\n\nVerifica que la contraseña sea correcta";
-
-            if (errorMsg.Contains("Credenciales") || errorMsg.Contains("credentials"))
-                return "Credenciales inválidas\n\nVerifica email y contraseña";
-
+            // Cuenta desactivada sí se puede informar (no revela credenciales)
             if (errorMsg.Contains("activo") || errorMsg.Contains("inactivo") || errorMsg.Contains("desactivado"))
-                return $"Cuenta no activa\n\n{errorMsg}";
+                return "Cuenta desactivada. Contacte con el administrador.";
 
-            return errorMsg;
+            // Para cualquier otro error de autenticación: mensaje genérico
+            return "Credenciales incorrectas";
+        }
+
+        // ==========================================
+        // RECORDAR CONTRASEÑA (persistencia en archivo)
+        // ==========================================
+        private void CargarEmailRecordado()
+        {
+            try
+            {
+                if (File.Exists(_archivoRecordar))
+                {
+                    string emailGuardado = File.ReadAllText(_archivoRecordar).Trim();
+                    if (!string.IsNullOrEmpty(emailGuardado))
+                    {
+                        Email = emailGuardado;
+                        RecordarPassword = true;
+                    }
+                }
+            }
+            catch { /* Si falla la lectura, simplemente no prellenamos */ }
+        }
+
+        private void GuardarEmail(string email)
+        {
+            try
+            {
+                string directorio = Path.GetDirectoryName(_archivoRecordar)!;
+                if (!Directory.Exists(directorio))
+                    Directory.CreateDirectory(directorio);
+                File.WriteAllText(_archivoRecordar, email);
+            }
+            catch { /* Si falla el guardado, no es crítico */ }
+        }
+
+        private void BorrarEmailGuardado()
+        {
+            try
+            {
+                if (File.Exists(_archivoRecordar))
+                    File.Delete(_archivoRecordar);
+            }
+            catch { }
         }
     }
 }
