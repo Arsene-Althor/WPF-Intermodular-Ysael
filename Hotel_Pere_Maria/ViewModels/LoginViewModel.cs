@@ -93,7 +93,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public LoginViewModel()
         {
             LoginCommand = new RelayCommand(async () => await ExecuteLogin());
-            CargarEmailRecordado();
+            CargarCredenciales();
         }
 
         // ==========================================
@@ -152,11 +152,11 @@ namespace Hotel_Pere_Maria.ViewModels
                 ApiService._httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", response.token);
 
-                // Guardar o borrar email según checkbox "Recordar contraseña"
+                // Guardar o borrar credenciales según checkbox "Recordar contraseña"
                 if (RecordarPassword)
-                    GuardarEmail(email);
+                    GuardarCredenciales(email, password);
                 else
-                    BorrarEmailGuardado();
+                    BorrarCredenciales();
 
                 MessageBox.Show(
                     $"¡Bienvenido {response.user.name}!\nRol: {response.user.role.ToUpper()}",
@@ -260,36 +260,56 @@ namespace Hotel_Pere_Maria.ViewModels
         // ==========================================
         // RECORDAR CONTRASEÑA (persistencia en archivo)
         // ==========================================
-        private void CargarEmailRecordado()
+        private void CargarCredenciales()
         {
             try
             {
                 if (File.Exists(_archivoRecordar))
                 {
-                    string emailGuardado = File.ReadAllText(_archivoRecordar).Trim();
-                    if (!string.IsNullOrEmpty(emailGuardado))
+                    string contenido = File.ReadAllText(_archivoRecordar).Trim();
+                    if (!string.IsNullOrEmpty(contenido))
                     {
-                        Email = emailGuardado;
-                        RecordarPassword = true;
+                        var partes = contenido.Split('\n');
+                        if (partes.Length >= 1)
+                        {
+                            Email = partes[0].Trim();
+                            RecordarPassword = true;
+                        }
+                        if (partes.Length >= 2)
+                        {
+                            try
+                            {
+                                var base64Bytes = Convert.FromBase64String(partes[1].Trim());
+                                Password = System.Text.Encoding.UTF8.GetString(base64Bytes);
+                            }
+                            catch
+                            {
+                                Password = partes[1].Trim(); // Por si no estaba codificada antes
+                            }
+                        }
                     }
                 }
             }
             catch { /* Si falla la lectura, simplemente no prellenamos */ }
         }
 
-        private void GuardarEmail(string email)
+        private void GuardarCredenciales(string email, string password)
         {
             try
             {
                 string directorio = Path.GetDirectoryName(_archivoRecordar)!;
                 if (!Directory.Exists(directorio))
                     Directory.CreateDirectory(directorio);
-                File.WriteAllText(_archivoRecordar, email);
+
+                var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(password);
+                string passCodificada = Convert.ToBase64String(plainTextBytes);
+
+                File.WriteAllText(_archivoRecordar, $"{email}\n{passCodificada}");
             }
             catch { /* Si falla el guardado, no es crítico */ }
         }
 
-        private void BorrarEmailGuardado()
+        private void BorrarCredenciales()
         {
             try
             {
