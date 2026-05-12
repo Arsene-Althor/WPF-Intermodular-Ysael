@@ -17,7 +17,7 @@ namespace Hotel_Pere_Maria.ViewModels
         private string _rate;
         private string _image;
         private string _description;
-        private bool _isAvailable;
+        private bool _isOperational;
         private bool _isCreate;
         private bool _isRoomIdReadOnly;
 
@@ -68,10 +68,10 @@ namespace Hotel_Pere_Maria.ViewModels
             set { _description = value; OnPropertyChanged(); }
         }
 
-        public bool IsAvailable
+        public bool IsOperational
         {
-            get => _isAvailable;
-            set { _isAvailable = value; OnPropertyChanged(); }
+            get => _isOperational;
+            set { _isOperational = value; OnPropertyChanged(); }
         }
 
         public bool IsRoomIdReadOnly
@@ -94,7 +94,7 @@ namespace Hotel_Pere_Maria.ViewModels
             Rate = room.Rate.ToString(CultureInfo.InvariantCulture);
             Image = room.Image ?? "";
             Description = room.Description ?? "";
-            IsAvailable = room.IsAvailable;
+            IsOperational = room.IsOperational;
 
             SaveCommand = new RelayCommand(() => _ = SaveAsync());
         }
@@ -148,7 +148,7 @@ namespace Hotel_Pere_Maria.ViewModels
                     price_per_night = priceValue,
                     rate = rateValue,
                     max_occupancy = MaxOccupancy,
-                    isAvailable = IsAvailable
+                    isOperational = IsOperational
                 };
 
                 if (_isCreate)

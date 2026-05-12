@@ -1,13 +1,13 @@
-﻿<Window x:Class="Hotel_Pere_Maria.Views.listRoom"
+﻿<UserControl x:Class="Hotel_Pere_Maria.Views.listRoom"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="listRoom" Height="700" Width="1030">
+        d:DesignHeight="700" d:DesignWidth="1030"
+        Background="Transparent">
 
-    <Grid Margin="20">
+    <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -61,7 +61,7 @@
 
                     <StackPanel Margin="5" VerticalAlignment="Center">
                         <CheckBox x:Name="chkSoloDisponibles"
-                               Content="Solo disponibles"
+                               Content="Solo libres ahora (sin huésped en curso)"
                                VerticalAlignment="Center"
                                Margin="0,15,0,0"
                                IsChecked="{Binding OnlyAvailable}"/>
@@ -247,8 +247,8 @@
                                 </Grid.RowDefinitions>
 
                                 <!-- Imagen -->
-                                <Border Grid.Row="0" CornerRadius="8" Margin="0,0,0,10">
-                                    <Image Source="{Binding Image}" Stretch="UniformToFill"/>
+                                <Border Grid.Row="0" CornerRadius="8" Margin="0,0,0,10" Height="140" Background="#F0F4F8">
+                                    <Image Source="{Binding Image, Converter={StaticResource ImageUrlConverter}}" Stretch="UniformToFill"/>
                                 </Border>
 
                                 <!-- Cabecera -->
@@ -278,10 +278,13 @@
                                        Foreground="#2C3E50"/>
                                 </StackPanel>
 
-                                <!-- Disponible -->
-                                <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10,0,0">
-                                    <TextBlock Text="Disponible: " Foreground="#7F8C8D"/>
-                                    <CheckBox IsChecked="{Binding IsAvailable}" IsEnabled="False"/>
+                                <StackPanel Grid.Row="4" Margin="0,10,0,0">
+                                    <TextBlock Foreground="#7F8C8D" FontSize="12">
+                                        <Run Text="Operación: "/><Run Text="{Binding EstadoServicioTexto, Mode=OneWay}" FontWeight="SemiBold" Foreground="#34495E"/>
+                                    </TextBlock>
+                                    <TextBlock Margin="0,4,0,0" Foreground="#7F8C8D" FontSize="12">
+                                        <Run Text="Ocupación: "/><Run Text="{Binding OcupacionTexto, Mode=OneWay}" FontWeight="SemiBold" Foreground="#34495E"/>
+                                    </TextBlock>
                                 </StackPanel>
 
                                 <!-- Descripción -->
@@ -298,4 +301,4 @@
             </ListView>
         </Border>
     </Grid>
-</Window>
+</UserControl>

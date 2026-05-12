@@ -44,30 +44,14 @@ namespace Hotel_Pere_Maria.ViewModels
         {
             try
             {
-                // Creamos la instancia de la ventana de gestión
-                GestionUsuarios selector = new GestionUsuarios();
-                selector.Owner = System.Windows.Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-
-                // Mostramos la ventana y esperamos el resultado
-                if (selector.ShowDialog() == true)
+                var usuario = GestionUsuarios.ShowPickerDialog();
+                if (usuario != null)
                 {
-                    // Recuperamos el usuario seleccionado de la ventana
-                    var usuario = selector.UsuarioSeleccionado;
-
-                    if (usuario != null)
-                    {
-                        if (usuario.role == "client")
-                        {
-                            // Actualizamos la propiedad del ViewModel
-                            // Esto refrescará automáticamente el TextBox en la UI
-                            UserId = usuario.user_id;
-                        }
-                        else
-                        {
-                            MessageBox.Show("El usuario seleccionado no es un cliente.", "Aviso",
-                                            MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-                    }
+                    if (usuario.role == "client")
+                        UserId = usuario.user_id;
+                    else
+                        MessageBox.Show("El usuario seleccionado no es un cliente.", "Aviso",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
             catch (Exception ex)
@@ -78,19 +62,9 @@ namespace Hotel_Pere_Maria.ViewModels
 
         private void ExecuteSeleccionarHabitacion()
         {
-            // Pasamos las fechas actuales al constructor de la lista
-            var win = new listRoom(CheckIn, CheckOut);
-
-            // Si usas Owner, asegúrate de pasárselo correctamente
-            if (win.ShowDialog() == true)
-            {
-                // IMPORTANTE: Verifica que SelectedRoomResult no sea nulo 
-                // y que no estés accediendo a un array vacío dentro de listRoom
-                if (win.SelectedRoomResult != null)
-                {
-                    RoomId = win.SelectedRoomResult.RoomId;
-                }
-            }
+            if (!listRoom.TryPickRoom(CheckIn, CheckOut, out var picked) || picked == null)
+                return;
+            RoomId = picked.RoomId;
         }
 
         private async void ValidarFechas()

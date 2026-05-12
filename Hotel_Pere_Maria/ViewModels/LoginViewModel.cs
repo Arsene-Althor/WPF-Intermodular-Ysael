@@ -184,13 +184,17 @@ namespace Hotel_Pere_Maria.ViewModels
                 mensaje.Contains("Connection refused") ||
                 mensaje.Contains("refused") ||
                 mensaje.Contains("No route to host") ||
-                mensaje.Contains("localhost:3000"))
+                mensaje.Contains("periodo de tiempo") ||
+                mensaje.Contains("host conectado no ha podido responder") ||
+                mensaje.Contains("localhost:3000") ||
+                mensaje.Contains("localhost:3011"))
             {
                 ErrorMessage = "No hay conexión con el servidor\n\n" +
-                                "Verifica que:\n" +
-                                "El backend esté corriendo en http://localhost:3000\n" +
-                                "La base de datos esté activa\n" +
-                                "No haya firewall bloqueando la conexión";
+                                "URL de la API: " + ApiService.BaseUrl + "\n\n" +
+                                "Comprueba que:\n" +
+                                "• La API Node esté arrancada (mismo host y puerto que en la URL; el .env del API usa PORT=3011 en este proyecto).\n" +
+                                "• Para otro puerto/host: variable de entorno HOTEL_API_BASE y reinicia el IDE.\n" +
+                                "• MongoDB accesible desde la API.";
                 ErrorColor = "Red";
                 return;
             }

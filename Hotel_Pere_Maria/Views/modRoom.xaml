@@ -114,10 +114,12 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Margin="5">
-                    <CheckBox x:Name="chkAvailable" 
-                              Content="Disponible" 
-                              IsChecked="{Binding IsAvailable}"
+                    <CheckBox x:Name="chkOperational"
+                              Content="Habitación en servicio (visible para clientes si además está libre en las fechas)"
+                              IsChecked="{Binding IsOperational}"
                               Margin="0,10,0,0"/>
+                    <TextBlock Text="La disponibilidad por reserva activa se calcula sola; no se marca a mano."
+                               Foreground="{StaticResource Brush.TextMuted}" FontSize="11" Margin="22,4,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
 
                 <TextBlock Grid.Row="6" Grid.ColumnSpan="2"

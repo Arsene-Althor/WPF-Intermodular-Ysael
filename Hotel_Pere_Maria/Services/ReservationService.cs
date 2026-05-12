@@ -2,16 +2,55 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Globalization;
 using Hotel_Pere_Maria.Models;
 
 namespace Hotel_Pere_Maria.Services
 {
     public static class ReservationService
     {
+        private static void ConfigurarCabeceras()
+        {
+            ApiService._httpClient.DefaultRequestHeaders.Authorization = null;
+            if (!string.IsNullOrEmpty(Session.Token))
+            {
+                ApiService._httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", Session.Token);
+            }
+        }
+
+        /// <summary>Historial de auditoría (GET /reservation/{id}/audit).</summary>
+        public static async Task<(bool exito, string mensaje, List<BookingAuditEntry> lista)> GetBookingAuditAsync(string reservation_id)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/audit";
+                var response = await ApiService._httpClient.GetAsync(url);
+                string cuerpo = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                {
+                    return (false, cuerpo, null);
+                }
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
+                };
+                var lista = JsonSerializer.Deserialize<List<BookingAuditEntry>>(cuerpo, opts) ?? new List<BookingAuditEntry>();
+                return (true, null, lista);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
         public static async Task<(bool exito, string mensaje, double precio)> getCancelationPrice(string reservation_id, DateTime? cancelation_date)
         {
             try
@@ -109,7 +148,7 @@ namespace Hotel_Pere_Maria.Services
                 string json = JsonSerializer.Serialize(reservamod);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await ApiService._httpClient.PutAsync(ApiService.BaseUrl + "reservation/update", content);
+                var response = await ApiService._httpClient.PatchAsync(ApiService.BaseUrl + "reservation/update", content);
 
                 string mensajeServidor = await response.Content.ReadAsStringAsync();
 
@@ -138,23 +177,10 @@ namespace Hotel_Pere_Maria.Services
                 //Calculamos el nuevo precio de la reserva restando al precio actual el precio de cancelación
                 //De este modo quedara constancia del precio final de la reserva
                 double? precionew = r.price - precioCancel;
-                //Creamos un Json con los datos para la api
-                var datos = new
-                {
-                    reservation_id = r.reservation_id,
-                    price = precionew
-                };
-                var opciones = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    // Esto asegura que no se ignoren valores por defecto como el 0
-                    DefaultIgnoreCondition = JsonIgnoreCondition.Never
-                };
-                string json = JsonSerializer.Serialize(datos,opciones);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                //Mandamos los datos y almacenamos la respuesta
-                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/cancel", content);
+                // API: DELETE /reservation/cancel/:reservation_id?price= (misma lógica que el POST /cancel antiguo)
+                string priceStr = (precionew ?? 0d).ToString(CultureInfo.InvariantCulture);
+                string cancelUrl = $"{ApiService.BaseUrl}reservation/cancel/{Uri.EscapeDataString(r.reservation_id)}?price={priceStr}";
+                var response = await ApiService._httpClient.DeleteAsync(cancelUrl);
 
                 string mensajeServidor = await response.Content.ReadAsStringAsync();
 

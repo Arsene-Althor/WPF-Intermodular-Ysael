@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -18,7 +17,7 @@ using Hotel_Pere_Maria.ViewModels;
 namespace Hotel_Pere_Maria.Views
 {
     //Ventana para mostrar una lista con todas las reservas
-    public partial class listReservas : Window
+    public partial class listReservas : UserControl
     {
         public listReservas()
         {

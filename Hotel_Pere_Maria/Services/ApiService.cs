@@ -11,13 +11,25 @@ using Hotel_Pere_Maria.Models;
 
 namespace Hotel_Pere_Maria.Services
 {
-    //Clase baseica para conexión con la base de datos
+    // Clase básica para conexión con la API (Node/Express)
     public static class ApiService
     {
-        // Creada conexión http y url base para conexiones
         public static readonly HttpClient _httpClient = new HttpClient();
-        public const string BaseUrl = "http://51.255.198.93:3000/";
 
+        /// <summary>
+        /// URL base de la API (debe terminar en /). Por defecto alineado con <c>.env</c> del repo API (PORT=3011).
+        /// Sobrescribe con <c>HOTEL_API_BASE</c> si usas otro host o puerto (ej. http://localhost:3000/).
+        /// </summary>
+        public static string BaseUrl { get; } = NormalizarBaseUrl(
+            Environment.GetEnvironmentVariable("HOTEL_API_BASE") ?? "http://localhost:3011/");
+
+        private static string NormalizarBaseUrl(string url)
+        {
+            url = (url ?? "").Trim();
+            if (string.IsNullOrEmpty(url))
+                return "http://localhost:3011/";
+            return url.EndsWith("/", StringComparison.Ordinal) ? url : url + "/";
+        }
     }
 
 }

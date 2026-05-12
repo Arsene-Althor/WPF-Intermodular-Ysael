@@ -1,43 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace Hotel_Pere_Maria.Models
 {
     public class Room
     {
-        // ID de la habitación (ej: HAB-101)
         [JsonPropertyName("room_id")]
         public string RoomId { get; set; }
 
-        // Tipo de habitación (Individual, Doble, Suite…)
         [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        // Descripción de la habitación
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        // URL o nombre de imagen
         [JsonPropertyName("image")]
         public string Image { get; set; }
 
-        // Precio por noche
         [JsonPropertyName("price_per_night")]
         public double PricePerNight { get; set; }
 
-        // Valoración (0 - 5)
         [JsonPropertyName("rate")]
         public double Rate { get; set; }
 
-        // Máximo de personas
         [JsonPropertyName("max_occupancy")]
         public int MaxOccupancy { get; set; }
 
-        // Disponible o no (opcional, la API suele calcularlo)
-        public bool IsAvailable { get; set; }
+        /// <summary>Empleado: la habitación puede ofrecerse al público. Si false, la app cliente no la lista.</summary>
+        [JsonPropertyName("is_operational")]
+        public bool IsOperational { get; set; } = true;
+
+        /// <summary>Calculado en API: hay reserva activa (check_in ≤ ahora &lt; check_out) sin cancelar.</summary>
+        [JsonPropertyName("is_occupied_now")]
+        public bool IsOccupiedNow { get; set; }
+
+        [JsonPropertyName("isAvailable")]
+        public bool IsAvailableLegacy { get; set; }
+
+        /// <summary>Libre en este momento para nueva estancia (en servicio y sin huésped en curso).</summary>
+        public bool EstaLibreAhora => IsOperational && !IsOccupiedNow;
+
+        [JsonIgnore]
+        public string EstadoServicioTexto => IsOperational ? "En servicio" : "Fuera de servicio";
+
+        [JsonIgnore]
+        public string OcupacionTexto => IsOccupiedNow ? "Reservada ahora" : "Libre ahora";
     }
 }

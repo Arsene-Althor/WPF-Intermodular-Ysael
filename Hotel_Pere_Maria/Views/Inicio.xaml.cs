@@ -30,6 +30,12 @@ namespace Hotel_Pere_Maria.Views
             this.DataContext = viewModel;
 
             viewModel.RequestClose += (s, e) => this.Close();
+
+            Loaded += (_, __) =>
+            {
+                if (Application.Current.MainWindow != this)
+                    Application.Current.MainWindow = this;
+            };
         }
     }
 }

@@ -124,7 +124,7 @@ namespace Hotel_Pere_Maria.ViewModels
             q = q.Where(r => r.PricePerNight >= pMin && r.PricePerNight <= pMax);
 
             if (OnlyAvailable)
-                q = q.Where(r => r.IsAvailable);
+                q = q.Where(r => r.EstaLibreAhora);
 
             Rooms = new ObservableCollection<Room>(q.ToList());
         }

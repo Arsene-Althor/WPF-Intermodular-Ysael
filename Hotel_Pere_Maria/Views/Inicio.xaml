@@ -3,109 +3,118 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="Inicio" Height="500" Width="800"
-        WindowStartupLocation="CenterScreen">
-    <Grid >
-        <DockPanel>
+        Title="Hotel Pere Maria — Panel"
+        WindowState="Maximized"
+        MinHeight="600" MinWidth="960"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Brush.PageBg}">
+    <DockPanel>
+        <!-- Barra superior: navegación en la misma ventana (sin apilar menús principales) -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource Brush.Surface}"
+                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="0,0,0,1" Padding="16,12">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Hotel Pere Maria" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource Brush.TextPrimary}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Border Background="{StaticResource Brush.AccentPastel}" CornerRadius="6" Padding="10,4" VerticalAlignment="Center">
+                        <TextBlock Text="Gestión" FontSize="11" Foreground="{StaticResource Brush.TextMuted}"/>
+                    </Border>
+                </StackPanel>
 
-            <Menu DockPanel.Dock="Top" Background="#F5F6F7" Padding="5" BorderBrush="Black" BorderThickness="1">
-                <Menu.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <DockPanel HorizontalAlignment="Stretch"/>
-                    </ItemsPanelTemplate>
-                </Menu.ItemsPanel>
-                
-                <MenuItem Header="Usuarios" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Usuarios" Command="{Binding AbrirGestionUsuariosCommand}"/>
-                </MenuItem>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource GhostButton}" Content="← Panel"
+                            Command="{Binding IrInicioCommand}"
+                            Visibility="{Binding IsSubPageVisible, Converter={StaticResource BoolToVis}}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Nueva reserva" Command="{Binding AbrirAddReservaCommand}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Reservas" Command="{Binding AbrirAllReservasCommand}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Usuarios" Command="{Binding AbrirGestionUsuariosCommand}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Habitaciones" Command="{Binding AbrirAllRoomsCommand}"/>
+                    <Rectangle Width="1" Height="22" Fill="{StaticResource Brush.AccentBorder}" Margin="12,0"/>
+                    <TextBlock Text="{Binding NombreUsuario, StringFormat='{}{0}'}" VerticalAlignment="Center"
+                               FontWeight="SemiBold" Foreground="{StaticResource Brush.TextPrimary}" Margin="0,0,12,0"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Perfil" Command="{Binding AbrirPerfilCommand}" Padding="10,6"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Salir" Command="{Binding CerrarSesionCommand}"
+                            Foreground="#C0392B" BorderBrush="{StaticResource Brush.DangerSoft}" Padding="10,6"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
 
-                <MenuItem Header="Habitaciones" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Gestionar Habitaciones" Command="{Binding AbrirAllRoomsCommand}" />
-                </MenuItem>
-
-                <MenuItem Header="Reservas" FontSize="14" Padding="10,5">
-                    <MenuItem Header="Añadir reserva" Command="{Binding AbrirAddReservaCommand}" />
-                    <MenuItem Header="Lista de reservas" Command="{Binding AbrirAllReservasCommand}"/>
-                </MenuItem>
-
-                <MenuItem DockPanel.Dock="Right" HorizontalAlignment="Right">
-                    <MenuItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock VerticalAlignment="Center" Margin="5,0" FontWeight="Bold" Text="{Binding NombreUsuario, StringFormat='Hola, {0}'}"></TextBlock>
-                            <Ellipse Width="25" Height="25" Margin="0,0,8,0">
-                                <Ellipse.Fill>
-                                    <ImageBrush ImageSource="{Binding ImagenPerfil}" Stretch="UniformToFill"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                        </StackPanel>
-                    </MenuItem.Header>
-                    <MenuItem Header="Mi perfil" Command="{Binding AbrirPerfilCommand}"></MenuItem>
-                    <MenuItem Header="Cerrar Sesión" Command="{Binding CerrarSesionCommand}" FontWeight="Bold" Foreground="#E74C3C"/>
-                </MenuItem>
-            </Menu>
-
-            <Grid x:Name="MainContent" Margin="20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"></RowDefinition>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
+        <Grid Margin="20">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          Visibility="{Binding IsHomeVisible, Converter={StaticResource BoolToVis}}">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition Width="Auto"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Row="0" Margin="0,0,0,20">
-                        <TextBlock Text="Bienvenido al Sistema de Gestión" FontSize="24" FontWeight="Bold" Foreground="#2C3E50"/>
-                        <TextBlock Text="Panel de control de reservas y clientes" FontSize="14" Foreground="Gray"/>
-                    </StackPanel>
-                    <Button Command="{Binding CargarDatosCommand}" Width="40" Height="40" HorizontalAlignment="Right" Margin="0,0,30,0" Background="Transparent" BorderBrush="Transparent">
-                        <Image Source="/Resources/565469 (1).png" ></Image>
-                    </Button>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <Button DockPanel.Dock="Right" Command="{Binding CargarDatosCommand}" Width="40" Height="40"
+                                Background="Transparent" BorderBrush="Transparent" ToolTip="Actualizar">
+                            <Image Source="/Resources/565469 (1).png"/>
+                        </Button>
+                        <StackPanel>
+                            <TextBlock Text="Panel de control" FontSize="26" FontWeight="SemiBold"
+                                       Foreground="{StaticResource Brush.TextPrimary}"/>
+                            <TextBlock Text="Reservas activas y accesos rápidos" FontSize="14"
+                                       Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Border Grid.Row="1" Background="{StaticResource Brush.AccentPastel}" CornerRadius="10" Padding="12,8" Margin="0,0,0,12" HorizontalAlignment="Left">
+                        <TextBlock Text="Reservas actuales" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="{StaticResource Brush.TextPrimary}"/>
+                    </Border>
+
+                    <Border Grid.Row="2" CornerRadius="12" BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1"
+                            Background="{StaticResource Brush.Surface}" Padding="12">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="520">
+                            <ItemsControl ItemsSource="{Binding ReservasActivas}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="4" MinHeight="200"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="6" MinHeight="200" CornerRadius="10"
+                                                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1"
+                                                Background="{StaticResource Brush.Surface}">
+                                            <Grid Margin="8">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="88"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <Border Grid.Row="0" CornerRadius="8" ClipToBounds="True" Background="{StaticResource Brush.PageBg}">
+                                                    <Image Stretch="UniformToFill"
+                                                           Source="{Binding RoomImage, Converter={StaticResource ImageUrlConverter}}"/>
+                                                </Border>
+                                                <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding reservation_id}" FontWeight="SemiBold" FontSize="15"
+                                                           Foreground="{StaticResource Brush.TextPrimary}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding room_id}" FontSize="12" HorizontalAlignment="Center"
+                                                           Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
+                                                <TextBlock Text="{Binding check_in, StringFormat='Entrada: {0:dd/MM HH:mm}'}"
+                                                           FontSize="10" HorizontalAlignment="Center" Foreground="#5D8AA8" Margin="0,6,0,0"/>
+                                                <TextBlock Text="{Binding check_out, StringFormat='Salida: {0:dd/MM HH:mm}'}"
+                                                           FontSize="10" HorizontalAlignment="Center" Foreground="#8FA3B0" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
                 </Grid>
+            </ScrollViewer>
 
-                <Grid Grid.Row="1">
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" FontFamily="Segoe UI Black" Margin="10">Reservas Actuales</TextBlock>
-                </Grid>
-
-
-
-                <Border Grid.Row="2" CornerRadius="5" BorderBrush="#FF4A4A4A" BorderThickness="2" Background="#80D4D4D4">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ScrollViewer.Background>
-                            <ImageBrush ImageSource="/Resources/HotelLogo.png" Stretch="Uniform" Opacity="0.5"/>
-                        </ScrollViewer.Background>
-                        <ItemsControl ItemsSource="{Binding ReservasActivas}" Margin="10">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="5"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Margin="5" Height="100" CornerRadius="8" BorderThickness="1" BorderBrush="#999">
-                                        <Border.Background>
-                                            <SolidColorBrush Color="White"/>
-                                        </Border.Background>
-
-                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                            <TextBlock Text="{Binding reservation_id}" FontWeight="Bold" FontSize="20" FontFamily="Segoe UI" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="{Binding room_id}" FontSize="14" HorizontalAlignment="Center"/>
-                                            <TextBlock Text="{Binding check_in,StringFormat='{}E: {0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="Green"/>
-                                            <TextBlock Text="{Binding check_out,StringFormat='{}S: {0:dd/MM/yyyy HH:mm tt}'}" FontSize="12" HorizontalAlignment="Center" Foreground="DarkRed"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Border>
-            </Grid>
-        </DockPanel>
-
-    </Grid>
+            <ContentControl Content="{Binding CurrentPage}"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top"
+                            Visibility="{Binding IsHomeVisible, Converter={StaticResource BoolToVis}, ConverterParameter=invert}"/>
+        </Grid>
+    </DockPanel>
 </Window>

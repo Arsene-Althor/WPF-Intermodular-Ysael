@@ -4,12 +4,13 @@
         Title="Login - Hotel Pere Maria"
         Height="700" Width="700"
         WindowStartupLocation="CenterScreen"
-        Background="#F5F6F7"
+        Background="{StaticResource Brush.PageBg}"
         ResizeMode="NoResize">
     <Grid>
-        <Border Background="White" CornerRadius="10" Padding="20" Margin="20" BorderBrush="#DDDDDD" BorderThickness="1" MaxWidth="400" VerticalAlignment="Center">
+        <Border Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="20" Margin="20"
+                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1" MaxWidth="400" VerticalAlignment="Center">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>
+                <DropShadowEffect BlurRadius="20" Opacity="0.15" ShadowDepth="0"/>
             </Border.Effect>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="350">
 
@@ -17,18 +18,18 @@
 
                 <TextBlock Text="INICIO DE SESIÓN"
                 FontSize="28"
-                FontWeight="Bold"
+                FontWeight="SemiBold"
                 Margin="0,20,0,30"
-                Foreground="#1f2121"
+                Foreground="{StaticResource Brush.TextPrimary}"
                 HorizontalAlignment="Center"/>
 
-                <TextBlock Text="Email" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="Email" Foreground="{StaticResource Brush.TextMuted}" Margin="0,0,0,5" FontSize="14" FontWeight="SemiBold"/>
                 <TextBox x:Name="TxtEmail"
                          Height="40" Padding="10" FontSize="14"
                          Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,15"
                          Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <TextBlock Text="Contraseña" Foreground="#626c7c" Margin="0,0,0,5" FontSize="14" FontWeight="Bold"/>
+                <TextBlock Text="Contraseña" Foreground="{StaticResource Brush.TextMuted}" Margin="0,0,0,5" FontSize="14" FontWeight="SemiBold"/>
                 <PasswordBox x:Name="TxtPassword" Height="40" Padding="10" FontSize="14"
                              Background="White" BorderThickness="1" BorderBrush="#d0d0d0" Margin="0,0,0,10"
                              Visibility="Visible"/>
@@ -44,15 +45,10 @@
                 </StackPanel>
 
                 <Button x:Name="BtnLogin" Margin="0,20,0,0" Padding="12"
-                        Background="#27AE60" Foreground="White" FontWeight="Bold" Cursor="Hand"
+                        Style="{StaticResource PrimaryActionButton}"
                         Content="{Binding LoginButtonText}"
                         Command="{Binding LoginCommand}"
                         IsEnabled="{Binding IsLoginEnabled}">
-                    <Button.Resources>
-                        <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="5"/>
-                        </Style>
-                    </Button.Resources>
                 </Button>
 
                 <TextBlock x:Name="TxtError" TextWrapping="Wrap" Margin="0,15,0,0" FontSize="12"

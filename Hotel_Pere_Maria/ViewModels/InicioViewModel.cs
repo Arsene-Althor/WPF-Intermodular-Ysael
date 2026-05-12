@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.Services;
@@ -18,11 +17,10 @@ namespace Hotel_Pere_Maria.ViewModels
     {
         private ObservableCollection<Reservation> _reservasActivas;
         private ImageSource _imagenPerfil;
-        private string _nombreUsuario;
+        private object _currentPage;
 
-        public event EventHandler RequestClose; // Para cerrar sesión
+        public event EventHandler RequestClose;
 
-        // Propiedades bindeables
         public ObservableCollection<Reservation> ReservasActivas
         {
             get => _reservasActivas;
@@ -37,8 +35,24 @@ namespace Hotel_Pere_Maria.ViewModels
 
         public string NombreUsuario => Session.User?.name ?? "Usuario";
 
-        // Comandos
+        /// <summary>Página incrustada (lista/añadir reserva). null = panel principal.</summary>
+        public object CurrentPage
+        {
+            get => _currentPage;
+            set
+            {
+                _currentPage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsHomeVisible));
+                OnPropertyChanged(nameof(IsSubPageVisible));
+            }
+        }
+
+        public bool IsHomeVisible => _currentPage == null;
+        public bool IsSubPageVisible => _currentPage != null;
+
         public ICommand CargarDatosCommand { get; }
+        public ICommand IrInicioCommand { get; }
         public ICommand AbrirAddReservaCommand { get; }
         public ICommand AbrirAllReservasCommand { get; }
         public ICommand AbrirGestionUsuariosCommand { get; }
@@ -48,15 +62,51 @@ namespace Hotel_Pere_Maria.ViewModels
 
         public InicioViewModel()
         {
-            CargarDatosCommand = new RelayCommand(async () => await CargarTodo());
-            AbrirAddReservaCommand = new RelayCommand(async () => await AbrirVentana(new addReserva()));
-            AbrirAllReservasCommand = new RelayCommand(async () => await AbrirVentana(new listReservas()));
-            AbrirGestionUsuariosCommand = new RelayCommand(() => new GestionUsuarios().ShowDialog());
+            CargarDatosCommand = new RelayCommand(() => { _ = CargarTodo(); });
+            IrInicioCommand = new RelayCommand(() => { _ = IrInicioAsync(); });
+            AbrirAddReservaCommand = new RelayCommand(OpenAddReservaEmbedded);
+            AbrirAllReservasCommand = new RelayCommand(OpenListReservasEmbedded);
+            AbrirGestionUsuariosCommand = new RelayCommand(OpenGestionUsuariosEmbedded);
             CerrarSesionCommand = new RelayCommand(async () => await ExecuteLogout());
             AbrirPerfilCommand = new RelayCommand(ExecuteAbrirPerfil);
-            AbrirAllRoomsCommand = new RelayCommand(() => new listRoom().ShowDialog());
+            AbrirAllRoomsCommand = new RelayCommand(OpenListRoomEmbedded);
 
-            _ = CargarTodo(); // Carga inicial
+            _ = CargarTodo();
+        }
+
+        private async Task IrInicioAsync()
+        {
+            CurrentPage = null;
+            await CargarTodo();
+        }
+
+        private void OpenAddReservaEmbedded()
+        {
+            var p = new addReserva();
+            if (p.DataContext is AddReservaViewModel vm)
+            {
+                vm.RequestClose += async (_, __) =>
+                {
+                    CurrentPage = null;
+                    await CargarTodo();
+                };
+            }
+            CurrentPage = p;
+        }
+
+        private void OpenGestionUsuariosEmbedded()
+        {
+            CurrentPage = new GestionUsuarios(false);
+        }
+
+        private void OpenListRoomEmbedded()
+        {
+            CurrentPage = new listRoom();
+        }
+
+        private void OpenListReservasEmbedded()
+        {
+            CurrentPage = new listReservas();
         }
 
         private async Task CargarTodo()
@@ -65,12 +115,15 @@ namespace Hotel_Pere_Maria.ViewModels
             await CargarReservas();
         }
 
-        private void ExecuteAbrirPerfil() { 
-            PerfilUsuario perfilWindow = new PerfilUsuario();
+        private void ExecuteAbrirPerfil()
+        {
+            var perfilWindow = new PerfilUsuario();
+            perfilWindow.Owner = Hotel_Pere_Maria.UiShell.OwnerWindow;
             perfilWindow.ShowDialog();
             CargarImagenPerfil();
             OnPropertyChanged(nameof(NombreUsuario));
         }
+
         private void CargarImagenPerfil()
         {
             try
@@ -82,7 +135,7 @@ namespace Hotel_Pere_Maria.ViewModels
                     ImagenPerfil = new BitmapImage(new Uri(fullUrl, UriKind.Absolute));
                 }
             }
-            catch { /* Fallback a imagen por defecto en XAML */ }
+            catch { /* sin imagen */ }
         }
 
         private async Task CargarReservas()
@@ -95,20 +148,14 @@ namespace Hotel_Pere_Maria.ViewModels
             catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
 
-        private async Task AbrirVentana(Window ventana)
-        {
-            ventana.ShowDialog();
-            await CargarReservas(); // Refrescar tras cerrar el diálogo
-        }
-
         private async Task ExecuteLogout()
         {
             var result = MessageBox.Show("¿Cerrar sesión?", "Logout", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
                 await AuthService.LogoutAsync();
-                new MainWindow().Show(); // Abrir Login
-                RequestClose?.Invoke(this, EventArgs.Empty); // Cerrar Inicio
+                new MainWindow().Show();
+                RequestClose?.Invoke(this, EventArgs.Empty);
             }
         }
     }

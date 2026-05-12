@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.RightsManagement;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Hotel_Pere_Maria.Models
@@ -18,7 +18,7 @@ namespace Hotel_Pere_Maria.Models
         public double price { get; set; }
         public string createdBy { get; set; }
 
-        // Propiedad para la imagen de la habitación (agregada por backend)
+        [JsonPropertyName("room_image")]
         public string RoomImage { get; set; }
 
         //La fecha de cancelación puede ser nula 

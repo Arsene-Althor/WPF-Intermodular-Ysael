@@ -285,6 +285,7 @@ namespace Hotel_Pere_Maria.ViewModels
         private void ExecuteNuevoUsuario()
         {
             InsertarUsuario ventanaNuevo = new InsertarUsuario();
+            ventanaNuevo.Owner = Hotel_Pere_Maria.UiShell.OwnerWindow;
             bool? resultado = ventanaNuevo.ShowDialog();
 
             if (resultado == true)
@@ -301,6 +302,7 @@ namespace Hotel_Pere_Maria.ViewModels
             if (UsuarioSeleccionado != null)
             {
                 InsertarUsuario ventanaEditar = new InsertarUsuario(UsuarioSeleccionado);
+                ventanaEditar.Owner = Hotel_Pere_Maria.UiShell.OwnerWindow;
                 bool? resultado = ventanaEditar.ShowDialog();
 
                 if (resultado == true)
@@ -401,6 +403,7 @@ namespace Hotel_Pere_Maria.ViewModels
             if (UsuarioSeleccionado != null)
             {
                 GestionarDescuento ventanaDesc = new GestionarDescuento(UsuarioSeleccionado);
+                ventanaDesc.Owner = Hotel_Pere_Maria.UiShell.OwnerWindow;
                 bool? resultado = ventanaDesc.ShowDialog();
 
                 if (resultado == true)

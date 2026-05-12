@@ -48,13 +48,17 @@ namespace Hotel_Pere_Maria.ViewModels
         // Comandos
         public ICommand LimpiarFiltrosCommand { get; }
         public ICommand ModificarReservaCommand { get; }
+        public ICommand AbrirAuditoriaReservaCommand { get; }
         public ICommand SeleccionarClienteCommand { get; }
         public ICommand SeleccionarRoomCommand { get;  }
+
+        private static Window? ShellOwner() => Hotel_Pere_Maria.UiShell.OwnerWindow;
 
         public ListReservasViewModel()
         {
             LimpiarFiltrosCommand = new RelayCommand(ExecuteLimpiarFiltros);
             ModificarReservaCommand = new RelayCommand<Reservation>(async (r) => await ExecuteModificar(r));
+            AbrirAuditoriaReservaCommand = new RelayCommand<Reservation>(ExecuteAbrirAuditoria);
             SeleccionarClienteCommand = new RelayCommand(ExecuteSeleccionarCliente);
             SeleccionarRoomCommand = new RelayCommand(ExecuteSeleccionarRoom);
 
@@ -114,6 +118,7 @@ namespace Hotel_Pere_Maria.ViewModels
             if (res.cancelation_date == null && res.check_out > DateTime.Now)
             {
                 modReserva win = new modReserva(res);
+                win.Owner = ShellOwner();
                 win.ShowDialog();
                 await CargarReservas();
             }
@@ -123,25 +128,38 @@ namespace Hotel_Pere_Maria.ViewModels
             }
         }
 
+        private void ExecuteAbrirAuditoria(Reservation res)
+        {
+            if (res == null) return;
+            var win = new AuditoriaReserva(res);
+            win.Owner = ShellOwner();
+            win.ShowDialog();
+        }
+
         private void ExecuteSeleccionarCliente()
         {
-            GestionUsuarios selector = new GestionUsuarios();
-            selector.Owner = System.Windows.Application.Current.Windows.OfType<Window>().SingleOrDefault(x => x.IsActive);
-            if (selector.ShowDialog() == true && selector.UsuarioSeleccionado != null)
+            try
             {
-                FiltroUser = selector.UsuarioSeleccionado.user_id;
+                var usuario = GestionUsuarios.ShowPickerDialog();
+                if (usuario != null)
+                {
+                    if (usuario.role == "client")
+                        FiltroUser = usuario.user_id;
+                    else
+                        MessageBox.Show("El usuario seleccionado no es un cliente.", "Aviso",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al abrir el selector de clientes: {ex.Message}");
             }
         }
 
         private void ExecuteSeleccionarRoom() {
-            var win = new listRoom(null, null);
-
-            bool? result = win.ShowDialog();
-
-            if (result == true && win.SelectedRoomResult != null)
-            {
-                FiltroRoom = win.SelectedRoomResult.RoomId;
-            }
+            if (!listRoom.TryPickRoom(null, null, out var picked) || picked == null)
+                return;
+            FiltroRoom = picked.RoomId;
         }
     }
 }

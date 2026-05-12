@@ -21,7 +21,7 @@ namespace Hotel_Pere_Maria.Views
         // Se queda en code-behind porque necesita DialogResult y this.Close()
         private void dbClick_SelectUser(object sender, MouseButtonEventArgs e)
         {
-            if ((this.Owner is addReserva || this.Owner is modReserva || this.Owner is listReservas) && dgUsuarios.SelectedItem is Usuario user)
+            if (Owner != null && dgUsuarios.SelectedItem is Usuario user)
             {
                 SelecUser = user;
                 DialogResult = true;
@@ -29,7 +29,7 @@ namespace Hotel_Pere_Maria.Views
             }
             else
             {
-                MessageBox.Show("Ventana abierta para modusuario");
+                MessageBox.Show("Abre el selector desde la pantalla de reservas o usuarios.");
             }
         }
     }

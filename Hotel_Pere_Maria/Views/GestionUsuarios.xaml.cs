@@ -1,60 +1,63 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.ViewModels;
 
 namespace Hotel_Pere_Maria.Views
 {
-    /// <summary>
-    /// MVVM: El code-behind ahora está casi vacío.
-    /// Toda la lógica (filtros, CRUD, carga de datos) vive en GestionUsuariosViewModel.
-    /// Aquí solo queda:
-    ///   1. Asignar el DataContext al ViewModel
-    ///   2. El doble-clic para seleccionar usuario (porque necesita DialogResult)
-    /// </summary>
-    public partial class GestionUsuarios : Window
+    public partial class GestionUsuarios : UserControl
     {
-        // Exponemos el ViewModel por si alguna otra ventana necesita acceder a él
         public GestionUsuariosViewModel ViewModel { get; }
-
-        // Esta propiedad se usa cuando GestionUsuarios se abre como selector
-        // (desde addReserva, modReserva, etc.) para devolver el usuario elegido
         public Usuario? UsuarioSeleccionado { get; private set; }
 
-        public GestionUsuarios()
-        {
-            InitializeComponent();
+        private readonly bool _modoSelector;
 
-            // MVVM: Creamos el ViewModel y lo asignamos como DataContext.
-            // A partir de aquí, todos los {Binding} del XAML buscan sus propiedades
-            // en este ViewModel automáticamente.
+        public GestionUsuarios() : this(false) { }
+
+        /// <param name="modoSelector">true: doble clic devuelve usuario y cierra ventana contenedora.</param>
+        public GestionUsuarios(bool modoSelector)
+        {
+            _modoSelector = modoSelector;
+            InitializeComponent();
             ViewModel = new GestionUsuariosViewModel();
             DataContext = ViewModel;
         }
 
-        /// <summary>
-        /// MVVM: Este evento se queda en el code-behind porque necesita
-        /// acceso a DialogResult y this.Close(), que son cosas de la VISTA (UI),
-        /// no de la lógica de negocio. Esto es perfectamente válido en MVVM.
-        /// </summary>
-        private void dgUsuarios_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /// <summary>Abre selector en ventana modal. Devuelve null si cancela.</summary>
+        public static Usuario? ShowPickerDialog()
         {
-            if (dgUsuarios.SelectedItem is Usuario usuario)
+            var uc = new GestionUsuarios(true);
+            var shell = new Window
             {
-                // Si esta ventana fue abierta desde otra ventana (como selector)
-                if (this.Owner != null)
-                {
-                    if (this.Owner is addReserva || this.Owner is modReserva || this.Owner is listReservas)
-                    {
-                        UsuarioSeleccionado = usuario;
-                        this.DialogResult = true;
-                        this.Close();
-                        return;
-                    }
-                }
+                Owner = UiShell.OwnerWindow,
+                Title = "Seleccionar cliente",
+                Width = 1100,
+                Height = 750,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Content = uc
+            };
+            return shell.ShowDialog() == true ? uc.UsuarioSeleccionado : null;
+        }
 
-                // Si no es selector, abrimos edición a través del ViewModel
-                ViewModel.EditarUsuarioCommand.Execute(null);
+        private void dgUsuarios_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (dgUsuarios.SelectedItem is not Usuario usuario)
+                return;
+
+            if (_modoSelector)
+            {
+                UsuarioSeleccionado = usuario;
+                var w = Window.GetWindow(this);
+                if (w != null)
+                {
+                    w.DialogResult = true;
+                    w.Close();
+                }
+                return;
             }
+
+            ViewModel.EditarUsuarioCommand.Execute(null);
         }
     }
 }
