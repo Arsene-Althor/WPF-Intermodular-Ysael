@@ -44,13 +44,14 @@ Hotel_Pere_Maria/
 ├── App.xaml / App.xaml.cs               # Punto de entrada de la aplicación
 ├── MainWindow.xaml / MainWindow.xaml.cs  # Ventana de login
 ├── Hotel_Pere_Maria.csproj              # Configuración del proyecto (.NET 8)
+├── UiShell.cs                           # Helper para Owner de ventanas modales
 │
 ├── Models/                              # Clases de datos
 │   ├── Usuario.cs                       # Modelo de usuario
 │   ├── Reservation.cs                   # Modelo de reserva
-│   ├── Room.cs                          # Modelo de habitación
+│   ├── Room.cs                          # Modelo de habitación (isOperational, isOccupiedNow)
 │   ├── BookingAuditEntry.cs             # Registro de auditoría (API)
-│   └── HistorialAuditoriaFila.cs        # Fila de presentación (UI)
+│   └── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
 │
 ├── Services/                            # Comunicación con la API
 │   ├── ApiService.cs                    # Configuración base (URL + HttpClient)
@@ -64,10 +65,11 @@ Hotel_Pere_Maria/
 │   ├── BaseViewModel.cs                 # Clase base (INotifyPropertyChanged)
 │   ├── RelayCommand.cs                  # Implementación de ICommand
 │   ├── LoginViewModel.cs
-│   ├── InicioViewModel.cs
+│   ├── InicioViewModel.cs               # Dashboard principal
 │   ├── ListReservasViewModel.cs
 │   ├── AddReservaViewModel.cs
 │   ├── ModReservaViewModel.cs
+│   ├── AuditoriaReservaViewModel.cs     # Historial de auditoría de una reserva
 │   ├── ListRoomViewModel.cs
 │   ├── ModRoomViewModel.cs
 │   ├── GestionUsuariosViewModel.cs
@@ -77,17 +79,22 @@ Hotel_Pere_Maria/
 │   └── GestionarDescuentoViewModel.cs
 │
 ├── Views/                               # Pantallas XAML
-│   ├── Inicio.xaml                      # Pantalla principal (dashboard)
+│   ├── Inicio.xaml                      # Dashboard
 │   ├── listReservas.xaml                # Listado de reservas
-│   ├── addReserva.xaml                  # Formulario de nueva reserva
-│   ├── modReserva.xaml                  # Edición de reserva
-│   ├── listRoom.xaml                    # Listado de habitaciones
-│   ├── modRoom.xaml                     # Edición de habitación
+│   ├── addReserva.xaml / modReserva.xaml # Crear / editar reserva
+│   ├── AuditoriaReserva.xaml            # Ventana de auditoría
+│   ├── listRoom.xaml / modRoom.xaml     # Habitaciones
 │   ├── GestionUsuarios.xaml             # Gestión de usuarios
-│   ├── InsertarUsuario.xaml             # Crear usuario
-│   ├── SelectedUser.xaml                # Detalle de usuario
-│   ├── PerfilUsuario.xaml               # Perfil del usuario logueado
-│   └── GestionarDescuento.xaml          # Gestión de descuentos
+│   ├── InsertarUsuario.xaml / SelectedUser.xaml
+│   ├── PerfilUsuario.xaml
+│   └── GestionarDescuento.xaml
+│
+├── Converters/                          # Value Converters para XAML
+│   ├── BoolToVisibilityConverter.cs     # Bool → Visible/Collapsed (con soporte "invert")
+│   └── ImageUrlConverter.cs             # Validación y carga de URLs de imagen
+│
+├── Themes/
+│   └── AppTheme.xaml                    # Estilos y recursos globales de la aplicación
 │
 └── Resources/                           # Imágenes y recursos
     ├── HotelLogo.png
@@ -105,9 +112,10 @@ View (XAML + Binding) → ViewModel (INotifyPropertyChanged) → Service (HttpCl
 ```
 
 - **View**: ventanas XAML con data binding a las propiedades del ViewModel.
-- **ViewModel**: implementa `INotifyPropertyChanged` y `ICommand` para gestionar la lógica de presentación sin acoplar la UI.
+- **ViewModel**: implementa `INotifyPropertyChanged` y `ICommand` para gestionar la lógica de presentación.
 - **Service**: clases estáticas que encapsulan las peticiones HTTP a la API.
-- **Model**: clases de datos (`data class` equivalentes) con atributos `[JsonPropertyName]` para la deserialización.
+- **Model**: clases de datos con atributos `[JsonPropertyName]` para la deserialización.
+- **Converters**: implementaciones de `IValueConverter` para transformar datos en la vista (por ejemplo, `bool` → `Visibility`).
 
 ---
 
@@ -125,40 +133,21 @@ public static class ApiService
 }
 ```
 
-Todos los servicios (`AuthService`, `ReservationService`, `RoomService`, `UserService`) utilizan este `HttpClient` y componen la URL a partir de `BaseUrl`.
-
 ### `AuthService.cs`
 
-Gestiona el login y logout contra la API:
+Gestiona login y logout:
 
 ```csharp
-public static class AuthService
+public static async Task<Usuario> LoginAsync(string email, string password)
 {
-    public static async Task<Usuario> LoginAsync(string email, string password)
-    {
-        var request = new Usuario { email = email, password = password };
-        string json = JsonSerializer.Serialize(request);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+    var request = new Usuario { email = email, password = password };
+    string json = JsonSerializer.Serialize(request);
+    var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await ApiService._httpClient.PostAsync(
-            ApiService.BaseUrl + "auth/login", content
-        );
-
-        string responseContent = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception($"Error {response.StatusCode}: {responseContent}");
-
-        var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return JsonSerializer.Deserialize<Usuario>(responseContent, opciones);
-    }
-
-    public static async Task LogoutAsync()
-    {
-        try { await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "auth/logout", null); }
-        catch { /* se ignora el error de red */ }
-        finally { Session.Clear(); }
-    }
+    var response = await ApiService._httpClient.PostAsync(
+        ApiService.BaseUrl + "auth/login", content
+    );
+    // Deserializa la respuesta a un objeto Usuario
 }
 ```
 
@@ -168,21 +157,15 @@ public static class AuthService
 
 ### `Session.cs`
 
-Almacena en memoria el token JWT y el objeto del usuario logueado. Está disponible globalmente desde cualquier ventana:
+Almacena en memoria el token JWT y el objeto del usuario logueado:
 
 ```csharp
 public static class Session
 {
-    // Token JWT para las cabeceras Authorization: Bearer {token}
     public static string Token { get; set; }
-
-    // Objeto con todos los datos del usuario logueado
     public static Usuario User { get; set; }
-
-    // Propiedad de lectura: true si hay sesión activa
     public static bool IsLoggedIn => !string.IsNullOrEmpty(Token) && User != null;
 
-    // Limpia la sesión al hacer logout
     public static void Clear()
     {
         Token = null;
@@ -191,17 +174,28 @@ public static class Session
 }
 ```
 
-Los servicios que requieren autenticación configuran la cabecera antes de cada petición:
+Los servicios que requieren autenticación configuran la cabecera `Authorization: Bearer` antes de cada petición:
 
 ```csharp
 private static void ConfigurarCabeceras()
 {
     ApiService._httpClient.DefaultRequestHeaders.Authorization = null;
     if (!string.IsNullOrEmpty(Session.Token))
-    {
         ApiService._httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", Session.Token);
-    }
+}
+```
+
+### `UiShell.cs`
+
+Utilidad para obtener la ventana activa como `Owner` de diálogos modales:
+
+```csharp
+public static class UiShell
+{
+    public static Window? OwnerWindow =>
+        Application.Current?.MainWindow
+        ?? Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive);
 }
 ```
 
@@ -209,144 +203,145 @@ private static void ConfigurarCabeceras()
 
 ## Módulos principales
 
+### Habitaciones
+
+#### Modelo — `Room.cs`
+
+```csharp
+public class Room
+{
+    [JsonPropertyName("room_id")]         public string RoomId { get; set; }
+    [JsonPropertyName("type")]            public string Type { get; set; }
+    [JsonPropertyName("description")]     public string Description { get; set; }
+    [JsonPropertyName("image")]           public string Image { get; set; }
+    [JsonPropertyName("price_per_night")] public double PricePerNight { get; set; }
+    [JsonPropertyName("max_occupancy")]   public int MaxOccupancy { get; set; }
+
+    /// <summary>En servicio (true) o fuera de servicio (false).</summary>
+    [JsonPropertyName("is_operational")]  public bool IsOperational { get; set; } = true;
+
+    /// <summary>Calculado por API: hay reserva activa sin cancelar.</summary>
+    [JsonPropertyName("is_occupied_now")] public bool IsOccupiedNow { get; set; }
+
+    /// <summary>Libre ahora: en servicio y sin huésped en curso.</summary>
+    public bool EstaLibreAhora => IsOperational && !IsOccupiedNow;
+
+    [JsonIgnore] public string EstadoServicioTexto => IsOperational ? "En servicio" : "Fuera de servicio";
+    [JsonIgnore] public string OcupacionTexto => IsOccupiedNow ? "Reservada ahora" : "Libre ahora";
+}
+```
+
+- **`IsOperational`**: controlado por el empleado/administrador desde la vista de habitaciones.
+- **`IsOccupiedNow`**: calculado en la API a partir de reservas activas.
+- **`EstaLibreAhora`**: propiedad calculada localmente para la interfaz.
+- **`EstadoServicioTexto`** / **`OcupacionTexto`**: textos para binding directo en XAML.
+
 ### Reservas (`ReservationService.cs`)
 
-Operaciones disponibles:
-
-| Método                    | Verbo HTTP | Ruta API                            | Descripción                        |
-|---------------------------|-----------|--------------------------------------|------------------------------------|
-| `InsertarReserva`         | `POST`    | `/reservation/add`                   | Crear una nueva reserva            |
-| `updateReservation`       | `PATCH`   | `/reservation/update`                | Actualizar una reserva existente   |
-| `cancelReservation`       | `DELETE`  | `/reservation/cancel/:id?price=X`    | Cancelar una reserva               |
-| `getAllActiveReservation`  | `GET`     | `/reservation/allActive`             | Obtener reservas activas           |
-| `getAllReservation`        | `GET`     | `/reservation/all`                   | Obtener todas las reservas         |
-| `getPriceReservation`     | `POST`    | `/reservation/getPrice`              | Calcular precio de reserva         |
-| `getCancelationPrice`     | `POST`    | `/reservation/getCancelationPrice`   | Calcular penalización              |
-| `GetBookingAuditAsync`    | `GET`     | `/reservation/:id/audit`             | Historial de auditoría             |
+| Método                    | Verbo    | Ruta API                            |
+|---------------------------|----------|--------------------------------------|
+| `InsertarReserva`         | `POST`   | `/reservation/add`                   |
+| `updateReservation`       | `PATCH`  | `/reservation/update`                |
+| `cancelReservation`       | `DELETE` | `/reservation/cancel/:id?price=X`    |
+| `getAllActiveReservation`  | `GET`    | `/reservation/allActive`             |
+| `getAllReservation`        | `GET`    | `/reservation/all`                   |
+| `getPriceReservation`     | `POST`   | `/reservation/getPrice`              |
+| `getCancelationPrice`     | `POST`   | `/reservation/getCancelationPrice`   |
+| `GetBookingAuditAsync`    | `GET`    | `/reservation/:id/audit`             |
 
 #### Cancelación con `DELETE`
 
 ```csharp
-public static async Task<(bool exito, string mensaje)> cancelReservation(Reservation r, double precioCancel)
-{
-    double? precionew = r.price - precioCancel;
-    string priceStr = (precionew ?? 0d).ToString(CultureInfo.InvariantCulture);
-
-    // Construye la URL con el ID en la ruta y el precio en query string
-    string cancelUrl = $"{ApiService.BaseUrl}reservation/cancel/{Uri.EscapeDataString(r.reservation_id)}?price={priceStr}";
-    var response = await ApiService._httpClient.DeleteAsync(cancelUrl);
-
-    string mensajeServidor = await response.Content.ReadAsStringAsync();
-    return response.IsSuccessStatusCode
-        ? (true, mensajeServidor)
-        : (false, mensajeServidor);
-}
+string cancelUrl = $"{ApiService.BaseUrl}reservation/cancel/{Uri.EscapeDataString(r.reservation_id)}?price={priceStr}";
+var response = await ApiService._httpClient.DeleteAsync(cancelUrl);
 ```
 
 #### Actualización con `PATCH`
 
 ```csharp
-public static async Task<(bool exito, string mensaje)> updateReservation(Reservation reservamod)
-{
-    string json = JsonSerializer.Serialize(reservamod);
-    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-    var response = await ApiService._httpClient.PatchAsync(
-        ApiService.BaseUrl + "reservation/update", content
-    );
-
-    string mensajeServidor = await response.Content.ReadAsStringAsync();
-    return response.IsSuccessStatusCode
-        ? (true, mensajeServidor)
-        : (false, mensajeServidor);
-}
+var response = await ApiService._httpClient.PatchAsync(
+    ApiService.BaseUrl + "reservation/update", content
+);
 ```
 
 ### Auditoría
 
-La aplicación WPF puede consultar el historial de auditoría de cualquier reserva.
+#### `AuditoriaReservaViewModel.cs`
 
-#### Modelo (`BookingAuditEntry.cs`)
+ViewModel dedicado a la ventana de historial de auditoría de una reserva. Características principales:
 
-Deserializa la respuesta de `GET /reservation/{id}/audit`:
-
-```csharp
-public class BookingAuditEntry
-{
-    [JsonPropertyName("booking_id")]       public string BookingId { get; set; }
-    [JsonPropertyName("action")]           public string Action { get; set; }
-    [JsonPropertyName("actor_id")]         public string ActorId { get; set; }
-    [JsonPropertyName("actor_type")]       public string ActorType { get; set; }
-    [JsonPropertyName("timestamp")]        public DateTime? Timestamp { get; set; }
-    [JsonPropertyName("resumen_cambios")]  public List<string> ResumenCambios { get; set; }
-}
-```
-
-#### Modelo de presentación (`HistorialAuditoriaFila.cs`)
-
-Transforma los datos de auditoría para su visualización en la interfaz:
+- **Carga asíncrona** del historial con `CargarHistorialAsync()`.
+- **Resolución de nombres**: mapea `actor_id` a nombres completos consultando la lista de usuarios.
+- **Filtrado por acción**: permite filtrar por `CREATED`, `UPDATED`, `CANCELED`, etc.
+- **Traducción de acciones**: convierte las acciones de la API a textos legibles en español.
 
 ```csharp
-public class HistorialAuditoriaFila
+public class AuditoriaReservaViewModel : BaseViewModel
 {
-    public string Accion { get; set; }
-    public string ActorId { get; set; }
-    public DateTime? Fecha { get; set; }
+    public ObservableCollection<HistorialAuditoriaFila> HistorialFilas { get; }
+    public ObservableCollection<string> FiltrosAccion { get; }  // "Todas", "CREATED", "UPDATED"...
+    public string FiltroAccionSeleccionado { get; set; }        // Filtra al cambiar
 
-    // Formato legible para la UI: "11/05/2026 01:18"
-    public string FechaFormateada =>
-        Fecha.HasValue ? Fecha.Value.ToString("dd/MM/yyyy HH:mm") : "—";
-
-    public string ResumenTexto { get; set; }
-}
-```
-
-#### Servicio (`ReservationService.cs`)
-
-```csharp
-public static async Task<(bool exito, string mensaje, List<BookingAuditEntry> lista)>
-    GetBookingAuditAsync(string reservation_id)
-{
-    ConfigurarCabeceras();
-    string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/audit";
-    var response = await ApiService._httpClient.GetAsync(url);
-    string cuerpo = await response.Content.ReadAsStringAsync();
-
-    if (!response.IsSuccessStatusCode)
-        return (false, cuerpo, null);
-
-    var opts = new JsonSerializerOptions
+    public async Task CargarHistorialAsync(bool forzar = false)
     {
-        PropertyNameCaseInsensitive = true,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
-    };
-    var lista = JsonSerializer.Deserialize<List<BookingAuditEntry>>(cuerpo, opts)
-                ?? new List<BookingAuditEntry>();
-
-    return (true, null, lista);
+        var (ok, err, lista) = await ReservationService.GetBookingAuditAsync(_reservationId);
+        // Resuelve nombres de actores
+        // Traduce acciones: "CREATED" → "Alta de reserva", "CANCELED" → "Cancelación"
+        // Aplica filtro seleccionado
+    }
 }
 ```
 
-### Gestión de usuarios
+#### Modelos de auditoría
 
-El módulo de usuarios permite operaciones CRUD completas (crear, listar, editar, eliminar) y gestión de descuentos VIP. Solo accesible para roles de administrador y empleado.
+- **`BookingAuditEntry.cs`**: deserializa `GET /reservation/:id/audit`, incluye `ResumenCambios`.
+- **`HistorialAuditoriaFila.cs`**: modelo de presentación con `FechaFormateada` (`dd/MM/yyyy HH:mm`) y `ResumenTexto`.
 
-### Habitaciones
+### Converters
 
-Permite visualizar, editar y gestionar la disponibilidad de las habitaciones del hotel.
+#### `BoolToVisibilityConverter.cs`
+
+Convierte valores booleanos a `Visibility` en XAML, con soporte para inversión mediante parámetro:
+
+```csharp
+// Uso en XAML:
+// Visibility="{Binding IsOperational, Converter={StaticResource BoolToVisibility}}"
+// Visibility="{Binding IsOperational, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}"
+```
+
+#### `ImageUrlConverter.cs`
+
+Valida y convierte URLs de imagen para su uso en controles `Image` de WPF.
+
+### Temas — `AppTheme.xaml`
+
+Diccionario de recursos XAML que define los estilos globales de la aplicación: colores, tipografías y estilos de controles reutilizables.
 
 ---
 
 ## Cambios recientes
 
-### Integración de auditoría
+### Habitaciones — `IsOperational` e `IsOccupiedNow`
 
-- Se añadieron los modelos `BookingAuditEntry` y `HistorialAuditoriaFila` para representar y visualizar el historial de cambios en reservas.
-- Se implementó `GetBookingAuditAsync` en `ReservationService.cs` para consultar el endpoint `GET /reservation/:id/audit`.
+- El modelo `Room.cs` incorpora los nuevos campos `IsOperational` e `IsOccupiedNow` (mapeados desde `is_operational` e `is_occupied_now`).
+- Se añadieron las propiedades calculadas `EstaLibreAhora`, `EstadoServicioTexto` y `OcupacionTexto` para binding en XAML.
+- La vista de habitaciones permite activar/desactivar el estado operativo de una habitación.
+
+### Auditoría — Vista completa
+
+- Nueva vista `AuditoriaReserva.xaml` con su ViewModel `AuditoriaReservaViewModel.cs`.
+- Carga el historial de auditoría, resuelve nombres de actores, y permite filtrar por tipo de acción.
+- Las acciones se traducen al español (`"CREATED"` → `"Alta de reserva"`, etc.).
+
+### Infraestructura UI
+
+- **`UiShell.cs`**: utilidad para obtener la ventana `Owner` correcta en diálogos modales.
+- **`Converters/`**: nuevos value converters (`BoolToVisibilityConverter`, `ImageUrlConverter`) para simplificar la lógica visual en XAML.
+- **`Themes/AppTheme.xaml`**: diccionario de recursos globales con estilos unificados para toda la aplicación.
 
 ### Refactorización de verbos HTTP
 
-- **Cancelación**: migrado de `POST /cancel` (con body) a `DELETE /cancel/:reservation_id?price=X` (ID en ruta, precio en query string).
-- **Actualización**: migrado de `PUT /update` a `PATCH /update` para reflejar correctamente que las actualizaciones son parciales.
+- Cancelación: `DELETE /cancel/:reservation_id?price=X`.
+- Actualización: `PATCH /update`.
 
 ---
