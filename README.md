@@ -1,6 +1,6 @@
 # WPF — Hotel Pere María (Escritorio)
 
-Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la gestión administrativa del Hotel Pere María. Permite a empleados y administradores gestionar usuarios, habitaciones, reservas y consultar el historial de auditoría. Se comunica con la API REST del proyecto intermodular mediante `HttpClient`.
+Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la gestión administrativa del Hotel Pere María. Permite a empleados y administradores gestionar usuarios, habitaciones (incluidas **ofertas**, **galería** y **servicios extra** vía API), reservas y consultar el historial de auditoría. Se comunica con la API REST del proyecto intermodular mediante `HttpClient`.
 
 ---
 
@@ -12,6 +12,7 @@ Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la ges
 - [Arquitectura](#arquitectura)
 - [Conexión con la API](#conexión-con-la-api)
 - [Gestión de sesión](#gestión-de-sesión)
+- [Identidad visual](#identidad-visual)
 - [Módulos principales](#módulos-principales)
 - [Cambios recientes](#cambios-recientes)
 
@@ -37,6 +38,16 @@ Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la ges
 
 ---
 
+## Identidad visual
+
+La interfaz de escritorio busca un aspecto **profesional y legible**, cercano a un panel de administración moderno:
+
+- **Recursos globales** en `Themes/AppTheme.xaml`: paleta y estilos compartidos (menos duplicación en XAML).
+- **Formularios de gestión** (p. ej. habitación): superficie **blanca** con borde redondeado y **sombra muy suave**, márgenes amplios y jerarquía tipográfica clara (Segoe UI).
+- **Converters** (`BoolToVisibilityConverter`, `ImageUrlConverter`) mantienen el código-behind limpio y evitan lógica visual repetida.
+
+---
+
 ## Estructura del proyecto
 
 ```
@@ -49,7 +60,8 @@ Hotel_Pere_Maria/
 ├── Models/                              # Clases de datos
 │   ├── Usuario.cs                       # Modelo de usuario
 │   ├── Reservation.cs                   # Modelo de reserva
-│   ├── Room.cs                          # Modelo de habitación (isOperational, isOccupiedNow)
+│   ├── Room.cs                          # Habitación (operativa, oferta, galería, servicios)
+│   ├── ExtraServiceDto.cs               # Catálogo GET /room/extra-services
 │   ├── BookingAuditEntry.cs             # Registro de auditoría (API)
 │   └── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
 │
@@ -58,7 +70,8 @@ Hotel_Pere_Maria/
 │   ├── AuthService.cs                   # Login y logout
 │   ├── Session.cs                       # Datos de sesión en memoria
 │   ├── ReservationService.cs            # Operaciones de reservas + auditoría
-│   ├── RoomService.cs                   # Operaciones de habitaciones
+│   ├── RoomService.cs                   # Habitaciones (all, one, available, update, create)
+│   ├── ExtraServiceCatalogService.cs    # Catálogo de servicios extra (API)
 │   └── UserService.cs                   # Operaciones de usuarios
 │
 ├── ViewModels/                          # Lógica de presentación (MVVM)
@@ -207,34 +220,28 @@ public static class UiShell
 
 #### Modelo — `Room.cs`
 
-```csharp
-public class Room
-{
-    [JsonPropertyName("room_id")]         public string RoomId { get; set; }
-    [JsonPropertyName("type")]            public string Type { get; set; }
-    [JsonPropertyName("description")]     public string Description { get; set; }
-    [JsonPropertyName("image")]           public string Image { get; set; }
-    [JsonPropertyName("price_per_night")] public double PricePerNight { get; set; }
-    [JsonPropertyName("max_occupancy")]   public int MaxOccupancy { get; set; }
+Propiedades relevantes (mapeo JSON con `System.Text.Json`):
 
-    /// <summary>En servicio (true) o fuera de servicio (false).</summary>
-    [JsonPropertyName("is_operational")]  public bool IsOperational { get; set; } = true;
+| Área | Propiedades |
+|------|----------------|
+| Identificación | `RoomId`, `Type`, `Description`, `MaxOccupancy`, `Rate` |
+| Precio | `PricePerNight`, `OfferActive`, `OfferPercent`, `EffectivePricePerNight` |
+| Multimedia | `Image` (legacy / join), `Images` (lista) |
+| Servicios | `ExtraServices` (IDs del catálogo, p. ej. `EXT-001`) |
+| Estado | `IsOperational`, `IsOccupiedNow`; helpers `EstaLibreAhora`, `EstadoServicioTexto`, `OcupacionTexto` |
 
-    /// <summary>Calculado por API: hay reserva activa sin cancelar.</summary>
-    [JsonPropertyName("is_occupied_now")] public bool IsOccupiedNow { get; set; }
+La API devuelve ya `effective_price_per_night` e `images` normalizados; el escritorio los consume tal cual para mantener **paridad** con la app Android.
 
-    /// <summary>Libre ahora: en servicio y sin huésped en curso.</summary>
-    public bool EstaLibreAhora => IsOperational && !IsOccupiedNow;
+#### Servicios — `RoomService.cs`
 
-    [JsonIgnore] public string EstadoServicioTexto => IsOperational ? "En servicio" : "Fuera de servicio";
-    [JsonIgnore] public string OcupacionTexto => IsOccupiedNow ? "Reservada ahora" : "Libre ahora";
-}
-```
+- **`GetRoomByIdAsync`**: `GET {BaseUrl}room/one?id={roomId}` (query correcta; ID escapado).
+- **`GetAvailableRoomsAsync`**: `GET room/available?checkIn=yyyy-MM-dd&checkOut=…&guests=N` (reservas / disponibilidad administrativa si se usa).
+- **`CreateRoomAsync` / `UpdateRoomAsync`**: `POST room/create`, `PUT room/update` con payload acorde al modelo extendido.
 
-- **`IsOperational`**: controlado por el empleado/administrador desde la vista de habitaciones.
-- **`IsOccupiedNow`**: calculado en la API a partir de reservas activas.
-- **`EstaLibreAhora`**: propiedad calculada localmente para la interfaz.
-- **`EstadoServicioTexto`** / **`OcupacionTexto`**: textos para binding directo en XAML.
+#### UI — `modRoom.xaml` + `ModRoomViewModel.cs`
+
+- Tarjeta central **blanca**, bordes redondeados y sombra ligera (coherente con el resto del shell).
+- Secciones para **oferta** (activar + porcentaje), **galería** (URLs por línea, añadir/quitar) y **servicios extra** (catálogo + crear nombre nuevo → API genera `EXT-xxx`).
 
 ### Reservas (`ReservationService.cs`)
 
@@ -321,27 +328,21 @@ Diccionario de recursos XAML que define los estilos globales de la aplicación: 
 
 ## Cambios recientes
 
-### Habitaciones — `IsOperational` e `IsOccupiedNow`
+### Habitaciones, ofertas y catálogo (2026)
 
-- El modelo `Room.cs` incorpora los nuevos campos `IsOperational` e `IsOccupiedNow` (mapeados desde `is_operational` e `is_occupied_now`).
-- Se añadieron las propiedades calculadas `EstaLibreAhora`, `EstadoServicioTexto` y `OcupacionTexto` para binding en XAML.
-- La vista de habitaciones permite activar/desactivar el estado operativo de una habitación.
+- Modelo `Room` ampliado: galería (`Images` / `Image`), `ExtraServices`, ofertas y `EffectivePricePerNight` desde la API.
+- **`ExtraServiceDto`** + **`ExtraServiceCatalogService`**: consumo de `GET/POST /room/extra-services` para rellenar checkboxes y crear servicios nuevos desde `modRoom`.
+- **`RoomService.GetRoomByIdAsync`**: corrección a `GET room/one?id=…` (antes la URL podía construirse de forma incorrecta).
+- **`modRoom.xaml` / `ModRoomViewModel`**: formulario renovado (estética tipo tarjeta, oferta, galería URL, servicios); build estable tras limpieza del ViewModel.
 
-### Auditoría — Vista completa
+### Identidad visual e infraestructura
 
-- Nueva vista `AuditoriaReserva.xaml` con su ViewModel `AuditoriaReservaViewModel.cs`.
-- Carga el historial de auditoría, resuelve nombres de actores, y permite filtrar por tipo de acción.
-- Las acciones se traducen al español (`"CREATED"` → `"Alta de reserva"`, etc.).
+- Sección dedicada arriba; **`AppTheme.xaml`** y converters como base de UI consistente.
+- **`UiShell.cs`**: ventana propietaria correcta en modales.
 
-### Infraestructura UI
+### Funcionalidad ya documentada (recordatorio breve)
 
-- **`UiShell.cs`**: utilidad para obtener la ventana `Owner` correcta en diálogos modales.
-- **`Converters/`**: nuevos value converters (`BoolToVisibilityConverter`, `ImageUrlConverter`) para simplificar la lógica visual en XAML.
-- **`Themes/AppTheme.xaml`**: diccionario de recursos globales con estilos unificados para toda la aplicación.
-
-### Refactorización de verbos HTTP
-
-- Cancelación: `DELETE /cancel/:reservation_id?price=X`.
-- Actualización: `PATCH /update`.
+- Auditoría de reserva en ventana dedicada con filtros y textos en español.
+- Reservas: `DELETE` cancelación, `PATCH` actualización.
 
 ---
