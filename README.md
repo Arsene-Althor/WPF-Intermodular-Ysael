@@ -14,7 +14,8 @@ Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la ges
 - [Gestión de sesión](#gestión-de-sesión)
 - [Identidad visual](#identidad-visual)
 - [Módulos principales](#módulos-principales)
-- [Cambios recientes](#cambios-recientes)
+- [Ejemplos de código](#ejemplos-de-código)
+- [Evolución del proyecto](#evolución-del-proyecto-desde-la-creación)
 
 ---
 
@@ -232,11 +233,38 @@ Propiedades relevantes (mapeo JSON con `System.Text.Json`):
 
 La API devuelve ya `effective_price_per_night` e `images` normalizados; el escritorio los consume tal cual para mantener **paridad** con la app Android.
 
+Fragmento del modelo (propiedades JSON más usadas en UI y persistencia):
+
+```csharp
+public class Room
+{
+    [JsonPropertyName("room_id")] public string RoomId { get; set; }
+    [JsonPropertyName("description")] public string Description { get; set; }
+    [JsonPropertyName("price_per_night")] public double PricePerNight { get; set; }
+    [JsonPropertyName("images")] public List<string> Images { get; set; } = new();
+    [JsonPropertyName("extra_services")] public List<string> ExtraServices { get; set; } = new();
+    [JsonPropertyName("offer_active")] public bool OfferActive { get; set; }
+    [JsonPropertyName("offer_percent")] public double OfferPercent { get; set; }
+    [JsonPropertyName("effective_price_per_night")] public double? EffectivePricePerNight { get; set; }
+    [JsonPropertyName("is_operational")] public bool IsOperational { get; set; } = true;
+    [JsonPropertyName("is_occupied_now")] public bool IsOccupiedNow { get; set; }
+    public bool EstaLibreAhora => IsOperational && !IsOccupiedNow;
+}
+```
+
 #### Servicios — `RoomService.cs`
 
 - **`GetRoomByIdAsync`**: `GET {BaseUrl}room/one?id={roomId}` (query correcta; ID escapado).
 - **`GetAvailableRoomsAsync`**: `GET room/available?checkIn=yyyy-MM-dd&checkOut=…&guests=N` (reservas / disponibilidad administrativa si se usa).
 - **`CreateRoomAsync` / `UpdateRoomAsync`**: `POST room/create`, `PUT room/update` con payload acorde al modelo extendido.
+
+**Detalle por ID** (query correcta para la API):
+
+```csharp
+string safeId = Uri.EscapeDataString(roomId);
+string url = $"{ApiService.BaseUrl}room/one?id={safeId}";
+using HttpResponseMessage resp = await ApiService._httpClient.GetAsync(url);
+```
 
 #### UI — `modRoom.xaml` + `ModRoomViewModel.cs`
 
@@ -326,23 +354,88 @@ Diccionario de recursos XAML que define los estilos globales de la aplicación: 
 
 ---
 
-## Cambios recientes
+## Ejemplos de código
 
-### Habitaciones, ofertas y catálogo (2026)
+### Catálogo de servicios extra (`ExtraServiceCatalogService.cs`)
 
-- Modelo `Room` ampliado: galería (`Images` / `Image`), `ExtraServices`, ofertas y `EffectivePricePerNight` desde la API.
-- **`ExtraServiceDto`** + **`ExtraServiceCatalogService`**: consumo de `GET/POST /room/extra-services` para rellenar checkboxes y crear servicios nuevos desde `modRoom`.
-- **`RoomService.GetRoomByIdAsync`**: corrección a `GET room/one?id=…` (antes la URL podía construirse de forma incorrecta).
-- **`modRoom.xaml` / `ModRoomViewModel`**: formulario renovado (estética tipo tarjeta, oferta, galería URL, servicios); build estable tras limpieza del ViewModel.
+Listado y alta contra la misma API que usa Android:
 
-### Identidad visual e infraestructura
+```csharp
+public static async Task<List<ExtraServiceDto>> ListAsync()
+{
+    string url = $"{ApiService.BaseUrl}room/extra-services";
+    var list = await ApiService._httpClient.GetFromJsonAsync<List<ExtraServiceDto>>(url);
+    return list ?? new List<ExtraServiceDto>();
+}
 
-- Sección dedicada arriba; **`AppTheme.xaml`** y converters como base de UI consistente.
-- **`UiShell.cs`**: ventana propietaria correcta en modales.
+public static async Task CreateAsync(string name)
+{
+    string url = $"{ApiService.BaseUrl}room/extra-services";
+    using var resp = await ApiService._httpClient.PostAsJsonAsync(url, new { name = name.Trim() });
+    // … comprobar IsSuccessStatusCode
+}
+```
 
-### Funcionalidad ya documentada (recordatorio breve)
+### Cuerpo típico al actualizar habitación (`PUT /room/update`)
 
-- Auditoría de reserva en ventana dedicada con filtros y textos en español.
-- Reservas: `DELETE` cancelación, `PATCH` actualización.
+El ViewModel suele construir un objeto anónimo o DTO con los campos que el controlador Node espera; ejemplo mínimo ilustrativo:
+
+```json
+{
+  "room_id": "HAB-001",
+  "type": "Suite",
+  "description": "Vistas al mar",
+  "price_per_night": 120,
+  "max_occupancy": 3,
+  "isOperational": true,
+  "images": ["https://ejemplo.com/a.jpg", "https://ejemplo.com/b.jpg"],
+  "extra_services": ["EXT-001", "EXT-002"],
+  "offer_active": true,
+  "offer_percent": 15
+}
+```
+
+---
+
+## Evolución del proyecto (desde la creación)
+
+Resumen de **funcionalidades que se fueron sumando** al escritorio y cómo encajan entre sí.
+
+### 1. Aplicación base administrativa
+
+- **Login** con JWT (`AuthService`, `Session`), **dashboard** (`Inicio`) y navegación a módulos de reservas, habitaciones y usuarios.
+- Comunicación HTTP centralizada en `ApiService` (`BaseUrl` + `HttpClient` compartido).
+
+### 2. Gestión de reservas y verbos REST
+
+- Alta, listado, modificación y cancelación alineados con la API: **`PATCH`** para actualizar, **`DELETE`** para cancelar con `reservation_id` y precio en query.
+- Listados de reservas activas y totales según permisos del rol.
+
+### 3. Auditoría de reservas
+
+- Ventana **`AuditoriaReserva`** + `AuditoriaReservaViewModel`: consume `GET /reservation/{id}/audit`, **traduce** acciones al español, **resuelve nombres** de actores y permite **filtrar** por tipo de acción.
+- Modelos `BookingAuditEntry` / `HistorialAuditoriaFila` separan JSON de API de filas presentables en grid.
+
+### 4. Habitaciones operativas y estado en tiempo real
+
+- Modelo `Room` con `IsOperational` e `IsOccupiedNow` (la API los calcula / normaliza).
+- Textos derivados `EstadoServicioTexto`, `OcupacionTexto`, `EstaLibreAhora` para bindings XAML sin código en code-behind.
+
+### 5. Identidad visual e infraestructura UI
+
+- **`Themes/AppTheme.xaml`**: paleta y estilos unificados.
+- **`BoolToVisibilityConverter`**, **`ImageUrlConverter`**: menos lógica condicional repetida en XAML.
+- **`UiShell`**: `Owner` correcto en ventanas modales.
+
+### 6. Galería, ofertas y servicios extra (paridad con API y Android)
+
+- **Campos nuevos** en `Room`: listas `Images`, `ExtraServices`, ofertas y `EffectivePricePerNight` opcional desde la API.
+- **`ExtraServiceCatalogService`**: carga checkboxes en **modificar habitación** y permite **crear** un servicio nuevo (el servidor asigna `EXT-xxx`).
+- **`modRoom`**: UI tipo **tarjeta** (fondo blanco, bordes redondeados, sombra suave) con secciones para oferta, URLs de galería y servicios.
+- **`RoomService.GetRoomByIdAsync`**: corrección a **`GET room/one?id=…`** para compatibilidad con el contrato actual de la API.
+
+### 7. Estabilidad del código
+
+- Ajustes en ViewModels (p. ej. eliminación de miembros duplicados) para mantener **compilación limpia** tras el crecimiento del formulario de habitación.
 
 ---
