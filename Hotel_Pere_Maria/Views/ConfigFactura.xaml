@@ -1,0 +1,62 @@
+<UserControl x:Class="Hotel_Pere_Maria.Views.ConfigFactura"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        d:DesignHeight="560" d:DesignWidth="900"
+        Background="Transparent">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource Brush.SurfaceSubtle}" CornerRadius="10" Padding="12,10" Margin="0,0,0,16"
+                BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1">
+            <DockPanel LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource Brush.TextPrimary}"
+                               Text="Datos de factura (emisor)"/>
+                    <TextBlock Margin="0,6,0,0" FontSize="13" Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"
+                               Text="Aparecen en el PDF de factura. Si un campo queda vacío en el servidor, se usa el valor del .env de la API (HOTEL_INVOICE_*)."/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                    <Button Content="Recargar" Style="{StaticResource NavChipButton}" Padding="14,8" Margin="0,0,8,0"
+                            Command="{Binding CargarCommand}"/>
+                    <Button Content="Guardar" Style="{StaticResource NavChipButton}" Padding="14,8"
+                            Command="{Binding GuardarCommand}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1" Background="{StaticResource Brush.SurfaceElevated}" CornerRadius="12" Padding="20"
+                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+                    <TextBlock Text="Nombre comercial del hotel" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding NombreComercial, UpdateSourceTrigger=PropertyChanged}" Height="34"
+                             VerticalContentAlignment="Center" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="CIF / NIF" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding Cif, UpdateSourceTrigger=PropertyChanged}" Height="34"
+                             VerticalContentAlignment="Center" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Dirección fiscal" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding Direccion, UpdateSourceTrigger=PropertyChanged}" Height="72" TextWrapping="Wrap"
+                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Otros datos fiscales (texto libre en el PDF)" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding OtrosFiscales, UpdateSourceTrigger=PropertyChanged}" MinHeight="100" TextWrapping="Wrap"
+                             AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16"/>
+
+                    <TextBlock Text="Tipo IVA aplicado al total TTC (%)" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,4"/>
+                    <TextBox Text="{Binding IvaPorcentajeTexto, UpdateSourceTrigger=PropertyChanged}" Width="120" HorizontalAlignment="Left"
+                             Height="34" VerticalContentAlignment="Center" Margin="0,0,0,8"/>
+                    <TextBlock FontSize="11" Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"
+                               Text="Ejemplo: 10 para 10%. Se guarda en la base de datos de la API; las facturas nuevas lo usarán al desglosar base e IVA."/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace Hotel_Pere_Maria.Models
 {
@@ -32,6 +33,21 @@ namespace Hotel_Pere_Maria.Models
         /// <summary>Calculado en API: hay reserva activa (check_in ≤ ahora &lt; check_out) sin cancelar.</summary>
         [JsonPropertyName("is_occupied_now")]
         public bool IsOccupiedNow { get; set; }
+
+        [JsonPropertyName("images")]
+        public List<string> Images { get; set; } = new List<string>();
+
+        [JsonPropertyName("extra_services")]
+        public List<string> ExtraServices { get; set; } = new List<string>();
+
+        [JsonPropertyName("offer_active")]
+        public bool OfferActive { get; set; }
+
+        [JsonPropertyName("offer_percent")]
+        public double OfferPercent { get; set; }
+
+        [JsonPropertyName("effective_price_per_night")]
+        public double? EffectivePricePerNight { get; set; }
 
         [JsonPropertyName("isAvailable")]
         public bool IsAvailableLegacy { get; set; }

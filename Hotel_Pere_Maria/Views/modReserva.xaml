@@ -94,6 +94,43 @@
                                 </Button.Resources>
                             </Button>
 
+                            <Border Background="#E8F6F3" CornerRadius="12" Padding="15" Margin="0,0,0,16"
+                                    BorderBrush="#1ABC9C" BorderThickness="1"
+                                    Visibility="{Binding HasInvoice, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="FACTURA (PDF)" FontSize="10" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock FontSize="12" Margin="0,0,0,10">
+                                        <Run Text="Nº factura: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding InvoiceNumberDisplay, Mode=OneWay}" FontWeight="Bold"/>
+                                    </TextBlock>
+                                    <Button Content="Descargar factura (PDF)" Command="{Binding DescargarFacturaCommand}"
+                                            Background="#16A085" Foreground="White" Height="36" Cursor="Hand" HorizontalAlignment="Left" Padding="16,0">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="8"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#FEF9E7" CornerRadius="12" Padding="15" Margin="0,0,0,16"
+                                    BorderBrush="#F39C12" BorderThickness="1"
+                                    Visibility="{Binding CanRegistrarCheckout, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Text="CHECKOUT (personal)" FontSize="10" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Tras la fecha de salida puede emitirse la factura en la API." TextWrapping="Wrap" FontSize="11" Margin="0,0,0,10"/>
+                                    <Button Content="Registrar checkout y emitir factura" Command="{Binding RegistrarCheckoutCommand}"
+                                            Background="#E67E22" Foreground="White" Height="36" Cursor="Hand" HorizontalAlignment="Left" Padding="16,0">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="8"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
                             <Border Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,16">
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="15" Opacity="1" ShadowDepth="1"/>

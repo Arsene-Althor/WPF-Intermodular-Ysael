@@ -5,14 +5,25 @@
     <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
     <conv:ImageUrlConverter x:Key="ImageUrlConverter"/>
 
-    <SolidColorBrush x:Key="Brush.PageBg" Color="#F4F8FB"/>
+    <SolidColorBrush x:Key="Brush.PageBg" Color="#E4EEF6"/>
     <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="Brush.AccentPastel" Color="#C5DFF0"/>
-    <SolidColorBrush x:Key="Brush.AccentPastelDeep" Color="#9BC4E0"/>
-    <SolidColorBrush x:Key="Brush.AccentBorder" Color="#D6E8F2"/>
-    <SolidColorBrush x:Key="Brush.TextPrimary" Color="#2C3E50"/>
-    <SolidColorBrush x:Key="Brush.TextMuted" Color="#7F8C8D"/>
+    <SolidColorBrush x:Key="Brush.SurfaceSubtle" Color="#EDF5FC"/>
+    <SolidColorBrush x:Key="Brush.SurfaceElevated" Color="#F4FAFF"/>
+    <SolidColorBrush x:Key="Brush.CardElevated" Color="#F7FBFF"/>
+    <SolidColorBrush x:Key="Brush.ImagePlaceholder" Color="#D0E4F4"/>
+    <SolidColorBrush x:Key="Brush.NavChipIdle" Color="#D4E8F6"/>
+    <SolidColorBrush x:Key="Brush.AccentPastel" Color="#B8D4EA"/>
+    <SolidColorBrush x:Key="Brush.AccentPastelDeep" Color="#7EB3D8"/>
+    <SolidColorBrush x:Key="Brush.AccentMid" Color="#5A9BC8"/>
+    <SolidColorBrush x:Key="Brush.AccentBorder" Color="#A8C9E0"/>
+    <SolidColorBrush x:Key="Brush.TextPrimary" Color="#1E3A4F"/>
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="#5D7A92"/>
     <SolidColorBrush x:Key="Brush.DangerSoft" Color="#FADBD8"/>
+
+    <LinearGradientBrush x:Key="Brush.PanelWash" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#F5FAFF" Offset="0"/>
+        <GradientStop Color="#E2EDF7" Offset="1"/>
+    </LinearGradientBrush>
 
     <Style TargetType="Window">
         <Setter Property="Background" Value="{StaticResource Brush.PageBg}"/>
@@ -20,7 +31,7 @@
     </Style>
 
     <Style x:Key="NavChipButton" TargetType="Button">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="{StaticResource Brush.NavChipIdle}"/>
         <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
         <Setter Property="BorderBrush" Value="{StaticResource Brush.AccentBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -47,9 +58,9 @@
     </Style>
 
     <Style x:Key="PrimaryActionButton" TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource Brush.AccentPastelDeep}"/>
-        <Setter Property="Foreground" Value="{StaticResource Brush.TextPrimary}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Brush.AccentBorder}"/>
+        <Setter Property="Background" Value="{StaticResource Brush.AccentMid}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Brush.AccentPastelDeep}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
@@ -65,7 +76,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.AccentPastel}"/>
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource Brush.AccentPastelDeep}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

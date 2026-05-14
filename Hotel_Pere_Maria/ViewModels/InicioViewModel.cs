@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -51,25 +51,30 @@ namespace Hotel_Pere_Maria.ViewModels
         public bool IsHomeVisible => _currentPage == null;
         public bool IsSubPageVisible => _currentPage != null;
 
+        /// <summary>Admin o empleado: facturas y checkout en API.</summary>
+        public bool PuedeGestionFacturas => Session.User?.IsEmployee == true;
+
         public ICommand CargarDatosCommand { get; }
         public ICommand IrInicioCommand { get; }
-        public ICommand AbrirAddReservaCommand { get; }
         public ICommand AbrirAllReservasCommand { get; }
         public ICommand AbrirGestionUsuariosCommand { get; }
         public ICommand CerrarSesionCommand { get; }
         public ICommand AbrirPerfilCommand { get; }
         public ICommand AbrirAllRoomsCommand { get; }
+        public ICommand AbrirFacturasCommand { get; }
+        public ICommand AbrirConfigFacturaCommand { get; }
 
         public InicioViewModel()
         {
             CargarDatosCommand = new RelayCommand(() => { _ = CargarTodo(); });
             IrInicioCommand = new RelayCommand(() => { _ = IrInicioAsync(); });
-            AbrirAddReservaCommand = new RelayCommand(OpenAddReservaEmbedded);
             AbrirAllReservasCommand = new RelayCommand(OpenListReservasEmbedded);
             AbrirGestionUsuariosCommand = new RelayCommand(OpenGestionUsuariosEmbedded);
             CerrarSesionCommand = new RelayCommand(async () => await ExecuteLogout());
             AbrirPerfilCommand = new RelayCommand(ExecuteAbrirPerfil);
             AbrirAllRoomsCommand = new RelayCommand(OpenListRoomEmbedded);
+            AbrirFacturasCommand = new RelayCommand(OpenFacturasEmbedded, () => PuedeGestionFacturas);
+            AbrirConfigFacturaCommand = new RelayCommand(OpenConfigFacturaEmbedded, () => PuedeGestionFacturas);
 
             _ = CargarTodo();
         }
@@ -78,20 +83,6 @@ namespace Hotel_Pere_Maria.ViewModels
         {
             CurrentPage = null;
             await CargarTodo();
-        }
-
-        private void OpenAddReservaEmbedded()
-        {
-            var p = new addReserva();
-            if (p.DataContext is AddReservaViewModel vm)
-            {
-                vm.RequestClose += async (_, __) =>
-                {
-                    CurrentPage = null;
-                    await CargarTodo();
-                };
-            }
-            CurrentPage = p;
         }
 
         private void OpenGestionUsuariosEmbedded()
@@ -107,6 +98,18 @@ namespace Hotel_Pere_Maria.ViewModels
         private void OpenListReservasEmbedded()
         {
             CurrentPage = new listReservas();
+        }
+
+        private void OpenFacturasEmbedded()
+        {
+            if (!PuedeGestionFacturas) return;
+            CurrentPage = new listFacturas();
+        }
+
+        private void OpenConfigFacturaEmbedded()
+        {
+            if (!PuedeGestionFacturas) return;
+            CurrentPage = new ConfigFactura();
         }
 
         private async Task CargarTodo()

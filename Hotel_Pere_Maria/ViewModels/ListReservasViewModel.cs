@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,7 @@ using Hotel_Pere_Maria.Services;
 using Hotel_Pere_Maria.Views;
 using System.Windows.Input;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Hotel_Pere_Maria.ViewModels
 {
@@ -47,6 +48,7 @@ namespace Hotel_Pere_Maria.ViewModels
 
         // Comandos
         public ICommand LimpiarFiltrosCommand { get; }
+        public ICommand NuevaReservaCommand { get; }
         public ICommand ModificarReservaCommand { get; }
         public ICommand AbrirAuditoriaReservaCommand { get; }
         public ICommand SeleccionarClienteCommand { get; }
@@ -57,12 +59,49 @@ namespace Hotel_Pere_Maria.ViewModels
         public ListReservasViewModel()
         {
             LimpiarFiltrosCommand = new RelayCommand(ExecuteLimpiarFiltros);
+            NuevaReservaCommand = new RelayCommand(async () => await ExecuteNuevaReservaAsync());
             ModificarReservaCommand = new RelayCommand<Reservation>(async (r) => await ExecuteModificar(r));
             AbrirAuditoriaReservaCommand = new RelayCommand<Reservation>(ExecuteAbrirAuditoria);
             SeleccionarClienteCommand = new RelayCommand(ExecuteSeleccionarCliente);
             SeleccionarRoomCommand = new RelayCommand(ExecuteSeleccionarRoom);
 
             _ = CargarReservas(); // Carga inicial asíncrona
+        }
+
+        private async Task ExecuteNuevaReservaAsync()
+        {
+            var uc = new addReserva();
+            var shell = new Window
+            {
+                Title = "Nueva reserva",
+                Content = uc,
+                Width = 520,
+                Height = 700,
+                Owner = ShellOwner(),
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ResizeMode = ResizeMode.NoResize,
+                Background = Application.Current.TryFindResource("Brush.PageBg") as Brush ?? Brushes.AliceBlue
+            };
+            if (uc.DataContext is AddReservaViewModel vm)
+            {
+                void OnOk(object? s, EventArgs e)
+                {
+                    vm.RequestClose -= OnOk;
+                    vm.DialogCanceled -= OnCancel;
+                    shell.DialogResult = true;
+                    shell.Close();
+                }
+                void OnCancel(object? s, EventArgs e)
+                {
+                    vm.RequestClose -= OnOk;
+                    vm.DialogCanceled -= OnCancel;
+                    shell.Close();
+                }
+                vm.RequestClose += OnOk;
+                vm.DialogCanceled += OnCancel;
+            }
+            shell.ShowDialog();
+            await CargarReservas();
         }
 
         private async Task CargarReservas()

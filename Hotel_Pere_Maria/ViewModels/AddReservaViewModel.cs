@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +21,7 @@ namespace Hotel_Pere_Maria.ViewModels
         private bool _fechasValidas;
 
         public event EventHandler RequestClose;
+        public event EventHandler? DialogCanceled;
 
         public string RoomId { get => _roomId; set { _roomId = value; OnPropertyChanged(); CalcularPrecio(); } }
         public string UserId { get => _userId; set { _userId = value; OnPropertyChanged(); CalcularPrecio(); } }
@@ -30,12 +31,14 @@ namespace Hotel_Pere_Maria.ViewModels
         public bool FechasValidas { get => _fechasValidas; set { _fechasValidas = value; OnPropertyChanged(); } }
 
         public ICommand ConfirmarCommand { get; }
+        public ICommand CancelarCommand { get; }
         public ICommand SeleccionarHabitacionCommand { get; }
         public ICommand SeleccionarClienteCommand { get; }
 
         public AddReservaViewModel()
         {
             ConfirmarCommand = new RelayCommand(async () => await ExecuteConfirmar());
+            CancelarCommand = new RelayCommand(() => DialogCanceled?.Invoke(this, EventArgs.Empty));
             SeleccionarHabitacionCommand = new RelayCommand(ExecuteSeleccionarHabitacion);
             SeleccionarClienteCommand = new RelayCommand(ExecuteSeleccionarCliente);
         }

@@ -24,6 +24,20 @@ namespace Hotel_Pere_Maria.Models
         //La fecha de cancelación puede ser nula 
         private DateTime? _cancelation_date { get; set; }
 
+        /// <summary>Nº factura tras checkout (API).</summary>
+        public string? invoice_number { get; set; }
+
+        private DateTime? _checkout_completed_at;
+
+        /// <summary>Fecha/hora de checkout (emisión factura), UTC desde API.</summary>
+        public DateTime? checkout_completed_at
+        {
+            get => _checkout_completed_at?.ToLocalTime();
+            set => _checkout_completed_at = value;
+        }
+
+        public bool HasInvoice => !string.IsNullOrWhiteSpace(invoice_number);
+
         //Al obtener una fecha la convertimos a la hora del equipo local ya que la base de datos la guarda en formato universal
         public DateTime check_in
         {

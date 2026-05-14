@@ -64,13 +64,15 @@ Hotel_Pere_Maria/
 │   ├── Room.cs                          # Habitación (operativa, oferta, galería, servicios)
 │   ├── ExtraServiceDto.cs               # Catálogo GET /room/extra-services
 │   ├── BookingAuditEntry.cs             # Registro de auditoría (API)
-│   └── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
+│   ├── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
+│   └── InvoiceSettingsDto.cs            # DTO configuración factura (API)
 │
 ├── Services/                            # Comunicación con la API
 │   ├── ApiService.cs                    # Configuración base (URL + HttpClient)
 │   ├── AuthService.cs                   # Login y logout
 │   ├── Session.cs                       # Datos de sesión en memoria
-│   ├── ReservationService.cs            # Operaciones de reservas + auditoría
+│   ├── ReservationService.cs            # Reservas, auditoría, **checkout, PDF factura, histórico facturas, email factura**
+│   ├── InvoiceSettingsService.cs        # GET/PUT `/settings/invoice` (datos fiscales emisor en API)
 │   ├── RoomService.cs                   # Habitaciones (all, one, available, update, create)
 │   ├── ExtraServiceCatalogService.cs    # Catálogo de servicios extra (API)
 │   └── UserService.cs                   # Operaciones de usuarios
@@ -81,6 +83,8 @@ Hotel_Pere_Maria/
 │   ├── LoginViewModel.cs
 │   ├── InicioViewModel.cs               # Dashboard principal
 │   ├── ListReservasViewModel.cs
+│   ├── ListFacturasViewModel.cs         # Histórico facturas (admin/empleado)
+│   ├── ConfigFacturaViewModel.cs        # Datos fiscales hotel → API
 │   ├── AddReservaViewModel.cs
 │   ├── ModReservaViewModel.cs
 │   ├── AuditoriaReservaViewModel.cs     # Historial de auditoría de una reserva
@@ -95,6 +99,8 @@ Hotel_Pere_Maria/
 ├── Views/                               # Pantallas XAML
 │   ├── Inicio.xaml                      # Dashboard
 │   ├── listReservas.xaml                # Listado de reservas
+│   ├── listFacturas.xaml                # Listado de facturas emitidas (filtros + PDF + reenvío email)
+│   ├── ConfigFactura.xaml               # Configuración nombre/CIF/dirección/notas fiscales/IVA
 │   ├── addReserva.xaml / modReserva.xaml # Crear / editar reserva
 │   ├── AuditoriaReserva.xaml            # Ventana de auditoría
 │   ├── listRoom.xaml / modRoom.xaml     # Habitaciones
@@ -283,6 +289,17 @@ using HttpResponseMessage resp = await ApiService._httpClient.GetAsync(url);
 | `getPriceReservation`     | `POST`   | `/reservation/getPrice`              |
 | `getCancelationPrice`     | `POST`   | `/reservation/getCancelationPrice`   |
 | `GetBookingAuditAsync`    | `GET`    | `/reservation/:id/audit`             |
+| `DownloadInvoicePdfAsync` | `GET`    | `/reservation/:id/invoice`             |
+| `GetInvoicesHistoryAsync` | `GET`    | `/reservation/invoices/history`      |
+| `PostInvoiceEmailAsync`   | `POST`   | `/reservation/:id/invoice/email`     |
+| `PostCheckoutAsync`     | `POST`   | `/reservation/checkout`               |
+| `InvoiceSettingsService.GetAsync` / `PutAsync` | `GET` / `PUT` | `/settings/invoice` |
+
+#### Facturación P5 (escritorio)
+
+- **`modReserva`**: si la reserva tiene `invoice_number`, bloque **Descargar factura (PDF)** (`SaveFileDialog`). Si el usuario es **admin/empleado**, la estancia ha pasado y no hay factura: **Registrar checkout** llama a `POST /reservation/checkout`.
+- **`listFacturas`**: incrustado desde **Inicio** (botón **Facturas**, solo personal). Carga `GET /reservation/invoices/history`, **filtros** (nº factura, cliente, fechas de checkout), **Descargar** y **Reenviar** (email con PDF vía API; depende de `EMAIL_*` en servidor).
+- **`ConfigFactura`**: **Inicio** → **Datos factura** (misma visibilidad que Facturas). Carga/guarda `GET`/`PUT /settings/invoice`: nombre comercial, CIF/NIF, dirección, texto libre “otros datos fiscales” y **IVA %** aplicado al desglose TTC en PDF (persistido en Mongo en servidor; si un texto queda vacío en BD, el PDF usa fallback `.env`).
 
 #### Cancelación con `DELETE`
 

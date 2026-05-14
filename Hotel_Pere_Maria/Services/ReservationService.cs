@@ -24,6 +24,105 @@ namespace Hotel_Pere_Maria.Services
             }
         }
 
+        /// <summary>GET /reservation/:id/invoice — PDF binario.</summary>
+        public static async Task<(bool exito, string mensaje, byte[] pdf)> DownloadInvoicePdfAsync(string reservation_id)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/invoice";
+                var response = await ApiService._httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    return (false, body, null);
+                }
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                return (true, null, bytes);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
+        /// <summary>GET /reservation/invoices/history — solo admin/empleado.</summary>
+        public static async Task<(bool exito, string mensaje, List<Reservation> lista)> GetInvoicesHistoryAsync()
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                var response = await ApiService._httpClient.GetAsync(ApiService.BaseUrl + "reservation/invoices/history");
+                string body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, body, null);
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
+                };
+                var lista = JsonSerializer.Deserialize<List<Reservation>>(body, opts) ?? new List<Reservation>();
+                return (true, null, lista);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
+        /// <summary>POST /reservation/:id/invoice/email — solo personal.</summary>
+        public static async Task<(bool exito, string mensaje)> PostInvoiceEmailAsync(string reservation_id, string? overrideTo = null)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/invoice/email";
+                object payload = string.IsNullOrWhiteSpace(overrideTo)
+                    ? new { }
+                    : new { to = overrideTo.Trim() };
+                string json = JsonSerializer.Serialize(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(url, content);
+                string body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, body);
+                return (true, body);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
+        /// <summary>POST /reservation/checkout — solo personal.</summary>
+        public static async Task<(bool exito, string mensaje, string? invoice_number)> PostCheckoutAsync(string reservation_id)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                var datos = new { reservation_id };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/checkout", content);
+                string body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, body, null);
+                string? inv = null;
+                try
+                {
+                    using var doc = JsonDocument.Parse(body);
+                    if (doc.RootElement.TryGetProperty("invoice_number", out var el))
+                        inv = el.GetString();
+                }
+                catch { /* ignore */ }
+                return (true, body, inv);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
         /// <summary>Historial de auditoría (GET /reservation/{id}/audit).</summary>
         public static async Task<(bool exito, string mensaje, List<BookingAuditEntry> lista)> GetBookingAuditAsync(string reservation_id)
         {

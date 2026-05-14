@@ -9,6 +9,7 @@ using Hotel_Pere_Maria.Services;
 using System.Windows.Input;
 using System.Windows;
 using Hotel_Pere_Maria.Views;
+using Microsoft.Win32;
 
 namespace Hotel_Pere_Maria.ViewModels
 {
@@ -76,12 +77,25 @@ namespace Hotel_Pere_Maria.ViewModels
         public double PrecioNuevo { get => _precioNuevo; set { _precioNuevo = value; OnPropertyChanged(); } }
         public bool CheckInEnabled { get => _checkInEnabled; set { _checkInEnabled = value; OnPropertyChanged(); } }
 
+        public string InvoiceNumberDisplay =>
+            string.IsNullOrWhiteSpace(_reservaOriginal.invoice_number) ? "—" : _reservaOriginal.invoice_number;
+
+        public bool HasInvoice => !string.IsNullOrWhiteSpace(_reservaOriginal.invoice_number);
+
+        public bool CanRegistrarCheckout =>
+            Session.User?.IsEmployee == true
+            && _reservaOriginal.cancelation_date == null
+            && !HasInvoice
+            && _reservaOriginal.check_out <= DateTime.Now;
+
         // Comandos
         public ICommand GuardarCommand { get; }
         public ICommand CancelarReservaCommand { get; }
         public ICommand CerrarCommand { get; }
         public ICommand SeleccionarHabitacionCommand { get; }
         public ICommand SeleccionarClienteCommand { get; }
+        public ICommand DescargarFacturaCommand { get; }
+        public ICommand RegistrarCheckoutCommand { get; }
 
         public ModReservaViewModel(Reservation reserva)
         {
@@ -102,6 +116,8 @@ namespace Hotel_Pere_Maria.ViewModels
             SeleccionarClienteCommand = new RelayCommand(ExecuteSeleccionarCliente);
             RefrescarHistorialCommand = new RelayCommand(() => { _ = CargarHistorialAsync(true); });
             IrHistorialCommand = new RelayCommand(() => SelectedTabIndex = 1);
+            DescargarFacturaCommand = new RelayCommand(async () => await ExecuteDescargarFacturaAsync(), () => HasInvoice);
+            RegistrarCheckoutCommand = new RelayCommand(async () => await ExecuteRegistrarCheckoutAsync(), () => CanRegistrarCheckout);
         }
 
         /// <summary>Carga auditoría la primera vez o si <paramref name="forzar"/> es true.</summary>
@@ -247,6 +263,53 @@ namespace Hotel_Pere_Maria.ViewModels
                 if (ok) RequestClose?.Invoke(this, EventArgs.Empty);
                 else MessageBox.Show(error);
             }
+        }
+
+        private async Task ExecuteDescargarFacturaAsync()
+        {
+            if (!HasInvoice) return;
+            var (ok, err, pdf) = await ReservationService.DownloadInvoicePdfAsync(_reservaOriginal.reservation_id);
+            if (!ok || pdf == null || pdf.Length == 0)
+            {
+                MessageBox.Show(err ?? "Sin PDF", "Factura", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var dlg = new SaveFileDialog
+            {
+                FileName = $"Factura-{_reservaOriginal.invoice_number}.pdf",
+                Filter = "PDF (*.pdf)|*.pdf",
+                DefaultExt = ".pdf"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                await System.IO.File.WriteAllBytesAsync(dlg.FileName, pdf);
+                MessageBox.Show($"Guardado:\n{dlg.FileName}", "Factura", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async Task ExecuteRegistrarCheckoutAsync()
+        {
+            if (!CanRegistrarCheckout) return;
+            if (MessageBox.Show(
+                    "Registrar checkout y emitir número de factura en la API. ¿Continuar?",
+                    "Checkout",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+            var (ok, msg, inv) = await ReservationService.PostCheckoutAsync(_reservaOriginal.reservation_id);
+            if (!ok)
+            {
+                MessageBox.Show(msg, "Checkout", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            _reservaOriginal.invoice_number = inv ?? _reservaOriginal.invoice_number;
+            _reservaOriginal.checkout_completed_at = DateTime.Now;
+            OnPropertyChanged(nameof(InvoiceNumberDisplay));
+            OnPropertyChanged(nameof(HasInvoice));
+            OnPropertyChanged(nameof(CanRegistrarCheckout));
+            CommandManager.InvalidateRequerySuggested();
+            MessageBox.Show($"Checkout registrado.\nFactura: {_reservaOriginal.invoice_number}", "Factura",
+                MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void ExecuteSeleccionarHabitacion() {

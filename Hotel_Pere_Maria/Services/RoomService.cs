@@ -80,7 +80,7 @@ namespace Hotel_Pere_Maria.Services
 
             // Importante: escapar por si lleva espacios o caracteres raros
             string safeId = Uri.EscapeDataString(roomId);
-            string url = $"{ApiService.BaseUrl}room/one{safeId}";
+            string url = $"{ApiService.BaseUrl}room/one?id={safeId}";
 
             // Si tu API devuelve 404, mejor controlarlo con HttpClient normal:
             using HttpResponseMessage resp = await ApiService._httpClient.GetAsync(url);

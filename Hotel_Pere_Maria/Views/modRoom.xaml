@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Hotel_Pere_Maria.Views"
         mc:Ignorable="d"
-        Title="modRoom" Height="600" Width="800">
+        Title="Gestión de habitación" Height="720" Width="820">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -14,131 +13,130 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Título -->
-        <Border>
-            <TextBlock Text="Gestion de Habitación"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,20"
-                       FontFamily="Segoe UI Black"/>
-        </Border>
+        <TextBlock Text="Gestión de habitación"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,16"
+                   FontFamily="Segoe UI Black"/>
 
-        <!-- Card formulario -->
-        <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,20">
+        <Border Grid.Row="1" Background="White" CornerRadius="12" Padding="15" Margin="0,0,0,16">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="15" Opacity="0.1" ShadowDepth="1"/>
             </Border.Effect>
-
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- room_id (normalmente NO editable) -->
-                <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="5">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="560">
+                <StackPanel>
                     <TextBlock Text="Room ID" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtRoomId" 
-                             Height="30" 
-                             IsReadOnly="{Binding IsRoomIdReadOnly}" 
+                    <TextBox Height="30"
+                             IsReadOnly="{Binding IsRoomIdReadOnly}"
                              Text="{Binding RoomId, UpdateSourceTrigger=PropertyChanged}"
                              VerticalContentAlignment="Center"/>
-                </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Tipo" FontSize="11" Margin="0,0,0,3"/>
-                    <ComboBox x:Name="cmbType"
-                                Height="30"
-                                IsEditable="False"
-                                SelectedValuePath="Content"
-                                SelectedValue="{Binding Type}">
-                        <ComboBoxItem Content="Individual"/>
-                        <ComboBoxItem Content="Doble"/>
-                        <ComboBoxItem Content="Suite"/>
-                    </ComboBox>
-                </StackPanel>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="Tipo" FontSize="11" Margin="0,0,0,3"/>
+                            <ComboBox Height="30"
+                                      SelectedValuePath="Content"
+                                      SelectedValue="{Binding Type}">
+                                <ComboBoxItem Content="Individual"/>
+                                <ComboBoxItem Content="Doble"/>
+                                <ComboBoxItem Content="Suite"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Precio base / noche (tarifa)" FontSize="11" Margin="0,0,0,3"/>
+                            <TextBox Height="30"
+                                     Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
 
-                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
-                    <TextBlock Text="Precio / Noche" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtPrice" 
-                             Height="30" 
-                             Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
-                             VerticalContentAlignment="Center"/>
-                </StackPanel>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="Máx. ocupación" FontSize="11" Margin="0,0,0,3"/>
+                            <TextBox Height="30" Text="{Binding MaxOccupancy}" IsReadOnly="True" Background="#F0F0F0" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Valoración (rate)" FontSize="11" Margin="0,0,0,3"/>
+                            <TextBox Height="30" Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
 
-                <StackPanel Grid.Row="2" Grid.Column="0" Margin="5">
-                    <TextBlock Text="Max. Ocupación (automático)" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtMaxOcc" 
-                             Height="30" 
-                             Text="{Binding MaxOccupancy}"
-                             VerticalContentAlignment="Center" 
-                             IsReadOnly="True" 
-                             Background="#F0F0F0"/>
-                </StackPanel>
+                    <CheckBox Margin="0,16,0,0" Content="Oferta activa (descuento % sobre precio base; la app muestra precio rebajado)"
+                              IsChecked="{Binding OfferActive}"/>
+                    <TextBlock Text="% descuento (0–100)" FontSize="11" Margin="0,8,0,3"/>
+                    <TextBox Height="30" Text="{Binding OfferPercent, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
 
-                <StackPanel Grid.Row="2" Grid.Column="1" Margin="5">
-                    <TextBlock Text="Valoración (rate)" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtRate" 
-                             Height="30" 
-                             Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}"
-                             VerticalContentAlignment="Center"/>
-                </StackPanel>
+                    <TextBlock Text="Galería (URLs, una por fila; en la app: carrusel)" FontSize="11" Margin="0,16,0,6" FontWeight="SemiBold"/>
+                    <ListBox ItemsSource="{Binding ImageUrls}" Height="110" Margin="0,0,0,8">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel LastChildFill="True">
+                                    <Button DockPanel.Dock="Right" Content="Quitar" Width="56" Margin="8,0,0,0"
+                                            Command="{Binding DataContext.RemoveImageCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}"/>
+                                    <TextBlock Text="{Binding}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBox Height="30" Margin="0,0,0,6"
+                             Text="{Binding NewImageUrl, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalContentAlignment="Center"
+                             ToolTip="Pega una URL https://…"/>
+                    <Button Content="Añadir URL a la galería" Command="{Binding AddImageCommand}" HorizontalAlignment="Left" Padding="12,4"/>
 
-                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Margin="5">
-                    <TextBlock Text="Imagen (URL)" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtImage" 
-                             Height="30" 
-                             Text="{Binding Image, UpdateSourceTrigger=PropertyChanged}"
-                             VerticalContentAlignment="Center"/>
-                </StackPanel>
+                    <TextBlock Text="Servicios extra (catálogo API)" FontSize="11" Margin="0,16,0,6" FontWeight="SemiBold"/>
+                    <ItemsControl ItemsSource="{Binding ServicePicks}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Margin="0,4,0,0" Content="{Binding Name}" IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-                <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Margin="5">
-                    <TextBlock Text="Descripción" FontSize="11" Margin="0,0,0,3"/>
-                    <TextBox x:Name="txtDescription"
-                             Height="90"
+                    <TextBlock Text="Nuevo servicio en catálogo (todas las habitaciones podrán asignarlo)" FontSize="11" Margin="0,12,0,4"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" Height="30" Margin="0,0,8,0"
+                                 Text="{Binding NewServiceName, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center"/>
+                        <Button Grid.Column="1" Content="Crear servicio" Command="{Binding CreateCatalogServiceCommand}" Padding="12,4"/>
+                    </Grid>
+
+                    <TextBlock Text="Descripción" FontSize="11" Margin="0,16,0,3"/>
+                    <TextBox Height="90"
                              Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                              TextWrapping="Wrap"
                              AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto"/>
-                </StackPanel>
 
-                <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Margin="5">
-                    <CheckBox x:Name="chkOperational"
-                              Content="Habitación en servicio (visible para clientes si además está libre en las fechas)"
-                              IsChecked="{Binding IsOperational}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="La disponibilidad por reserva activa se calcula sola; no se marca a mano."
-                               Foreground="{StaticResource Brush.TextMuted}" FontSize="11" Margin="22,4,0,0" TextWrapping="Wrap"/>
-                </StackPanel>
+                    <CheckBox Margin="0,12,0,0"
+                              Content="Habitación en servicio (visible en app cliente si cumple fechas/capacidad)"
+                              IsChecked="{Binding IsOperational}"/>
 
-                <TextBlock Grid.Row="6" Grid.ColumnSpan="2"
-                           x:Name="txtMsg"
-                           Foreground="#E74C3C"
-                           FontSize="12"
-                           Margin="5,10,5,0"/>
-            </Grid>
+                    <TextBlock x:Name="txtMsg"
+                               Foreground="#E74C3C"
+                               FontSize="12"
+                               Margin="0,12,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
         </Border>
 
-        <!-- Botones -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Guardar"
-                    Width="120"
-                    Height="35"
-                    Margin="0,0,10,0"
-                    Background="#2ECC71"
-                    Foreground="White"
-                    FontWeight="Bold"
+            <Button Content="Guardar" Width="120" Height="35" Margin="0,0,10,0"
+                    Background="#2ECC71" Foreground="White" FontWeight="Bold"
                     Command="{Binding SaveCommand}">
                 <Button.Resources>
                     <Style TargetType="Border">
@@ -146,13 +144,8 @@
                     </Style>
                 </Button.Resources>
             </Button>
-
-            <Button Content="Cancelar"
-                    Width="120"
-                    Height="35"
-                    Background="#E74C3C"
-                    Foreground="White"
-                    FontWeight="Bold"
+            <Button Content="Cancelar" Width="120" Height="35"
+                    Background="#E74C3C" Foreground="White" FontWeight="Bold"
                     Click="BtnCancelar_Click">
                 <Button.Resources>
                     <Style TargetType="Border">
