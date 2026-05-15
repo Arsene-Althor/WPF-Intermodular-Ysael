@@ -38,6 +38,35 @@ namespace Hotel_Pere_Maria.Models
 
         public bool HasInvoice => !string.IsNullOrWhiteSpace(invoice_number);
 
+        [JsonPropertyName("guest_name")]
+        public string? GuestName { get; set; }
+
+        [JsonPropertyName("guest_dni")]
+        public string? GuestDni { get; set; }
+
+        private DateTime? _reception_check_in_at;
+
+        [JsonPropertyName("reception_check_in_at")]
+        public DateTime? reception_check_in_at
+        {
+            get => _reception_check_in_at?.ToLocalTime();
+            set => _reception_check_in_at = value;
+        }
+
+        [JsonPropertyName("reception_check_in_late")]
+        public bool reception_check_in_late { get; set; }
+
+        [JsonPropertyName("reception_check_in_late_fee")]
+        public double reception_check_in_late_fee { get; set; }
+
+        public bool HasReceptionCheckIn => reception_check_in_at.HasValue;
+
+        public string GuestDisplayName =>
+            string.IsNullOrWhiteSpace(GuestName) ? user_id ?? "—" : GuestName;
+
+        public string GuestDisplayDni =>
+            string.IsNullOrWhiteSpace(GuestDni) ? "—" : GuestDni;
+
         //Al obtener una fecha la convertimos a la hora del equipo local ya que la base de datos la guarda en formato universal
         public DateTime check_in
         {

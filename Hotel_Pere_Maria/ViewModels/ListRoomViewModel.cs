@@ -13,6 +13,14 @@ namespace Hotel_Pere_Maria.ViewModels
     public class ListRoomViewModel : BaseViewModel
     {
         private ObservableCollection<Room> _rooms;
+        private Room? _selectedRoom;
+
+        /// <summary>Selección simple (doble clic / edición). Para varias habitaciones use Ctrl+clic en la lista.</summary>
+        public Room? SelectedRoom
+        {
+            get => _selectedRoom;
+            set { _selectedRoom = value; OnPropertyChanged(); }
+        }
         private List<Room> _allRoomsStore = new List<Room>();
         private string _searchText;
         private string _selectedType;

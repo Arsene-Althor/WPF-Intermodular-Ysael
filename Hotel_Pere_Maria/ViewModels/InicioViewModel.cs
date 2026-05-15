@@ -63,6 +63,8 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand AbrirAllRoomsCommand { get; }
         public ICommand AbrirFacturasCommand { get; }
         public ICommand AbrirConfigFacturaCommand { get; }
+        public ICommand AbrirAuditoriasCommand { get; }
+        public ICommand AbrirCheckInRecepcionCommand { get; }
 
         public InicioViewModel()
         {
@@ -75,8 +77,22 @@ namespace Hotel_Pere_Maria.ViewModels
             AbrirAllRoomsCommand = new RelayCommand(OpenListRoomEmbedded);
             AbrirFacturasCommand = new RelayCommand(OpenFacturasEmbedded, () => PuedeGestionFacturas);
             AbrirConfigFacturaCommand = new RelayCommand(OpenConfigFacturaEmbedded, () => PuedeGestionFacturas);
+            AbrirAuditoriasCommand = new RelayCommand(OpenAuditoriasEmbedded, () => PuedeGestionFacturas);
+            AbrirCheckInRecepcionCommand = new RelayCommand<Reservation>(AbrirCheckInRecepcion, r => r != null && PuedeGestionFacturas);
 
             _ = CargarTodo();
+        }
+
+        private void AbrirCheckInRecepcion(Reservation reserva)
+        {
+            if (reserva == null || string.IsNullOrWhiteSpace(reserva.reservation_id)) return;
+            var dlg = new CheckInRecepcion(reserva.reservation_id)
+            {
+                Owner = UiShell.OwnerWindow,
+            };
+            bool? ok = dlg.ShowDialog();
+            if (ok == true)
+                _ = CargarReservas();
         }
 
         private async Task IrInicioAsync()
@@ -110,6 +126,12 @@ namespace Hotel_Pere_Maria.ViewModels
         {
             if (!PuedeGestionFacturas) return;
             CurrentPage = new ConfigFactura();
+        }
+
+        private void OpenAuditoriasEmbedded()
+        {
+            if (!PuedeGestionFacturas) return;
+            CurrentPage = new listAuditorias();
         }
 
         private async Task CargarTodo()

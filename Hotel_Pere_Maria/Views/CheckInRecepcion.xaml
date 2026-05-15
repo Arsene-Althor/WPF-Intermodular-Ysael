@@ -1,0 +1,89 @@
+<Window x:Class="Hotel_Pere_Maria.Views.CheckInRecepcion"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Check-in en recepción" Height="520" Width="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource Brush.PageBg}">
+    <Border Margin="20" Background="White" CornerRadius="14" Padding="20">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.15"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="{Binding Titulo, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"
+                       Foreground="{StaticResource Brush.TextPrimary}" Margin="0,0,0,12"/>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="Cargando…" Visibility="{Binding Cargando, Converter={StaticResource BoolToVis}}"
+                               Margin="0,8,0,16" Foreground="{StaticResource Brush.TextMuted}"/>
+
+                    <StackPanel Visibility="{Binding NoCargando, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="Huésped" FontSize="11" FontWeight="Bold" Foreground="{StaticResource Brush.AccentMid}"/>
+                        <TextBlock Text="{Binding GuestName}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,2"/>
+                        <TextBlock FontSize="13" Foreground="{StaticResource Brush.TextMuted}">
+                            <Run Text="DNI: "/><Run Text="{Binding GuestDni, Mode=OneWay}" FontWeight="SemiBold"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding GuestEmail}" FontSize="12" Margin="0,4,0,0"
+                                   Visibility="{Binding MostrarEmail, Converter={StaticResource BoolToVis}}"
+                                   Foreground="{StaticResource Brush.TextMuted}"/>
+
+                        <Rectangle Height="1" Fill="{StaticResource Brush.AccentBorder}" Margin="0,14"/>
+
+                        <TextBlock Text="{Binding RoomId, StringFormat='Habitación: {0}'}" FontSize="13"/>
+                        <TextBlock Text="{Binding FechasTexto}" FontSize="12" Margin="0,6,0,0"
+                                   Foreground="{StaticResource Brush.TextMuted}"/>
+                        <TextBlock Text="{Binding PrecioTexto, Mode=OneWay, StringFormat='Precio reserva: {0}'}" FontSize="13"
+                                   FontWeight="SemiBold" Margin="0,8,0,0"/>
+
+                        <Border Background="#E8F4FC" CornerRadius="8" Padding="12" Margin="0,14,0,0">
+                            <TextBlock Text="{Binding MensajeEstado}" TextWrapping="Wrap" FontSize="13"/>
+                        </Border>
+                        <TextBlock Text="{Binding VentanaHoraria}" FontSize="11" Margin="0,8,0,0"
+                                   Foreground="{StaticResource Brush.TextMuted}"
+                                   Visibility="{Binding MostrarVentana, Converter={StaticResource BoolToVis}}"/>
+
+                        <Border Background="#E8F8EE" CornerRadius="8" Padding="12" Margin="0,14,0,0"
+                                Visibility="{Binding AlreadyCheckedIn, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <TextBlock Text="Check-in ya registrado" FontWeight="SemiBold" Foreground="#1E7B34"/>
+                                <TextBlock Margin="0,6,0,0" FontSize="12">
+                                    <Run Text="Fecha/hora: "/><Run Text="{Binding CheckedInAtTexto, Mode=OneWay}"/>
+                                </TextBlock>
+                                <TextBlock FontSize="12" Margin="0,4,0,0">
+                                    <Run Text="Tardío: "/><Run Text="{Binding CheckedInLateTexto, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="2" Margin="0,16,0,0">
+                <Button Content="Registrar check-in" Command="{Binding RegistrarCommand}" Height="40" Margin="0,0,0,8"
+                        Background="#2E86C1" Foreground="White" FontWeight="SemiBold" BorderThickness="0"
+                        Visibility="{Binding CanRegisterNormal, Converter={StaticResource BoolToVis}}">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style></Button.Resources>
+                </Button>
+                <Button Command="{Binding RegistrarTardeCommand}" Height="40" Margin="0,0,0,8"
+                        Background="#D35400" Foreground="White" FontWeight="SemiBold" BorderThickness="0"
+                        Visibility="{Binding CanRegisterLate, Converter={StaticResource BoolToVis}}">
+                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style></Button.Resources>
+                    <TextBlock TextAlignment="Center">
+                        <Run Text="Registrar check-in tardío (+"/>
+                        <Run Text="{Binding LateFeeTexto, Mode=OneWay}"/>
+                        <Run Text=")"/>
+                    </TextBlock>
+                </Button>
+                <Button Content="Cerrar" Command="{Binding CerrarCommand}" Height="36"
+                        Style="{StaticResource GhostButton}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

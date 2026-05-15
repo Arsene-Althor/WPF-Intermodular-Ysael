@@ -94,6 +94,22 @@
                                 </Button.Resources>
                             </Button>
 
+                            <Border Background="#EBF5FB" CornerRadius="12" Padding="15" Margin="0,0,0,16"
+                                    BorderBrush="#3498DB" BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="JUSTIFICANTE DE RESERVA (PDF)" FontSize="10" FontWeight="Bold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="Documento no fiscal: confirmación de la reserva y pago simulado. El cliente puede mostrarlo en recepción." TextWrapping="Wrap" FontSize="11" Margin="0,0,0,10"/>
+                                    <Button Content="Descargar justificante (PDF)" Command="{Binding DescargarJustificanteCommand}"
+                                            Background="#3498DB" Foreground="White" Height="36" Cursor="Hand" HorizontalAlignment="Left" Padding="16,0">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="8"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
                             <Border Background="#E8F6F3" CornerRadius="12" Padding="15" Margin="0,0,0,16"
                                     BorderBrush="#1ABC9C" BorderThickness="1"
                                     Visibility="{Binding HasInvoice, Converter={StaticResource BoolToVis}}">

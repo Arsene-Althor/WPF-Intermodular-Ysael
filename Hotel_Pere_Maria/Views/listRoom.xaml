@@ -128,35 +128,68 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="5">
-                        <Button Content="Crear"
-                            Click="BtnCrear_Click"
-                            Width="80"
-                            Height="35"
-                            Margin="0,0,8,0"
-                            Background="#2ECC71"
-                            Foreground="White"
-                            FontWeight="Bold">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="5"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
-
-                        <Button Content="Limpiar"
-                            Command="{Binding LimpiarFiltrosCommand}"
-                            Width="80"
-                            Height="35"
-                            Background="#E74C3C"
-                            Foreground="White"
-                            FontWeight="Bold">      
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="5"/>
-                                </Style>
-                            </Button.Resources>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Bottom" Margin="5">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="Crear"
+                                Click="BtnCrear_Click"
+                                Width="80"
+                                Height="35"
+                                Margin="0,0,8,0"
+                                Background="#2ECC71"
+                                Foreground="White"
+                                FontWeight="Bold">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Content="Restablecer filtros"
+                                Command="{Binding LimpiarFiltrosCommand}"
+                                Width="130"
+                                Height="35"
+                                ToolTip="Solo limpia los filtros de búsqueda (no borra habitaciones)"
+                                Background="#BDC3C7"
+                                Foreground="White"
+                                FontWeight="SemiBold">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Servicios extra (selección)"
+                                Click="BtnBulkExtras_Click"
+                                Width="200"
+                                Height="34"
+                                Margin="0,0,8,0"
+                                ToolTip="Ctrl+clic para varias habitaciones; añade servicios extra del catálogo"
+                                Background="#3498DB"
+                                Foreground="White"
+                                FontWeight="SemiBold">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            <Button Content="Eliminar habitación"
+                                Click="BtnEliminarHabitacion_Click"
+                                Width="150"
+                                Height="34"
+                                ToolTip="Elimina la habitación seleccionada (solo administrador)"
+                                Background="#C0392B"
+                                Foreground="White"
+                                FontWeight="Bold">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="5"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -171,6 +204,7 @@
             <ListView x:Name="lvRooms"
               ItemsSource="{Binding Rooms}"
               SelectedItem="{Binding SelectedRoom, Mode=TwoWay}"
+              SelectionMode="Extended"
               BorderThickness="0"
               Background="Transparent"
               ScrollViewer.HorizontalScrollBarVisibility="Disabled"

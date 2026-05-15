@@ -1,12 +1,12 @@
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.Services;
 using System;
+using System.Windows;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 
 namespace Hotel_Pere_Maria.ViewModels
@@ -183,10 +183,17 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand CreateCatalogServiceCommand { get; }
 
         private readonly bool _isCreate;
+        private readonly bool _employeeRateReadonly;
+        private readonly double _lockedRate;
+
+        /// <summary>Empleado: valoraci?n (rate) solo lectura; admin puede editar.</summary>
+        public bool IsRateReadOnly => _employeeRateReadonly;
 
         public ModRoomViewModel(Room room, bool isCreate)
         {
             _isCreate = isCreate;
+            _employeeRateReadonly = Session.User?.role == "employee";
+            _lockedRate = room.Rate;
             IsRoomIdReadOnly = !isCreate;
 
             RoomId = room.RoomId ?? "";
@@ -247,7 +254,7 @@ namespace Hotel_Pere_Maria.ViewModels
                 var n = (NewServiceName ?? "").Trim();
                 if (string.IsNullOrWhiteSpace(n))
                 {
-                    MessageBox.Show("Escribe el nombre del nuevo servicio.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Escribe el nombre del nuevo servicio.", "Validaci?n", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 await ExtraServiceCatalogService.CreateAsync(n);
@@ -259,7 +266,7 @@ namespace Hotel_Pere_Maria.ViewModels
                     foreach (var e in list)
                         ServicePicks.Add(new ExtraServicePickViewModel(e.ServiceId, e.Name, false));
                 });
-                MessageBox.Show("Servicio creado. Márcalo en la lista para asignarlo a esta habitación.", "OK", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Servicio creado. M?rcalo en la lista para asignarlo a esta habitaci?n.", "OK", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -285,7 +292,7 @@ namespace Hotel_Pere_Maria.ViewModels
             }
             catch
             {
-                /* sin catálogo la UI sigue usable */
+                /* sin cat?logo la UI sigue usable */
             }
         }
 
@@ -306,27 +313,30 @@ namespace Hotel_Pere_Maria.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(RoomId))
                 {
-                    MessageBox.Show("El Room ID es obligatorio.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("El Room ID es obligatorio.", "Validaci?n", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(Type))
                 {
-                    MessageBox.Show("Debes seleccionar un tipo de habitación.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("Debes seleccionar un tipo de habitaci?n.", "Validaci?n", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(Description))
                 {
-                    MessageBox.Show("La descripción es obligatoria.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("La descripci?n es obligatoria.", "Validaci?n", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
                 if (!double.TryParse(Price?.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double priceValue) || priceValue <= 0)
                 {
-                    MessageBox.Show("El precio debe ser un número válido mayor que 0.", "Validación", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("El precio debe ser un n?mero v?lido mayor que 0.", "Validaci?n", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
-                if (!double.TryParse(Rate?.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double rateValue))
+                double rateValue;
+                if (_employeeRateReadonly)
+                    rateValue = _lockedRate;
+                else if (!double.TryParse(Rate?.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out rateValue))
                     rateValue = 0;
 
                 if (!double.TryParse(OfferPercent?.Replace(',', '.'), NumberStyles.Any, CultureInfo.InvariantCulture, out double offerPct))
@@ -378,7 +388,7 @@ namespace Hotel_Pere_Maria.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar la habitación:\n\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error al guardar la habitaci?n:\n\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

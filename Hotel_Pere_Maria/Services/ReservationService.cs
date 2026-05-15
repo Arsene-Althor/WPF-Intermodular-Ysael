@@ -46,6 +46,28 @@ namespace Hotel_Pere_Maria.Services
             }
         }
 
+        /// <summary>GET /reservation/:id/booking-receipt — justificante PDF (no fiscal, sin checkout).</summary>
+        public static async Task<(bool exito, string mensaje, byte[] pdf)> DownloadBookingReceiptPdfAsync(string reservation_id)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/booking-receipt";
+                var response = await ApiService._httpClient.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                {
+                    string body = await response.Content.ReadAsStringAsync();
+                    return (false, body, null);
+                }
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                return (true, null, bytes);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
         /// <summary>GET /reservation/invoices/history — solo admin/empleado.</summary>
         public static async Task<(bool exito, string mensaje, List<Reservation> lista)> GetInvoicesHistoryAsync()
         {
@@ -91,6 +113,66 @@ namespace Hotel_Pere_Maria.Services
             catch (Exception ex)
             {
                 return (false, ex.Message);
+            }
+        }
+
+        /// <summary>GET /reservation/:id/check-in-status</summary>
+        public static async Task<(bool exito, string mensaje, ReceptionCheckInStatusDto? dto)> GetReceptionCheckInStatusAsync(
+            string reservation_id)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/check-in-status";
+                var response = await ApiService._httpClient.GetAsync(url);
+                string body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, body, null);
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+                };
+                var dto = JsonSerializer.Deserialize<ReceptionCheckInStatusDto>(body, opts);
+                return (true, null, dto);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
+        /// <summary>POST /reservation/check-in — registrar llegada en recepción.</summary>
+        public static async Task<(bool exito, string mensaje, Reservation? reserva)> PostReceptionCheckInAsync(
+            string reservation_id,
+            bool acceptLate)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                var datos = new { reservation_id, accept_late = acceptLate };
+                string json = JsonSerializer.Serialize(datos);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await ApiService._httpClient.PostAsync(ApiService.BaseUrl + "reservation/check-in", content);
+                string body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, body, null);
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+                };
+                using var doc = JsonDocument.Parse(body);
+                if (doc.RootElement.TryGetProperty("reservation", out var resEl))
+                {
+                    var reserva = JsonSerializer.Deserialize<Reservation>(resEl.GetRawText(), opts);
+                    return (true, null, reserva);
+                }
+                return (true, body, null);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
             }
         }
 
@@ -143,6 +225,44 @@ namespace Hotel_Pere_Maria.Services
                 };
                 var lista = JsonSerializer.Deserialize<List<BookingAuditEntry>>(cuerpo, opts) ?? new List<BookingAuditEntry>();
                 return (true, null, lista);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, null);
+            }
+        }
+
+        /// <summary>GET /reservation/audits — listado global (admin/empleado).</summary>
+        public static async Task<(bool exito, string mensaje, List<BookingAuditEntry> lista)> GetGlobalAuditsAsync(
+            string? bookingId = null,
+            string? actorId = null,
+            string? action = null,
+            string? fromIso = null,
+            string? toIso = null,
+            int limit = 200)
+        {
+            try
+            {
+                ConfigurarCabeceras();
+                var qs = new List<string>();
+                if (!string.IsNullOrWhiteSpace(bookingId)) qs.Add($"booking_id={Uri.EscapeDataString(bookingId.Trim())}");
+                if (!string.IsNullOrWhiteSpace(actorId)) qs.Add($"actor_id={Uri.EscapeDataString(actorId.Trim())}");
+                if (!string.IsNullOrWhiteSpace(action)) qs.Add($"action={Uri.EscapeDataString(action.Trim())}");
+                if (!string.IsNullOrWhiteSpace(fromIso)) qs.Add($"from={Uri.EscapeDataString(fromIso.Trim())}");
+                if (!string.IsNullOrWhiteSpace(toIso)) qs.Add($"to={Uri.EscapeDataString(toIso.Trim())}");
+                qs.Add($"limit={Math.Clamp(limit, 1, 500)}");
+                string url = $"{ApiService.BaseUrl}reservation/audits?" + string.Join("&", qs);
+                var response = await ApiService._httpClient.GetAsync(url);
+                string cuerpo = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return (false, cuerpo, null);
+                var opts = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
+                };
+                var env = JsonSerializer.Deserialize<GlobalAuditsResponse>(cuerpo, opts);
+                return (true, null, env?.Items ?? new List<BookingAuditEntry>());
             }
             catch (Exception ex)
             {
@@ -306,13 +426,16 @@ namespace Hotel_Pere_Maria.Services
         {
             try
             {
-                //Mandamos la peticion a la api y almacenamos la respuesta
+                ConfigurarCabeceras();
                 var respuesta = await ApiService._httpClient.GetAsync(ApiService.BaseUrl + "reservation/allActive");
-                //Si la respuesta es positiva almacenamos la respuesta y creamos una lista con los objetos que nos devuelve
                 if (respuesta.IsSuccessStatusCode)
                 {
                     string contenido = await respuesta.Content.ReadAsStringAsync();
-                    var opciones = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var opciones = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+                    };
                     List<Reservation> lista = JsonSerializer.Deserialize<List<Reservation>>(contenido, opciones);
                     //Devolvemos la lista completa de objetos Reservation
                     return lista;

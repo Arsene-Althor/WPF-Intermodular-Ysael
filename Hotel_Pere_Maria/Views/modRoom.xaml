@@ -66,7 +66,21 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1">
                             <TextBlock Text="Valoración (rate)" FontSize="11" Margin="0,0,0,3"/>
-                            <TextBox Height="30" Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                            <TextBox Height="30" VerticalContentAlignment="Center"
+                                     Text="{Binding Rate, UpdateSourceTrigger=PropertyChanged}"
+                                     IsReadOnly="{Binding IsRateReadOnly}">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Background" Value="White"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRateReadOnly}" Value="True">
+                                                <Setter Property="Background" Value="#F0F0F0"/>
+                                                <Setter Property="ToolTip" Value="La valoración (rate) solo la modifica un administrador."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
                         </StackPanel>
                     </Grid>
 

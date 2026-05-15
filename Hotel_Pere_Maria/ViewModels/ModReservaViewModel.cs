@@ -95,6 +95,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand SeleccionarHabitacionCommand { get; }
         public ICommand SeleccionarClienteCommand { get; }
         public ICommand DescargarFacturaCommand { get; }
+        public ICommand DescargarJustificanteCommand { get; }
         public ICommand RegistrarCheckoutCommand { get; }
 
         public ModReservaViewModel(Reservation reserva)
@@ -117,6 +118,7 @@ namespace Hotel_Pere_Maria.ViewModels
             RefrescarHistorialCommand = new RelayCommand(() => { _ = CargarHistorialAsync(true); });
             IrHistorialCommand = new RelayCommand(() => SelectedTabIndex = 1);
             DescargarFacturaCommand = new RelayCommand(async () => await ExecuteDescargarFacturaAsync(), () => HasInvoice);
+            DescargarJustificanteCommand = new RelayCommand(async () => await ExecuteDescargarJustificanteAsync());
             RegistrarCheckoutCommand = new RelayCommand(async () => await ExecuteRegistrarCheckoutAsync(), () => CanRegistrarCheckout);
         }
 
@@ -284,6 +286,27 @@ namespace Hotel_Pere_Maria.ViewModels
             {
                 await System.IO.File.WriteAllBytesAsync(dlg.FileName, pdf);
                 MessageBox.Show($"Guardado:\n{dlg.FileName}", "Factura", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private async Task ExecuteDescargarJustificanteAsync()
+        {
+            var (ok, err, pdf) = await ReservationService.DownloadBookingReceiptPdfAsync(_reservaOriginal.reservation_id);
+            if (!ok || pdf == null || pdf.Length == 0)
+            {
+                MessageBox.Show(err ?? "Sin PDF", "Justificante", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var dlg = new SaveFileDialog
+            {
+                FileName = $"Justificante-{_reservaOriginal.reservation_id}.pdf",
+                Filter = "PDF (*.pdf)|*.pdf",
+                DefaultExt = ".pdf"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                await System.IO.File.WriteAllBytesAsync(dlg.FileName, pdf);
+                MessageBox.Show($"Guardado:\n{dlg.FileName}", "Justificante", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

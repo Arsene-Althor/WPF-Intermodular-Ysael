@@ -38,6 +38,9 @@
                     <Button Style="{StaticResource NavChipButton}" Content="Facturas"
                             Command="{Binding AbrirFacturasCommand}"
                             Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Auditorías"
+                            Command="{Binding AbrirAuditoriasCommand}"
+                            Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
                     <Button Style="{StaticResource NavChipButton}" Content="Datos factura"
                             Command="{Binding AbrirConfigFacturaCommand}"
                             Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
@@ -90,33 +93,55 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Width="216" MinHeight="248" Margin="8" CornerRadius="12"
-                                                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1"
-                                                Background="{StaticResource Brush.CardElevated}">
+                                        <Button Margin="8" Padding="0" Cursor="Hand"
+                                                Command="{Binding DataContext.AbrirCheckInRecepcionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Background="Transparent" BorderThickness="0">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Width="216" MinHeight="268" CornerRadius="12"
+                                                            BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1"
+                                                            Background="{StaticResource Brush.CardElevated}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Button.Template>
                                             <Grid Margin="10">
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="120"/>
+                                                    <RowDefinition Height="100"/>
                                                     <RowDefinition Height="*"/>
                                                 </Grid.RowDefinitions>
                                                 <Border Grid.Row="0" CornerRadius="10" ClipToBounds="True"
                                                         Background="{StaticResource Brush.ImagePlaceholder}">
                                                     <Image Stretch="Uniform"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                           MaxWidth="200" MaxHeight="116"
+                                                           MaxWidth="200" MaxHeight="96"
                                                            Source="{Binding RoomImage, Converter={StaticResource ImageUrlConverter}}"/>
                                                 </Border>
-                                                <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="0,10,0,0">
-                                                <TextBlock Text="{Binding reservation_id}" FontWeight="SemiBold" FontSize="15"
-                                                           Foreground="{StaticResource Brush.TextPrimary}" HorizontalAlignment="Center"/>
-                                                <TextBlock Text="{Binding room_id}" FontSize="12" HorizontalAlignment="Center"
-                                                           Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
-                                                <TextBlock Text="{Binding check_in, StringFormat='Entrada: {0:dd/MM HH:mm}'}"
-                                                           FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.AccentMid}" Margin="0,8,0,0"/>
-                                                <TextBlock Text="{Binding check_out, StringFormat='Salida: {0:dd/MM HH:mm}'}"
-                                                           FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" Margin="0,2,0,0"/>
+                                                <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="0,8,0,0">
+                                                    <TextBlock Text="{Binding GuestDisplayName}" FontWeight="SemiBold" FontSize="13"
+                                                               Foreground="{StaticResource Brush.TextPrimary}" TextAlignment="Center"
+                                                               TextWrapping="Wrap" MaxWidth="190"/>
+                                                    <TextBlock Text="{Binding GuestDisplayDni, StringFormat='DNI: {0}'}" FontSize="11"
+                                                               HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding reservation_id}" FontSize="11" HorizontalAlignment="Center"
+                                                               Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0"/>
+                                                    <TextBlock Text="{Binding room_id}" FontSize="11" HorizontalAlignment="Center"
+                                                               Foreground="{StaticResource Brush.TextMuted}"/>
+                                                    <Border Background="#D5F5E3" CornerRadius="6" Padding="6,3" Margin="0,6,0,0"
+                                                            HorizontalAlignment="Center"
+                                                            Visibility="{Binding HasReceptionCheckIn, Converter={StaticResource BoolToVis}}">
+                                                        <TextBlock Text="Check-in ✓" FontSize="10" FontWeight="SemiBold" Foreground="#1E7B34"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding check_in, StringFormat='Entrada: {0:dd/MM HH:mm}'}"
+                                                               FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0"/>
+                                                    <TextBlock Text="{Binding check_out, StringFormat='Salida: {0:dd/MM HH:mm}'}"
+                                                               FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="Pulsar para check-in" FontSize="9" HorizontalAlignment="Center"
+                                                               Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0" FontStyle="Italic"/>
                                                 </StackPanel>
                                             </Grid>
-                                        </Border>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

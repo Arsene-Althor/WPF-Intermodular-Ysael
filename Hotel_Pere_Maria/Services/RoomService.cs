@@ -102,6 +102,19 @@ namespace Hotel_Pere_Maria.Services
             }
         }
 
+        public static async Task DeleteRoomAsync(string roomId)
+        {
+            if (string.IsNullOrWhiteSpace(roomId))
+                throw new ArgumentException("room_id vacío");
+            string url = $"{ApiService.BaseUrl}room/delete";
+            using var req = new HttpRequestMessage(HttpMethod.Delete, url);
+            req.Content = JsonContent.Create(new Dictionary<string, string> { ["room_id"] = roomId.Trim() });
+            using var resp = await ApiService._httpClient.SendAsync(req);
+            string body = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                throw new Exception(body);
+        }
+
         public static async Task CreateRoomAsync(object payload)
         {
             string url = $"{ApiService.BaseUrl}room/create";

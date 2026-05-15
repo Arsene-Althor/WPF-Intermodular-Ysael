@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Hotel_Pere_Maria.Models;
+using Hotel_Pere_Maria.Services;
 using Hotel_Pere_Maria.ViewModels;
 
 namespace Hotel_Pere_Maria.Views
@@ -97,6 +100,96 @@ namespace Hotel_Pere_Maria.Views
             {
                 try { shell.DialogResult = true; } catch { /* no es ventana modal */ }
                 shell.Close();
+            }
+        }
+
+        private async void BtnBulkExtras_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_editMode)
+            {
+                MessageBox.Show("Solo en modo gestión de habitaciones.");
+                return;
+            }
+
+            var sel = lvRooms.SelectedItems.Cast<Room>().Distinct().ToList();
+            if (sel.Count == 0)
+            {
+                MessageBox.Show("Selecciona una o varias habitaciones (Ctrl + clic en las tarjetas).", "Servicios extra",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                var catalog = await ExtraServiceCatalogService.ListAsync();
+                if (catalog == null || catalog.Count == 0)
+                {
+                    MessageBox.Show("No hay servicios en el catálogo.", "Servicios extra", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var dlg = new BulkRoomExtrasDialog(sel, catalog) { Owner = Window.GetWindow(this) };
+                if (dlg.ShowDialog() != true)
+                    return;
+                var ids = dlg.SelectedServiceIds;
+                if (ids == null || ids.Count == 0)
+                    return;
+
+                foreach (var room in sel)
+                {
+                    var merged = (room.ExtraServices ?? new List<string>())
+                        .Union(ids)
+                        .Distinct()
+                        .ToList();
+                    await RoomService.UpdateRoomAsync(new { room_id = room.RoomId, extra_services = merged });
+                }
+
+                MessageBox.Show($"Servicios asociados en {sel.Count} habitación(es).", "OK", MessageBoxButton.OK, MessageBoxImage.Information);
+                await _viewModel.LoadRoomsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void BtnEliminarHabitacion_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_editMode)
+            {
+                MessageBox.Show("Solo en modo gestión de habitaciones.");
+                return;
+            }
+
+            if (Session.User?.role != "admin")
+            {
+                MessageBox.Show("Solo un administrador puede eliminar habitaciones.", "Permisos", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (lvRooms.SelectedItems.Count != 1 || lvRooms.SelectedItems[0] is not Room room)
+            {
+                MessageBox.Show("Selecciona exactamente una habitación para eliminar.", "Eliminar", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var r = MessageBox.Show(
+                $"¿Eliminar permanentemente la habitación {room.RoomId}? Esta acción no se puede deshacer.",
+                "Confirmar eliminación",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (r != MessageBoxResult.Yes)
+                return;
+
+            try
+            {
+                await RoomService.DeleteRoomAsync(room.RoomId);
+                MessageBox.Show("Habitación eliminada.", "OK", MessageBoxButton.OK, MessageBoxImage.Information);
+                await _viewModel.LoadRoomsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
