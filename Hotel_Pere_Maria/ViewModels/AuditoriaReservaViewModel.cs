@@ -41,7 +41,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand RefrescarHistorialCommand { get; }
         public ICommand CerrarCommand { get; }
 
-        public event EventHandler RequestClose;
+        public event EventHandler? RequestClose;
 
         public AuditoriaReservaViewModel(string reservationId)
         {

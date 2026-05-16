@@ -45,12 +45,12 @@
                         </TextBox>
                     </StackPanel>
                     <StackPanel Margin="5">
-                        <TextBlock Text="Checkout desde" FontSize="11" FontWeight="SemiBold"/>
-                        <DatePicker Margin="0,5,0,0" SelectedDate="{Binding CheckoutDesde}"/>
+                        <TextBlock Text="Emitida desde" FontSize="11" FontWeight="SemiBold"/>
+                        <DatePicker Margin="0,5,0,0" SelectedDate="{Binding EmitidaDesde}"/>
                     </StackPanel>
                     <StackPanel Margin="5">
-                        <TextBlock Text="Checkout hasta" FontSize="11" FontWeight="SemiBold"/>
-                        <DatePicker Margin="0,5,0,0" SelectedDate="{Binding CheckoutHasta}"/>
+                        <TextBlock Text="Emitida hasta" FontSize="11" FontWeight="SemiBold"/>
+                        <DatePicker Margin="0,5,0,0" SelectedDate="{Binding EmitidaHasta}"/>
                     </StackPanel>
                 </UniformGrid>
                 <Button Content="Limpiar filtros" HorizontalAlignment="Left" Margin="5,10,0,0"
@@ -68,12 +68,13 @@
                       Background="{StaticResource Brush.Surface}"
                       BorderThickness="0">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Factura" Binding="{Binding invoice_number}" Width="140" FontWeight="SemiBold"/>
-                    <DataGridTextColumn Header="Reserva" Binding="{Binding reservation_id}" Width="110"/>
-                    <DataGridTextColumn Header="Cliente" Binding="{Binding user_id}" Width="110"/>
-                    <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="100"/>
-                    <DataGridTextColumn Header="Checkout" Binding="{Binding checkout_completed_at, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>
-                    <DataGridTextColumn Header="Importe" Binding="{Binding price, StringFormat={}{0:N2} €}" Width="90"/>
+                    <DataGridTextColumn Header="Factura" Binding="{Binding invoice_number}" Width="130" FontWeight="SemiBold"/>
+                    <DataGridTextColumn Header="Tipo" Binding="{Binding DisplayTipo}" Width="140"/>
+                    <DataGridTextColumn Header="Reserva" Binding="{Binding reservation_id}" Width="100"/>
+                    <DataGridTextColumn Header="Cliente" Binding="{Binding user_id}" Width="100"/>
+                    <DataGridTextColumn Header="Habitación" Binding="{Binding room_id}" Width="90"/>
+                    <DataGridTextColumn Header="Emitida" Binding="{Binding issued_at, StringFormat=dd/MM/yyyy HH:mm}" Width="130"/>
+                    <DataGridTextColumn Header="Importe" Binding="{Binding amount, StringFormat={}{0:N2} €}" Width="85"/>
                     <DataGridTemplateColumn Header="PDF" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

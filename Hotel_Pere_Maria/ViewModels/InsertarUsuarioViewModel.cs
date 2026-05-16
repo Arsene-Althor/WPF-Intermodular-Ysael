@@ -21,10 +21,7 @@ namespace Hotel_Pere_Maria.ViewModels
         private string _apellido = "";
         private string _dni = "";
         private string _email = "";
-        private string _ciudad = "";
-        private string _rol = "client";
         private DateTime? _fechaNacimiento;
-        private string _genero = "Other";
         private int _ciudadIndex = -1;
         private int _rolIndex = 0;
         private bool _esHombre;
@@ -297,11 +294,8 @@ namespace Hotel_Pere_Maria.ViewModels
             }
         }
 
-        private async System.Threading.Tasks.Task ExecuteGuardar()
-        {
-            // Este command se usa como fallback; el code-behind llama a ExecuteGuardarConPassword
-            // porque PasswordBox no soporta Binding por seguridad de WPF
-        }
+        private System.Threading.Tasks.Task ExecuteGuardar() =>
+            System.Threading.Tasks.Task.CompletedTask;
 
         private bool EsEmailValido(string email)
         {

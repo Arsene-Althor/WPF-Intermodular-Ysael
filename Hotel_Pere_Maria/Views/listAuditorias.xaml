@@ -13,14 +13,20 @@
 
         <Border Grid.Row="0" Background="{StaticResource Brush.SurfaceSubtle}" CornerRadius="10" Padding="12,10" Margin="0,0,0,16"
                 BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1">
-            <DockPanel LastChildFill="False">
-                <TextBlock DockPanel.Dock="Left" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"
-                           Foreground="{StaticResource Brush.TextPrimary}" Text="Auditoría de reservas (global)"/>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button Content="Recargar desde API" Style="{StaticResource NavChipButton}" Padding="14,8" Margin="0,0,8,0"
-                            Command="{Binding CargarCommand}"/>
-                </StackPanel>
-            </DockPanel>
+            <StackPanel>
+                <DockPanel LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Left" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"
+                               Foreground="{StaticResource Brush.TextPrimary}" Text="Auditoría de reservas (global)"/>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox Content="Registrar auditorías" IsChecked="{Binding AuditoriaActiva, Mode=TwoWay}"
+                                  VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
+                        <Button Content="Recargar desde API" Style="{StaticResource NavChipButton}" Padding="14,8" Margin="0,0,8,0"
+                                Command="{Binding CargarCommand}"/>
+                    </StackPanel>
+                </DockPanel>
+                <TextBlock Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource Brush.TextMuted}"
+                           Text="{Binding EstadoAuditoriaTexto}" TextWrapping="Wrap"/>
+            </StackPanel>
         </Border>
 
         <Border Grid.Row="1" Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="15" Margin="0,0,0,16"

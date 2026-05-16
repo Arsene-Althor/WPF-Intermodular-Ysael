@@ -44,6 +44,9 @@
                     <Button Style="{StaticResource NavChipButton}" Content="Datos factura"
                             Command="{Binding AbrirConfigFacturaCommand}"
                             Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Reglas solicitudes"
+                            Command="{Binding AbrirConfigFlexCommand}"
+                            Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
                     <Rectangle Width="1" Height="22" Fill="{StaticResource Brush.AccentBorder}" Margin="12,0"/>
                     <TextBlock Text="{Binding NombreUsuario, StringFormat='{}{0}'}" VerticalAlignment="Center"
                                FontWeight="SemiBold" Foreground="{StaticResource Brush.TextPrimary}" Margin="0,0,12,0"/>
@@ -55,10 +58,9 @@
         </Border>
 
         <Grid Margin="20" Background="{StaticResource Brush.PanelWash}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          Visibility="{Binding IsHomeVisible, Converter={StaticResource BoolToVis}}">
-                <Grid>
+            <Grid Visibility="{Binding IsHomeVisible, Converter={StaticResource BoolToVis}}">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -77,14 +79,57 @@
                         </StackPanel>
                     </DockPanel>
 
-                    <Border Grid.Row="1" Background="{StaticResource Brush.AccentPastel}" CornerRadius="10" Padding="12,8" Margin="0,0,0,12" HorizontalAlignment="Left">
-                        <TextBlock Text="Reservas actuales" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="{StaticResource Brush.TextPrimary}"/>
+                    <Border Grid.Row="1" Background="#F4ECF7" CornerRadius="10" Padding="14" Margin="0,0,0,12"
+                            BorderBrush="#8E44AD" BorderThickness="1"
+                            Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}">
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource NavChipButton}"
+                                    Content="Ver cola" Command="{Binding AbrirSolicitudesFlexCommand}"/>
+                            <StackPanel>
+                                <TextBlock Text="Check-in / check-out especiales" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding ResumenFlexPendientes}" FontSize="13" Margin="0,4,0,0"
+                                           Foreground="{StaticResource Brush.TextMuted}"/>
+                            </StackPanel>
+                        </DockPanel>
                     </Border>
 
-                    <Border Grid.Row="2" CornerRadius="14" BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1"
+                    <Border Grid.Row="2" Background="{StaticResource Brush.AccentPastel}" CornerRadius="10" Padding="12,10" Margin="0,0,0,8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="Reservas actuales" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{StaticResource Brush.TextPrimary}" VerticalAlignment="Center"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{Binding ContadorReservas}" FontSize="12"
+                                       Foreground="{StaticResource Brush.TextMuted}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Row="3" CornerRadius="14" BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1"
                             Background="{StaticResource Brush.SurfaceElevated}" Padding="14">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="520">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="220"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0" Height="32" VerticalContentAlignment="Center" Margin="0,0,10,0"
+                                         ToolTip="ID reserva, habitación, nombre o DNI"
+                                         Text="{Binding FiltroReservas, UpdateSourceTrigger=PropertyChanged}"/>
+                                <ComboBox Grid.Column="1" Height="32" VerticalContentAlignment="Center"
+                                          SelectedValue="{Binding OrdenReservas, Mode=TwoWay}"
+                                          SelectedValuePath="Tag">
+                                    <ComboBoxItem Content="Salida ↑ (más próxima)" Tag="SalidaAsc"/>
+                                    <ComboBoxItem Content="Salida ↓ (más lejana)" Tag="SalidaDesc"/>
+                                    <ComboBoxItem Content="Entrada ↑" Tag="EntradaAsc"/>
+                                    <ComboBoxItem Content="Entrada ↓" Tag="EntradaDesc"/>
+                                    <ComboBoxItem Content="Habitación" Tag="Habitacion"/>
+                                    <ComboBoxItem Content="Cliente (A-Z)" Tag="Cliente"/>
+                                    <ComboBoxItem Content="Retraso salida primero" Tag="Retraso"/>
+                                </ComboBox>
+                            </Grid>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <ItemsControl ItemsSource="{Binding ReservasActivas}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -99,9 +144,20 @@
                                                 Background="Transparent" BorderThickness="0">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Width="216" MinHeight="268" CornerRadius="12"
-                                                            BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1"
+                                                    <Border Width="228" MinHeight="288" CornerRadius="12"
+                                                            BorderThickness="2"
                                                             Background="{StaticResource Brush.CardElevated}">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="BorderBrush" Value="{StaticResource Brush.AccentBorder}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsSalidaRetrasada}" Value="True">
+                                                                        <Setter Property="BorderBrush" Value="#C0392B"/>
+                                                                        <Setter Property="Background" Value="#FDEDEC"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
                                                         <ContentPresenter/>
                                                     </Border>
                                                 </ControlTemplate>
@@ -133,10 +189,16 @@
                                                             Visibility="{Binding HasReceptionCheckIn, Converter={StaticResource BoolToVis}}">
                                                         <TextBlock Text="Check-in ✓" FontSize="10" FontWeight="SemiBold" Foreground="#1E7B34"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding check_in, StringFormat='Entrada: {0:dd/MM HH:mm}'}"
-                                                               FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0"/>
-                                                    <TextBlock Text="{Binding check_out, StringFormat='Salida: {0:dd/MM HH:mm}'}"
-                                                               FontSize="10" HorizontalAlignment="Center" Foreground="{StaticResource Brush.TextMuted}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding EffectiveCheckIn, StringFormat='Entrada: {0:dd/MM HH:mm}'}"
+                                                               FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                                               Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0"/>
+                                                    <TextBlock Text="{Binding EffectiveCheckOut, StringFormat='Salida: {0:dd/MM HH:mm}'}"
+                                                               FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"
+                                                               Foreground="{StaticResource Brush.TextMuted}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding SalidaRetrasoTexto}"
+                                                               FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"
+                                                               Foreground="#C0392B" Margin="0,4,0,0"
+                                                               Visibility="{Binding IsSalidaRetrasada, Converter={StaticResource BoolToVis}}"/>
                                                     <TextBlock Text="Pulsar para check-in" FontSize="9" HorizontalAlignment="Center"
                                                                Foreground="{StaticResource Brush.AccentMid}" Margin="0,6,0,0" FontStyle="Italic"/>
                                                 </StackPanel>
@@ -145,10 +207,10 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </ScrollViewer>
+                            </ScrollViewer>
+                        </Grid>
                     </Border>
-                </Grid>
-            </ScrollViewer>
+            </Grid>
 
             <ContentControl Content="{Binding CurrentPage}"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

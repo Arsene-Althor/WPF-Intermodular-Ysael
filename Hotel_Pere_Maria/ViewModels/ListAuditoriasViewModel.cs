@@ -54,6 +54,27 @@ namespace Hotel_Pere_Maria.ViewModels
             set { _filtroTexto = value ?? ""; OnPropertyChanged(); Filtrar(); }
         }
 
+        private bool _auditoriaActiva = true;
+        private bool _guardandoAuditoria;
+
+        public bool AuditoriaActiva
+        {
+            get => _auditoriaActiva;
+            set
+            {
+                if (_auditoriaActiva == value) return;
+                _auditoriaActiva = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EstadoAuditoriaTexto));
+                _ = GuardarAuditoriaActivaAsync();
+            }
+        }
+
+        public string EstadoAuditoriaTexto =>
+            AuditoriaActiva
+                ? "Registro de auditoría activo (consume recursos en cada cambio de reserva)"
+                : "Registro de auditoría desactivado — no se guardan nuevos eventos";
+
         public ICommand CargarCommand { get; }
         public ICommand LimpiarFiltrosCommand { get; }
 
@@ -61,7 +82,46 @@ namespace Hotel_Pere_Maria.ViewModels
         {
             CargarCommand = new RelayCommand(() => _ = CargarAsync());
             LimpiarFiltrosCommand = new RelayCommand(LimpiarFiltrosUi);
-            _ = CargarAsync();
+            _ = InicializarAsync();
+        }
+
+        private async Task InicializarAsync()
+        {
+            await CargarConfigOperativaAsync();
+            await CargarAsync();
+        }
+
+        private async Task CargarConfigOperativaAsync()
+        {
+            var (ok, _, dto) = await OperationalSettingsService.GetAsync();
+            if (ok && dto != null)
+            {
+                _auditoriaActiva = dto.booking_audit_enabled;
+                OnPropertyChanged(nameof(AuditoriaActiva));
+                OnPropertyChanged(nameof(EstadoAuditoriaTexto));
+            }
+        }
+
+        private async Task GuardarAuditoriaActivaAsync()
+        {
+            if (_guardandoAuditoria) return;
+            _guardandoAuditoria = true;
+            try
+            {
+                var (ok, err, _) = await OperationalSettingsService.PutAsync(new OperationalSettingsDto
+                {
+                    booking_audit_enabled = AuditoriaActiva,
+                });
+                if (!ok)
+                {
+                    MessageBox.Show(err ?? "No se pudo guardar", "Auditoría", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    await CargarConfigOperativaAsync();
+                }
+            }
+            finally
+            {
+                _guardandoAuditoria = false;
+            }
         }
 
         private void LimpiarFiltrosUi()

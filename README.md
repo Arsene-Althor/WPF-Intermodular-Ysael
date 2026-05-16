@@ -1,6 +1,6 @@
 # WPF — Hotel Pere María (Escritorio)
 
-Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la gestión administrativa del Hotel Pere María. Permite a empleados y administradores gestionar usuarios, habitaciones (incluidas **ofertas**, **galería** y **servicios extra** vía API), reservas y consultar el historial de auditoría. Se comunica con la API REST del proyecto intermodular mediante `HttpClient`.
+Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la gestión administrativa del Hotel Pere María. Permite a empleados y administradores gestionar usuarios, habitaciones (ofertas, galería, servicios extra), reservas, **panel de control** con filtros, cola de solicitudes especiales (P19), check-in en recepción, facturas y auditoría (con opción de **desactivar** el registro de nuevos eventos). Todos los datos viven en **MongoDB** en el servidor; WPF solo habla con la **API REST** (`HttpClient`).
 
 ---
 
@@ -10,13 +10,16 @@ Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la ges
 - [Tecnologías utilizadas](#tecnologías-utilizadas)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Arquitectura](#arquitectura)
+- [Base de datos MongoDB (vía API)](#base-de-datos-mongodb-vía-api)
 - [Conexión con la API](#conexión-con-la-api)
 - [Gestión de sesión](#gestión-de-sesión)
 - [Identidad visual](#identidad-visual)
 - [Módulos principales](#módulos-principales)
 - [Ejemplos de código](#ejemplos-de-código)
 - [Check-in en recepción (panel)](#check-in-en-recepción-panel)
-- [P19 · Flexibilidad (API; UI pendiente)](#p19--flexibilidad-api-ui-pendiente)
+- [P9 · Ficha de estancias del cliente (recepción)](#p9--ficha-de-estancias-del-cliente-recepción)
+- [P19 · Flexibilidad (recepción)](#p19--flexibilidad-recepción)
+- [Facturas e HotelInvoice](#facturas-e-hotelinvoice)
 - [Evolución del proyecto](#evolución-del-proyecto-desde-la-creación)
 
 ---
@@ -68,14 +71,21 @@ Hotel_Pere_Maria/
 │   ├── ExtraServiceDto.cs               # Catálogo GET /room/extra-services
 │   ├── BookingAuditEntry.cs             # Registro de auditoría (API)
 │   ├── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
-│   └── InvoiceSettingsDto.cs            # DTO configuración factura (API)
+│   ├── HotelInvoiceItem.cs              # Fila GET /reservation/invoices/history
+│   ├── InvoiceSettingsDto.cs            # DTO configuración factura (API)
+│   ├── FlexibilitySettingsDto.cs        # P19 · reglas €/h
+│   ├── FlexibilityStatusDto.cs          # P19 · estado en reserva
+│   └── PendingFlexibilityItemDto.cs     # Cola solicitudes pendientes
 │
 ├── Services/                            # Comunicación con la API
 │   ├── ApiService.cs                    # Configuración base (URL + HttpClient)
 │   ├── AuthService.cs                   # Login y logout
 │   ├── Session.cs                       # Datos de sesión en memoria
-│   ├── ReservationService.cs            # Reservas, auditoría, checkout, **justificante + factura PDF**, histórico, email factura
+│   ├── ReservationService.cs            # Reservas, auditoría, checkout, PDF, histórico HotelInvoice, email
+│   ├── FlexibilityService.cs            # P19 · pending, review, settings
+│   ├── UserStayService.cs               # P9 · history + stats por userId
 │   ├── InvoiceSettingsService.cs        # GET/PUT `/settings/invoice` (datos fiscales emisor en API)
+│   ├── OperationalSettingsService.cs    # GET/PUT `/settings/operational` (auditoría on/off)
 │   ├── RoomService.cs                   # Habitaciones (all, one, available, update, create)
 │   ├── ExtraServiceCatalogService.cs    # Catálogo de servicios extra (API)
 │   └── UserService.cs                   # Operaciones de usuarios
@@ -94,7 +104,10 @@ Hotel_Pere_Maria/
 │   ├── AuditoriaReservaViewModel.cs     # Historial de auditoría de una reserva
 │   ├── ListRoomViewModel.cs
 │   ├── ModRoomViewModel.cs
-│   ├── GestionUsuariosViewModel.cs
+│   ├── GestionUsuariosViewModel.cs      # Botón «Estancias» → ficha P9
+│   ├── ClientFichaEstanciasViewModel.cs # P9 historial + stats + export CSV
+│   ├── SolicitudesFlexibilidadViewModel.cs
+│   ├── ConfigFlexibilidadViewModel.cs
 │   ├── InsertarUsuarioViewModel.cs
 │   ├── SelectedUserViewModel.cs
 │   ├── PerfilUsuarioViewModel.cs
@@ -109,7 +122,10 @@ Hotel_Pere_Maria/
 │   ├── CheckInRecepcion.xaml            # Registro check-in recepción (clic en panel)
 │   ├── AuditoriaReserva.xaml            # Ventana de auditoría
 │   ├── listRoom.xaml / modRoom.xaml     # Habitaciones
-│   ├── GestionUsuarios.xaml             # Gestión de usuarios
+│   ├── GestionUsuarios.xaml             # Gestión de usuarios (+ Estancias)
+│   ├── ClientFichaEstancias.xaml        # P9 ficha huésped (admin/empleado)
+│   ├── SolicitudesFlexibilidad.xaml     # Cola solicitudes pendientes (incrustada desde panel)
+│   ├── ConfigFlexibilidad.xaml          # Reglas €/h check-in/check-out
 │   ├── InsertarUsuario.xaml / SelectedUser.xaml
 │   ├── PerfilUsuario.xaml
 │   └── GestionarDescuento.xaml
@@ -141,6 +157,36 @@ View (XAML + Binding) → ViewModel (INotifyPropertyChanged) → Service (HttpCl
 - **Service**: clases estáticas que encapsulan las peticiones HTTP a la API.
 - **Model**: clases de datos con atributos `[JsonPropertyName]` para la deserialización.
 - **Converters**: implementaciones de `IValueConverter` para transformar datos en la vista (por ejemplo, `bool` → `Visibility`).
+
+---
+
+## Base de datos MongoDB (vía API)
+
+WPF **no conecta** a MongoDB. Todas las pantallas leen y escriben datos a través de la **API REST**. La documentación completa de colecciones y relaciones está en el [README de la API — Base de datos](../API-Intermodular-Ysael/README.md#base-de-datos-mongodb-colecciones-y-relaciones).
+
+### Qué pantalla usa qué datos
+
+| Pantalla / módulo WPF | Colecciones Mongo (indirectas) | Endpoints principales |
+|------------------------|--------------------------------|------------------------|
+| Login, usuarios, perfil | `users` | `/auth/login`, `/user/*` |
+| Habitaciones | `rooms`, `extraservices` | `/room/*` |
+| Reservas (lista, alta, editar) | `reservations`, `users`, `rooms` | `/reservation/*` |
+| Panel Inicio (tarjetas activas) | `reservations`, `rooms`, `users` | `GET /reservation/allActive` |
+| Check-in recepción | `reservations` | `POST /reservation/check-in` |
+| Facturas | `hotelinvoices`, `reservations` | `/reservation/invoices/history`, PDF |
+| Datos factura (emisor PDF) | `invoicesettings` | `/settings/invoice` |
+| Auditorías | `booking_audit_log`, `operationalsettings` | `/reservation/audits`, `/settings/operational` |
+| Auditoría de una reserva | `booking_audit_log` | `GET …/:id/audit` |
+| Cola flexibilidad | `reservations` (P19 embebido) | `/reservation/flexibility/pending` |
+| Reglas solicitudes | `flexibilitysettings` | `/settings/flexibility` |
+| Ficha estancias cliente (P9) | `reservations`, `reviews`, `clientloyaltystats` | `/users/:id/history`, `/stats` |
+
+### Relaciones que debes conocer en recepción
+
+- Cada **reserva** (`RSV-xxxxx`) apunta a un **huésped** (`CLI-xxxxx`) y una **habitación** (`HAB-xxx`).
+- Las **facturas** emitidas viven en **`hotelinvoices`** (puede haber varias por reserva: estancia, P19, ampliación).
+- El **historial de cambios** está en **`booking_audit_log`** (solo lectura en WPF); puedes **desactivar** nuevos registros para ahorrar recursos.
+- La **fidelidad** del huésped para P19 sale de **`clientloyaltystats`** (un documento por cliente).
 
 ---
 
@@ -313,7 +359,7 @@ Documentos alineados con la API (dos tipos):
 | **Factura fiscal** | `DownloadInvoicePdfAsync` | Solo si `invoice_number` está relleno |
 
 - **`modReserva`**: bloque azul **Descargar justificante (PDF)** (`DescargarJustificanteCommand`, `SaveFileDialog` → `Justificante-{reservation_id}.pdf`). Si hay `invoice_number`, **Descargar factura (PDF)**. Si el usuario es **admin/empleado**, la estancia ha pasado y no hay factura: **Registrar checkout** → `POST /reservation/checkout`.
-- **`listFacturas`**: incrustado desde **Inicio** (botón **Facturas**, solo personal). Carga `GET /reservation/invoices/history`, **filtros** (nº factura, cliente, fechas de checkout), **Descargar** factura y **Reenviar** (email con PDF vía API; depende de `EMAIL_*` en servidor).
+- **`listFacturas`**: incrustado desde **Inicio** (botón **Facturas**, solo personal). Carga `GET /reservation/invoices/history` (**colección `HotelInvoice`**: estancia, P19, ampliación…), **filtros** (nº factura, cliente, fechas), **Descargar** PDF (`invoice_number` en query) y **Reenviar** email (SMTP en servidor).
 - **`ConfigFactura`**: **Inicio** → **Datos factura** (misma visibilidad que Facturas). Carga/guarda `GET`/`PUT /settings/invoice`: nombre comercial, CIF/NIF, dirección, texto libre “otros datos fiscales” y **IVA %** aplicado al desglose TTC en PDF (persistido en Mongo en servidor; si un texto queda vacío en BD, el PDF usa fallback `.env`).
 
 #### Cancelación con `DELETE`
@@ -479,25 +525,105 @@ Resumen de **funcionalidades que se fueron sumando** al escritorio y cómo encaj
 
 Ver también [Check-in en recepción (panel)](#check-in-en-recepción-panel) más arriba en este README.
 
-### 10. P19 · Flexibilidad (API; UI pendiente)
+### 10. Solicitudes check-in / check-out (recepción)
 
-- **API** implementada: solicitudes `early_checkin_requested` / `late_checkout_requested`, revisión por personal, cola `GET /reservation/flexibility/pending`, tarifas según rango en `ClientLoyaltyStats`.
-- **WPF / Android:** pantallas de solicitud y aprobación **pendientes**; recepción puede usar Postman o ampliar WPF con vista “Solicitudes flexibilidad”.
-- Detalle: [API — P19](../API-Intermodular-Ysael/README.md#p19--flexibilidad-entrada-anticipada--salida-tardía).
+- **Panel inicio:** banner «Check-in / check-out especiales» + **Ver cola** (única entrada a la cola; no hay botón duplicado en la barra).
+- **modReserva:** bloque solicitudes + Aprobar/Rechazar por tipo (entrada / salida).
+- **Reglas solicitudes** en barra superior → `ConfigFlexibilidad` (€/h, auto-aprobación).
+- Android: botones separados; WPF aprueba bronce y configura tarifas.
+- [API P19](../API-Intermodular-Ysael/README.md#p19--flexibilidad-entrada-anticipada--salida-tardía).
+
+### 11. P9 · Ficha estancias (gestión usuarios)
+
+- Botón **Estancias** → `ClientFichaEstancias` + `UserStayService` (`/users/:id/history|stats`, export CSV).
+
+### 12. Facturas HotelInvoice
+
+- `listFacturas` + `HotelInvoiceItem`: varios tipos por reserva; PDF con `invoice_number`.
+
+### 13. Panel Inicio, cola flex y auditoría configurable (estado actual)
+
+- **Inicio:** scroll completo, filtro y orden de reservas activas (`InicioViewModel`).
+- **Cola:** pestañas Activas/Inactivas; diálogo rechazo ampliado (`FlexibilityReviewNoteDialog`).
+- **Auditorías:** interruptor «Registrar auditorías» → `OperationalSettingsService` / `operationalsettings` en Mongo.
 
 ---
 
-## P19 · Flexibilidad (API; UI pendiente)
+## P9 · Ficha de estancias del cliente (recepción)
 
-Programa **entrada anticipada** / **salida tardía** con rangos bronce, plata, oro (colección `ClientLoyaltyStats` en API). El escritorio **aún no** llama a estos endpoints; referencia para implementación futura:
+| Elemento | Descripción |
+|----------|-------------|
+| **Acceso** | Gestión usuarios → usuario → **Estancias** |
+| **Ventana** | `ClientFichaEstancias.xaml` + `ClientFichaEstanciasViewModel` |
+| **API** | `GET /users/{id}/history`, `GET /users/{id}/stats` |
+| **UI** | Resumen (noches, gasto, racha, temporada, habitación top) + historial + **Exportar CSV** |
 
-| Uso recepción | Método | Ruta |
-|---------------|--------|------|
-| Cola pendientes | `GET` | `/reservation/flexibility/pending` |
-| Aprobar entrada anticipada | `PATCH` | `/reservation/:id/flexibility/early-checkin/review` |
-| Aprobar salida tardía | `PATCH` | `/reservation/:id/flexibility/late-checkout/review` |
+Huésped: app Android **Estadísticas** + **Mis estancias**. Personal: esta ficha sobre cualquier cliente.
 
-Contrato JSON, tarifas y `.env` `FLEX_*`: [API — P19](../API-Intermodular-Ysael/README.md#p19--flexibilidad-entrada-anticipada--salida-tardía).
+Ver [APP — P9](../APP-Intermodular-Ysael/README.md#p9--mis-estadísticas-cliente) · [API — P9 historial](../API-Intermodular-Ysael/README.md#p9--historial-de-estancias-por-usuario).
+
+---
+
+## P19 · Flexibilidad (recepción)
+
+Entrada **antes de 12:00** o salida **después de 11:00** el **mismo día** (no confundir con **ampliar estancia** en Android). La interfaz WPF **no** muestra la etiqueta «P19» al usuario.
+
+### Panel de control (`Inicio`)
+
+- Banner **Check-in / check-out especiales** con contador de pendientes del día.
+- Botón **Ver cola** → incrusta `SolicitudesFlexibilidad` (sustituye el antiguo acceso «Solic. flex.» del menú).
+- **Reservas actuales:** área con scroll vertical (sin límite fijo de altura), **filtro** por ID/habitación/nombre/DNI y **orden** (salida, entrada, habitación, cliente, retrasos primero).
+- Contador `X de Y reserva(s)` según filtro aplicado.
+
+### Detalle de reserva (`modReserva`)
+
+- Bloque **SOLICITUDES CHECK-IN / CHECK-OUT** (admin/empleado).
+- Subbloques **Check-in anticipado** y **Check-out tardío** (estado, hora, horas, suplemento, disponibilidad, modo aprobación, nota).
+- **Aprobar / Rechazar** si `pending` (nota opcional → `review_note` en API).
+- **Actualizar** → `GET /reservation/:id/flexibility`.
+
+### Cola del día (`SolicitudesFlexibilidad`)
+
+- Acceso desde panel inicio (**Ver cola**), no desde barra superior.
+- **DatePicker** por día; pestañas **Activas** / **Inactivas**; orden por fecha (más recientes o más antiguas).
+- Aprobar / rechazar (diálogo de nota **más grande**, redimensionable) / ver motivo rechazo / abrir reserva.
+- Título en pantalla: «Solicitudes del día».
+
+### Auditorías globales (`listAuditorias`)
+
+- Checkbox **Registrar auditorías** → `PUT /settings/operational` (`booking_audit_enabled`).
+- Con auditoría desactivada, la API deja de insertar en `booking_audit_log` (los registros antiguos siguen consultables).
+
+### Configuración (`ConfigFlexibilidad`)
+
+- Barra superior: **Reglas solicitudes** (antes «Reglas flex.»).
+- **Acceso gratuito** por rango (bronce/plata/oro).
+- **€/h** entrada y salida; descuentos %; mín. horas facturables; tope €.
+- **Límites:** hora mín. early, hora máx. late, máx. horas adelanto/retraso.
+- Email al resolver; nota sobre auto-aprobación plata/oro en servidor.
+
+| Acción | Ruta API |
+|--------|----------|
+| Estado | `GET /reservation/:id/flexibility` |
+| Cola | `GET /reservation/flexibility/pending?day=` |
+| Revisar | `PATCH …/early-checkin/review` · `…/late-checkout/review` |
+| Settings | `GET/PUT /settings/flexibility` |
+
+Plata/oro: auto si hay hueco. Bronce: `pending` hasta revisión (API revalida disponibilidad al aprobar).
+
+---
+
+## Facturas e HotelInvoice
+
+| Concepto | WPF |
+|----------|-----|
+| Listado | `listFacturas` ← `GET /reservation/invoices/history` |
+| Fila | `HotelInvoiceItem` (`type`, `amount`, `invoice_number`) |
+| PDF | Descarga con `invoice_number` cuando hay varias por RSV |
+| Checkout | `POST /reservation/checkout` en modificar reserva |
+| Emisor | `ConfigFactura` → `/settings/invoice` |
+
+[API — HotelInvoice](../API-Intermodular-Ysael/README.md#colección-hotelinvoice-facturación-multi-concepto).
 
 ---
 

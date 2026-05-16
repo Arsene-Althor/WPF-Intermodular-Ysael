@@ -15,11 +15,14 @@ namespace Hotel_Pere_Maria.ViewModels
 {
     public class InicioViewModel : BaseViewModel
     {
-        private ObservableCollection<Reservation> _reservasActivas;
-        private ImageSource _imagenPerfil;
-        private object _currentPage;
+        private ObservableCollection<Reservation> _reservasActivas = new();
+        private List<Reservation> _todasActivas = new();
+        private string _filtroReservas = "";
+        private string _ordenReservas = "SalidaAsc";
+        private ImageSource? _imagenPerfil;
+        private object? _currentPage;
 
-        public event EventHandler RequestClose;
+        public event EventHandler? RequestClose;
 
         public ObservableCollection<Reservation> ReservasActivas
         {
@@ -27,7 +30,7 @@ namespace Hotel_Pere_Maria.ViewModels
             set { _reservasActivas = value; OnPropertyChanged(); }
         }
 
-        public ImageSource ImagenPerfil
+        public ImageSource? ImagenPerfil
         {
             get => _imagenPerfil;
             set { _imagenPerfil = value; OnPropertyChanged(); }
@@ -36,7 +39,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public string NombreUsuario => Session.User?.name ?? "Usuario";
 
         /// <summary>Página incrustada (lista/añadir reserva). null = panel principal.</summary>
-        public object CurrentPage
+        public object? CurrentPage
         {
             get => _currentPage;
             set
@@ -54,6 +57,44 @@ namespace Hotel_Pere_Maria.ViewModels
         /// <summary>Admin o empleado: facturas y checkout en API.</summary>
         public bool PuedeGestionFacturas => Session.User?.IsEmployee == true;
 
+        private int _flexPendientesHoy;
+
+        public int FlexPendientesHoy
+        {
+            get => _flexPendientesHoy;
+            set
+            {
+                _flexPendientesHoy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ResumenFlexPendientes));
+                OnPropertyChanged(nameof(HayFlexPendientes));
+            }
+        }
+
+        public bool HayFlexPendientes => FlexPendientesHoy > 0;
+
+        public string ResumenFlexPendientes =>
+            FlexPendientesHoy > 0
+                ? $"{FlexPendientesHoy} solicitud(es) pendiente(s) hoy"
+                : "Sin solicitudes pendientes hoy";
+
+        public string FiltroReservas
+        {
+            get => _filtroReservas;
+            set { _filtroReservas = value ?? ""; OnPropertyChanged(); AplicarFiltroReservas(); }
+        }
+
+        public string OrdenReservas
+        {
+            get => _ordenReservas;
+            set { _ordenReservas = string.IsNullOrWhiteSpace(value) ? "SalidaAsc" : value; OnPropertyChanged(); AplicarFiltroReservas(); }
+        }
+
+        public string ContadorReservas =>
+            ReservasActivas.Count == _todasActivas.Count
+                ? $"{ReservasActivas.Count} reserva(s) activa(s)"
+                : $"{ReservasActivas.Count} de {_todasActivas.Count} reserva(s)";
+
         public ICommand CargarDatosCommand { get; }
         public ICommand IrInicioCommand { get; }
         public ICommand AbrirAllReservasCommand { get; }
@@ -65,6 +106,8 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand AbrirConfigFacturaCommand { get; }
         public ICommand AbrirAuditoriasCommand { get; }
         public ICommand AbrirCheckInRecepcionCommand { get; }
+        public ICommand AbrirSolicitudesFlexCommand { get; }
+        public ICommand AbrirConfigFlexCommand { get; }
 
         public InicioViewModel()
         {
@@ -79,6 +122,8 @@ namespace Hotel_Pere_Maria.ViewModels
             AbrirConfigFacturaCommand = new RelayCommand(OpenConfigFacturaEmbedded, () => PuedeGestionFacturas);
             AbrirAuditoriasCommand = new RelayCommand(OpenAuditoriasEmbedded, () => PuedeGestionFacturas);
             AbrirCheckInRecepcionCommand = new RelayCommand<Reservation>(AbrirCheckInRecepcion, r => r != null && PuedeGestionFacturas);
+            AbrirSolicitudesFlexCommand = new RelayCommand(OpenSolicitudesFlexEmbedded, () => PuedeGestionFacturas);
+            AbrirConfigFlexCommand = new RelayCommand(OpenConfigFlexEmbedded, () => PuedeGestionFacturas);
 
             _ = CargarTodo();
         }
@@ -134,10 +179,42 @@ namespace Hotel_Pere_Maria.ViewModels
             CurrentPage = new listAuditorias();
         }
 
+        private void OpenSolicitudesFlexEmbedded()
+        {
+            if (!PuedeGestionFacturas) return;
+            CurrentPage = new SolicitudesFlexibilidad();
+            _ = CargarFlexPendientesAsync();
+        }
+
+        private void OpenConfigFlexEmbedded()
+        {
+            if (!PuedeGestionFacturas) return;
+            CurrentPage = new ConfigFlexibilidad();
+        }
+
         private async Task CargarTodo()
         {
             CargarImagenPerfil();
             await CargarReservas();
+            await CargarFlexPendientesAsync();
+        }
+
+        private async Task CargarFlexPendientesAsync()
+        {
+            if (!PuedeGestionFacturas)
+            {
+                FlexPendientesHoy = 0;
+                return;
+            }
+            try
+            {
+                var (ok, _, data) = await FlexibilityService.GetPendingAsync(DateTime.Today);
+                FlexPendientesHoy = ok ? data?.count ?? 0 : 0;
+            }
+            catch
+            {
+                FlexPendientesHoy = 0;
+            }
         }
 
         private void ExecuteAbrirPerfil()
@@ -168,9 +245,38 @@ namespace Hotel_Pere_Maria.ViewModels
             try
             {
                 var lista = await ReservationService.getAllActiveReservation();
-                ReservasActivas = new ObservableCollection<Reservation>(lista ?? new List<Reservation>());
+                _todasActivas = lista ?? new List<Reservation>();
+                AplicarFiltroReservas();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void AplicarFiltroReservas()
+        {
+            var q = _todasActivas.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(FiltroReservas))
+            {
+                var t = FiltroReservas.Trim();
+                q = q.Where(r =>
+                    (r.reservation_id?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.room_id?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.GuestDisplayName?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.GuestDisplayDni?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false));
+            }
+
+            q = OrdenReservas switch
+            {
+                "SalidaDesc" => q.OrderByDescending(r => r.EffectiveCheckOut),
+                "EntradaAsc" => q.OrderBy(r => r.check_in),
+                "EntradaDesc" => q.OrderByDescending(r => r.check_in),
+                "Habitacion" => q.OrderBy(r => r.room_id, StringComparer.OrdinalIgnoreCase),
+                "Cliente" => q.OrderBy(r => r.GuestDisplayName, StringComparer.OrdinalIgnoreCase),
+                "Retraso" => q.OrderByDescending(r => r.IsSalidaRetrasada).ThenBy(r => r.EffectiveCheckOut),
+                _ => q.OrderBy(r => r.EffectiveCheckOut),
+            };
+
+            ReservasActivas = new ObservableCollection<Reservation>(q.ToList());
+            OnPropertyChanged(nameof(ContadorReservas));
         }
 
         private async Task ExecuteLogout()

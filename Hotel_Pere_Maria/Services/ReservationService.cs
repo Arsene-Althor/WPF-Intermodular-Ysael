@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -24,13 +24,17 @@ namespace Hotel_Pere_Maria.Services
             }
         }
 
-        /// <summary>GET /reservation/:id/invoice — PDF binario.</summary>
-        public static async Task<(bool exito, string mensaje, byte[] pdf)> DownloadInvoicePdfAsync(string reservation_id)
+        /// <summary>GET /reservation/:id/invoice — PDF binario (opcional ?invoice_number=).</summary>
+        public static async Task<(bool exito, string mensaje, byte[] pdf)> DownloadInvoicePdfAsync(
+            string reservation_id,
+            string? invoice_number = null)
         {
             try
             {
                 ConfigurarCabeceras();
                 string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/invoice";
+                if (!string.IsNullOrWhiteSpace(invoice_number))
+                    url += $"?invoice_number={Uri.EscapeDataString(invoice_number.Trim())}";
                 var response = await ApiService._httpClient.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                 {
@@ -69,7 +73,7 @@ namespace Hotel_Pere_Maria.Services
         }
 
         /// <summary>GET /reservation/invoices/history — solo admin/empleado.</summary>
-        public static async Task<(bool exito, string mensaje, List<Reservation> lista)> GetInvoicesHistoryAsync()
+        public static async Task<(bool exito, string mensaje, List<HotelInvoiceItem> lista)> GetInvoicesHistoryAsync()
         {
             try
             {
@@ -83,7 +87,7 @@ namespace Hotel_Pere_Maria.Services
                     PropertyNameCaseInsensitive = true,
                     UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip
                 };
-                var lista = JsonSerializer.Deserialize<List<Reservation>>(body, opts) ?? new List<Reservation>();
+                var lista = JsonSerializer.Deserialize<List<HotelInvoiceItem>>(body, opts) ?? new List<HotelInvoiceItem>();
                 return (true, null, lista);
             }
             catch (Exception ex)
@@ -93,15 +97,22 @@ namespace Hotel_Pere_Maria.Services
         }
 
         /// <summary>POST /reservation/:id/invoice/email — solo personal.</summary>
-        public static async Task<(bool exito, string mensaje)> PostInvoiceEmailAsync(string reservation_id, string? overrideTo = null)
+        public static async Task<(bool exito, string mensaje)> PostInvoiceEmailAsync(
+            string reservation_id,
+            string? overrideTo = null,
+            string? invoice_number = null)
         {
             try
             {
                 ConfigurarCabeceras();
                 string url = $"{ApiService.BaseUrl}reservation/{Uri.EscapeDataString(reservation_id)}/invoice/email";
-                object payload = string.IsNullOrWhiteSpace(overrideTo)
+                object payload = string.IsNullOrWhiteSpace(overrideTo) && string.IsNullOrWhiteSpace(invoice_number)
                     ? new { }
-                    : new { to = overrideTo.Trim() };
+                    : new
+                    {
+                        to = string.IsNullOrWhiteSpace(overrideTo) ? null : overrideTo.Trim(),
+                        invoice_number = string.IsNullOrWhiteSpace(invoice_number) ? null : invoice_number.Trim(),
+                    };
                 string json = JsonSerializer.Serialize(payload);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await ApiService._httpClient.PostAsync(url, content);
@@ -310,7 +321,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, "Error en la API: " + mensajeServidor, 0.0);
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
                 return (false, "Error de conexión", 0.0);
             }
@@ -355,7 +366,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, "Error en la API: " + mensajeServidor, 0.0);
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
                 return (false, "Error de conexión" ,0.0);
             }
@@ -383,7 +394,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, mensajeServidor);
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
                 return (false, "Error de conexión");
             }
@@ -415,7 +426,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, mensajeServidor);
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
                 return (false, "Error de conexión");
             }
@@ -496,7 +507,7 @@ namespace Hotel_Pere_Maria.Services
                     return (false, mensajeServidor);
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
                 return (false, "Error de conexión");
             }

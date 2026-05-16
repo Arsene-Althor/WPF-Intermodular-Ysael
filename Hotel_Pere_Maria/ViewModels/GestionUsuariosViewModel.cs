@@ -148,6 +148,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand LimpiarFiltrosCommand { get; }
         public ICommand RecargarCommand { get; }
         public ICommand GestionarDescuentoCommand { get; }
+        public ICommand VerHistorialEstanciasCommand { get; }
 
         // ==========================================
         // CONSTRUCTOR
@@ -163,6 +164,7 @@ namespace Hotel_Pere_Maria.ViewModels
             LimpiarFiltrosCommand = new RelayCommand(ExecuteLimpiarFiltros);
             RecargarCommand = new RelayCommand(ExecuteRecargar);
             GestionarDescuentoCommand = new RelayCommand(ExecuteGestionarDescuento);
+            VerHistorialEstanciasCommand = new RelayCommand(ExecuteVerHistorialEstancias);
 
             // Cargamos los usuarios al construir el ViewModel
             _ = CargarUsuarios();
@@ -415,6 +417,21 @@ namespace Hotel_Pere_Maria.ViewModels
             {
                 MessageBox.Show("Selecciona un usuario para aplicar descuento.");
             }
+        }
+
+        private void ExecuteVerHistorialEstancias()
+        {
+            if (UsuarioSeleccionado == null)
+            {
+                MessageBox.Show("Selecciona un cliente.");
+                return;
+            }
+            if (UsuarioSeleccionado.role != "client")
+            {
+                MessageBox.Show("El historial de estancias solo aplica a clientes.");
+                return;
+            }
+            ClientFichaEstancias.ShowDialogFor(UsuarioSeleccionado);
         }
     }
 }

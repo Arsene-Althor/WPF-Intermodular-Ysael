@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hotel_Pere_Maria.Helpers;
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.Services;
 using System.Windows.Input;
@@ -64,7 +65,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand RefrescarHistorialCommand { get; }
         public ICommand IrHistorialCommand { get; }
 
-        public event EventHandler RequestClose;
+        public event EventHandler? RequestClose;
 
         // Propiedades
         public string ReservationId => _reservaOriginal.reservation_id.ToString();
@@ -88,6 +89,55 @@ namespace Hotel_Pere_Maria.ViewModels
             && !HasInvoice
             && _reservaOriginal.check_out <= DateTime.Now;
 
+        public bool PuedeGestionarFlexibilidad => Session.User?.IsEmployee == true;
+
+        private FlexibilityRequestDto? _earlyRequest;
+        private FlexibilityRequestDto? _lateRequest;
+        private string _clienteFidelidadTier = "";
+
+        public FlexibilityRequestDto? EarlyRequest
+        {
+            get => _earlyRequest;
+            set
+            {
+                _earlyRequest = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MostrarSolicitudesEspeciales));
+                OnPropertyChanged(nameof(TieneEarly));
+                OnPropertyChanged(nameof(SinEarly));
+                OnPropertyChanged(nameof(PuedeRevisarEarly));
+            }
+        }
+
+        public FlexibilityRequestDto? LateRequest
+        {
+            get => _lateRequest;
+            set
+            {
+                _lateRequest = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MostrarSolicitudesEspeciales));
+                OnPropertyChanged(nameof(TieneLate));
+                OnPropertyChanged(nameof(SinLate));
+                OnPropertyChanged(nameof(PuedeRevisarLate));
+            }
+        }
+
+        public bool MostrarSolicitudesEspeciales => PuedeGestionarFlexibilidad;
+
+        public bool TieneEarly => EarlyRequest?.HasRequest == true;
+        public bool TieneLate => LateRequest?.HasRequest == true;
+        public bool SinEarly => !TieneEarly;
+        public bool SinLate => !TieneLate;
+
+        public string ClienteFidelidadTier
+        {
+            get => _clienteFidelidadTier;
+            set { _clienteFidelidadTier = value ?? ""; OnPropertyChanged(); }
+        }
+        public bool PuedeRevisarEarly => PuedeGestionarFlexibilidad && EarlyRequest?.CanStaffReview == true;
+        public bool PuedeRevisarLate => PuedeGestionarFlexibilidad && LateRequest?.CanStaffReview == true;
+
         // Comandos
         public ICommand GuardarCommand { get; }
         public ICommand CancelarReservaCommand { get; }
@@ -97,6 +147,11 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand DescargarFacturaCommand { get; }
         public ICommand DescargarJustificanteCommand { get; }
         public ICommand RegistrarCheckoutCommand { get; }
+        public ICommand AprobarEarlyCommand { get; }
+        public ICommand RechazarEarlyCommand { get; }
+        public ICommand AprobarLateCommand { get; }
+        public ICommand RechazarLateCommand { get; }
+        public ICommand RefrescarFlexCommand { get; }
 
         public ModReservaViewModel(Reservation reserva)
         {
@@ -120,7 +175,81 @@ namespace Hotel_Pere_Maria.ViewModels
             DescargarFacturaCommand = new RelayCommand(async () => await ExecuteDescargarFacturaAsync(), () => HasInvoice);
             DescargarJustificanteCommand = new RelayCommand(async () => await ExecuteDescargarJustificanteAsync());
             RegistrarCheckoutCommand = new RelayCommand(async () => await ExecuteRegistrarCheckoutAsync(), () => CanRegistrarCheckout);
+            AprobarEarlyCommand = new RelayCommand(async () => await RevisarFlexAsync("early", "approved"), () => PuedeRevisarEarly);
+            RechazarEarlyCommand = new RelayCommand(async () => await RevisarFlexAsync("early", "rejected"), () => PuedeRevisarEarly);
+            AprobarLateCommand = new RelayCommand(async () => await RevisarFlexAsync("late", "approved"), () => PuedeRevisarLate);
+            RechazarLateCommand = new RelayCommand(async () => await RevisarFlexAsync("late", "rejected"), () => PuedeRevisarLate);
+            RefrescarFlexCommand = new RelayCommand(() => _ = CargarFlexibilidadAsync(true));
+
+            if (PuedeGestionarFlexibilidad)
+                _ = CargarFlexibilidadAsync();
         }
+
+        private async Task CargarFlexibilidadAsync(bool forzar = false)
+        {
+            if (!PuedeGestionarFlexibilidad) return;
+            try
+            {
+                var (ok, err, data) = await FlexibilityService.GetStatusAsync(_reservaOriginal.reservation_id);
+                if (!ok)
+                {
+                    if (forzar)
+                        MessageBox.Show(err ?? "No se pudo cargar flexibilidad", "Solicitudes especiales",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                EarlyRequest = data?.early_checkin_requested;
+                LateRequest = data?.late_checkout_requested;
+                ClienteFidelidadTier = TierLabelFromCode(data?.loyalty_tier);
+                if (data?.price is > 0)
+                {
+                    _precioNuevo = data.price.Value;
+                    _reservaOriginal.price = data.price.Value;
+                    OnPropertyChanged(nameof(PrecioNuevo));
+                }
+                CommandManager.InvalidateRequerySuggested();
+            }
+            catch (Exception ex)
+            {
+                if (forzar) MessageBox.Show(ex.Message, "Solicitudes especiales", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task RevisarFlexAsync(string kind, string decision)
+        {
+            var etiqueta = decision == "approved" ? "aprobar" : "rechazar";
+            var tipo = kind == "early" ? "entrada anticipada" : "salida tardía";
+            var (confirmed, nota) = FlexibilityReviewNoteDialog.Show(
+                "Solicitudes check-in / check-out",
+                $"Va a {etiqueta} la solicitud de {tipo} para {_reservaOriginal.reservation_id}.");
+            if (!confirmed) return;
+
+            var (ok, err, newPrice) = kind == "early"
+                ? await FlexibilityService.ReviewEarlyAsync(_reservaOriginal.reservation_id, decision, nota)
+                : await FlexibilityService.ReviewLateAsync(_reservaOriginal.reservation_id, decision, nota);
+
+            if (!ok)
+            {
+                MessageBox.Show(err ?? "Error", "Revisión", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (newPrice.HasValue)
+            {
+                PrecioNuevo = newPrice.Value;
+                _reservaOriginal.price = newPrice.Value;
+            }
+            await CargarFlexibilidadAsync(true);
+            MessageBox.Show(decision == "approved" ? "Solicitud aprobada" : "Solicitud rechazada",
+                "Solicitudes especiales", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private static string TierLabelFromCode(string? tier) => tier switch
+        {
+            "gold" => "Oro",
+            "silver" => "Plata",
+            "bronze" => "Bronce",
+            _ => string.IsNullOrWhiteSpace(tier) ? "—" : tier,
+        };
 
         /// <summary>Carga auditoría la primera vez o si <paramref name="forzar"/> es true.</summary>
         public async Task CargarHistorialAsync(bool forzar = false)

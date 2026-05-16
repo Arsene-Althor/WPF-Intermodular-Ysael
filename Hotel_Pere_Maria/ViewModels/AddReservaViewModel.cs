@@ -20,11 +20,11 @@ namespace Hotel_Pere_Maria.ViewModels
         private double _precioReserva;
         private bool _fechasValidas;
 
-        public event EventHandler RequestClose;
+        public event EventHandler? RequestClose;
         public event EventHandler? DialogCanceled;
 
-        public string RoomId { get => _roomId; set { _roomId = value; OnPropertyChanged(); CalcularPrecio(); } }
-        public string UserId { get => _userId; set { _userId = value; OnPropertyChanged(); CalcularPrecio(); } }
+        public string RoomId { get => _roomId; set { _roomId = value; OnPropertyChanged(); _ = CalcularPrecio(); } }
+        public string UserId { get => _userId; set { _userId = value; OnPropertyChanged(); _ = CalcularPrecio(); } }
         public DateTime? CheckIn { get => _checkIn; set { _checkIn = value; OnPropertyChanged(); ValidarFechas(); } }
         public DateTime? CheckOut { get => _checkOut; set { _checkOut = value; OnPropertyChanged(); ValidarFechas(); } }
         public double PrecioReserva { get => _precioReserva; set { _precioReserva = value; OnPropertyChanged(); } }
