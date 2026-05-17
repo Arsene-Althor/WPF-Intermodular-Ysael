@@ -2,14 +2,18 @@
 
 Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la gestión administrativa del Hotel Pere María. Permite a empleados y administradores gestionar usuarios, habitaciones (ofertas, galería, servicios extra), reservas, **panel de control** con filtros, cola de solicitudes especiales (P19), check-in en recepción, facturas y auditoría (con opción de **desactivar** el registro de nuevos eventos). Todos los datos viven en **MongoDB** en el servidor; WPF solo habla con la **API REST** (`HttpClient`).
 
+Documentación de datos y API: [README API](../API-Intermodular-Ysael/README.md).
+
 ---
 
 ## Tabla de contenidos
 
+- [Arquitectura del sistema](#arquitectura-del-sistema)
+- [Diagramas y flujos visuales](#diagramas-y-flujos-visuales)
 - [Requisitos](#requisitos)
 - [Tecnologías utilizadas](#tecnologías-utilizadas)
 - [Estructura del proyecto](#estructura-del-proyecto)
-- [Arquitectura](#arquitectura)
+- [Patrón MVVM (detalle)](#patrón-mvvm-detalle)
 - [Base de datos MongoDB (vía API)](#base-de-datos-mongodb-vía-api)
 - [Conexión con la API](#conexión-con-la-api)
 - [Gestión de sesión](#gestión-de-sesión)
@@ -29,6 +33,122 @@ Aplicación de escritorio desarrollada con **WPF (.NET 8)** y **C#** para la ges
 - Visual Studio 2022 (con carga de trabajo .NET Desktop)
 - .NET 8 SDK
 - Conexión a la API del proyecto (`API-Intermodular-Ysael`)
+
+---
+
+## Arquitectura del sistema
+
+```mermaid
+flowchart LR
+    subgraph wpf["WPF Hotel Pere María"]
+        V[Views XAML]
+        VM[ViewModels MVVM]
+        S[Services HttpClient]
+    end
+    API[API Node.js :3011]
+    DB[(MongoDB)]
+
+    V --> VM --> S --> API --> DB
+```
+
+---
+
+## Diagramas y flujos visuales
+
+### Patrón MVVM
+
+```mermaid
+flowchart TB
+    subgraph View["View (XAML)"]
+        X1[Inicio.xaml]
+        X2[listReservas.xaml]
+        X3[listAuditorias.xaml]
+    end
+    subgraph VM["ViewModel"]
+        VM1[InicioViewModel]
+        VM2[ListReservasViewModel]
+        VM3[ListAuditoriasViewModel]
+    end
+    subgraph Svc["Service"]
+        RS[ReservationService]
+        US[UserService]
+    end
+    X1 --> VM1
+    X2 --> VM2
+    X3 --> VM3
+    VM1 --> RS
+    VM2 --> RS
+    VM3 --> RS
+    RS --> API[API REST]
+```
+
+### Mapa de navegación (tras login)
+
+```mermaid
+flowchart TD
+    LOGIN[MainWindow Login] --> INICIO[Inicio · panel control]
+    INICIO --> R[listReservas]
+    INICIO --> H[listRoom]
+    INICIO --> U[GestionUsuarios]
+    INICIO --> F[listFacturas]
+    INICIO --> A[listAuditorias]
+    INICIO --> CF[ConfigFactura]
+    INICIO --> CQ[Ver cola P19]
+    CQ --> SF[SolicitudesFlexibilidad]
+    INICIO --> CFX[ConfigFlexibilidad]
+    R --> AR[addReserva]
+    R --> MR[modReserva]
+    MR --> AUD[pestaña Historial auditoría]
+    INICIO --> CI[CheckInRecepcion]
+    U --> EST[ClientFichaEstancias P9]
+```
+
+### Pantalla Auditorías (ejemplo visual)
+
+```
+┌─ Auditoría de reservas (global) ────────────────────────────────┐
+│ ☑ Registrar auditorías          [ Recargar desde API ]          │
+├──────────┬─────────┬──────────┬─────────────┬───────────────────┤
+│ Fecha    │ Reserva │ Acción   │ Antes       │ Después           │
+├──────────┼─────────┼──────────┼─────────────┼───────────────────┤
+│ 17/05 10h│ RSV-042 │ UPDATED  │ Precio: 120 │ Precio: 150       │
+│          │         │          │ Salida: …11h│ Salida: …21 11h   │
+│  ▼ detalle por campo (fila expandida)                           │
+│  ┌────────────┬─────────────────┬─────────────────┐             │
+│  │ Campo      │ Antes           │ Después         │             │
+│  ├────────────┼─────────────────┼─────────────────┤             │
+│  │ Precio     │ 120             │ 150             │             │
+│  │ Salida     │ 20/05 11:00     │ 21/05 11:00     │             │
+│  └────────────┴─────────────────┴─────────────────┘             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Check-in en recepción
+
+```mermaid
+sequenceDiagram
+    participant R as Recepcionista
+    participant W as WPF Inicio
+    participant API as POST /reservation/check-in
+
+    R->>W: Clic tarjeta reserva
+    W->>API: check-in-status
+    API-->>W: ventana 12:00-22:00 / tardío
+    R->>W: Confirmar llegada
+    W->>API: POST check-in
+    Note over API: reception_check_in_at<br/>+ recargo si tardío
+```
+
+### Cola P19 (recepción)
+
+```mermaid
+flowchart LR
+    I[Inicio banner pendientes] --> Q[SolicitudesFlexibilidad]
+    Q --> A[Aprobar]
+    Q --> R[Rechazar + nota]
+    Q --> M[Abrir modReserva]
+    A --> API[PATCH review]
+```
 
 ---
 
@@ -151,7 +271,9 @@ Hotel_Pere_Maria/
 
 ---
 
-## Arquitectura
+## Patrón MVVM (detalle)
+
+Diagramas: [Arquitectura del sistema](#arquitectura-del-sistema) · [MVVM y navegación](#diagramas-y-flujos-visuales).
 
 La aplicación sigue el patrón **MVVM**:
 
