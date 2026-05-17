@@ -5,21 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Hotel_Pere_Maria.Helpers;
 using Hotel_Pere_Maria.Models;
 using Hotel_Pere_Maria.Services;
 
 namespace Hotel_Pere_Maria.ViewModels
 {
-    public sealed class AuditGlobalRow
-    {
-        public DateTime? Fecha { get; set; }
-        public string FechaTxt => Fecha.HasValue ? Fecha.Value.ToString("dd/MM/yyyy HH:mm") : "—";
-        public string ReservaId { get; set; } = "";
-        public string Accion { get; set; } = "";
-        public string Actor { get; set; } = "";
-        public string Resumen { get; set; } = "";
-    }
-
     public class ListAuditoriasViewModel : BaseViewModel
     {
         private List<AuditGlobalRow> _todas = new();
@@ -161,18 +152,8 @@ namespace Hotel_Pere_Maria.ViewModels
 
                 _todas = lista.Select(e =>
                 {
-                    var res = (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
-                        ? string.Join("; ", e.ResumenCambios)
-                        : "—";
                     nombres.TryGetValue(e.ActorId ?? "", out var an);
-                    return new AuditGlobalRow
-                    {
-                        Fecha = e.Timestamp,
-                        ReservaId = e.BookingId ?? "",
-                        Accion = e.Action ?? "",
-                        Actor = string.IsNullOrEmpty(an) ? (e.ActorId ?? "") : $"{an} ({e.ActorId})",
-                        Resumen = res,
-                    };
+                    return AuditUiMapper.ToGlobalRow(e, an ?? "");
                 }).ToList();
                 Filtrar();
             }
@@ -192,6 +173,8 @@ namespace Hotel_Pere_Maria.ViewModels
                     (r.ReservaId?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (r.Actor?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (r.Resumen?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Antes?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.Despues?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (r.Accion?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false));
             }
             Filas.Clear();

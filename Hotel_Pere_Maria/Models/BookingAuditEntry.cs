@@ -24,5 +24,8 @@ namespace Hotel_Pere_Maria.Models
 
         [JsonPropertyName("resumen_cambios")]
         public List<string> ResumenCambios { get; set; }
+
+        [JsonPropertyName("detalle_cambios")]
+        public List<AuditChangeDetail> DetalleCambios { get; set; }
     }
 }

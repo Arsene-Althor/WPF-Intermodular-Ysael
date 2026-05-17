@@ -69,8 +69,10 @@ Hotel_Pere_Maria/
 │   ├── ReceptionCheckInStatusDto.cs     # DTO GET check-in-status
 │   ├── Room.cs                          # Habitación (operativa, oferta, galería, servicios)
 │   ├── ExtraServiceDto.cs               # Catálogo GET /room/extra-services
-│   ├── BookingAuditEntry.cs             # Registro de auditoría (API)
-│   ├── HistorialAuditoriaFila.cs        # Fila de presentación para auditoría (UI)
+│   ├── BookingAuditEntry.cs             # Registro de auditoría (API + detalle_cambios)
+│   ├── AuditChangeDetail.cs             # Campo antes/después (API)
+│   ├── AuditCambioFila.cs / AuditGlobalRow.cs
+│   ├── HistorialAuditoriaFila.cs        # Línea de tiempo con tabla Antes/Después
 │   ├── HotelInvoiceItem.cs              # Fila GET /reservation/invoices/history
 │   ├── InvoiceSettingsDto.cs            # DTO configuración factura (API)
 │   ├── FlexibilitySettingsDto.cs        # P19 · reglas €/h
@@ -108,8 +110,8 @@ Hotel_Pere_Maria/
 │   ├── ClientFichaEstanciasViewModel.cs # P9 historial + stats + export CSV
 │   ├── SolicitudesFlexibilidadViewModel.cs
 │   ├── ConfigFlexibilidadViewModel.cs
+│   ├── ListAuditoriasViewModel.cs       # Auditoría global + toggle registro
 │   ├── InsertarUsuarioViewModel.cs
-│   ├── SelectedUserViewModel.cs
 │   ├── PerfilUsuarioViewModel.cs
 │   └── GestionarDescuentoViewModel.cs
 │
@@ -126,9 +128,14 @@ Hotel_Pere_Maria/
 │   ├── ClientFichaEstancias.xaml        # P9 ficha huésped (admin/empleado)
 │   ├── SolicitudesFlexibilidad.xaml     # Cola solicitudes pendientes (incrustada desde panel)
 │   ├── ConfigFlexibilidad.xaml          # Reglas €/h check-in/check-out
-│   ├── InsertarUsuario.xaml / SelectedUser.xaml
+│   ├── listAuditorias.xaml              # Auditoría global (columnas Antes / Después)
+│   ├── InsertarUsuario.xaml
 │   ├── PerfilUsuario.xaml
 │   └── GestionarDescuento.xaml
+│
+├── Helpers/
+│   ├── AuditDisplayHelper.cs            # Formato valores JSON → texto
+│   └── AuditUiMapper.cs                 # API → filas UI (global + por reserva)
 │
 ├── Converters/                          # Value Converters para XAML
 │   ├── BoolToVisibilityConverter.cs     # Bool → Visible/Collapsed (con soporte "invert")
@@ -377,38 +384,20 @@ var response = await ApiService._httpClient.PatchAsync(
 );
 ```
 
-### Auditoría
+### Auditoría (antes / después)
 
-#### `AuditoriaReservaViewModel.cs`
+La API devuelve `resumen_cambios` y `detalle_cambios` (campo, etiqueta, valor **antes**, valor **después**). WPF los muestra en tres sitios:
 
-ViewModel dedicado a la ventana de historial de auditoría de una reserva. Características principales:
+| Pantalla | Qué ves |
+|----------|---------|
+| **Auditorías** (`listAuditorias`) | Tabla global con columnas **Antes** y **Después**; filas con detalle despliegan mini-tabla por campo |
+| **Modificar reserva** → pestaña *Historial (auditoría)* | Tarjeta por evento + tabla Campo / Antes / Después |
+| **Auditoría de reserva** (ventana) | Igual que la pestaña de modificar reserva |
 
-- **Carga asíncrona** del historial con `CargarHistorialAsync()`.
-- **Resolución de nombres**: mapea `actor_id` a nombres completos consultando la lista de usuarios.
-- **Filtrado por acción**: permite filtrar por `CREATED`, `UPDATED`, `CANCELED`, etc.
-- **Traducción de acciones**: convierte las acciones de la API a textos legibles en español.
-
-```csharp
-public class AuditoriaReservaViewModel : BaseViewModel
-{
-    public ObservableCollection<HistorialAuditoriaFila> HistorialFilas { get; }
-    public ObservableCollection<string> FiltrosAccion { get; }  // "Todas", "CREATED", "UPDATED"...
-    public string FiltroAccionSeleccionado { get; set; }        // Filtra al cambiar
-
-    public async Task CargarHistorialAsync(bool forzar = false)
-    {
-        var (ok, err, lista) = await ReservationService.GetBookingAuditAsync(_reservationId);
-        // Resuelve nombres de actores
-        // Traduce acciones: "CREATED" → "Alta de reserva", "CANCELED" → "Cancelación"
-        // Aplica filtro seleccionado
-    }
-}
-```
-
-#### Modelos de auditoría
-
-- **`BookingAuditEntry.cs`**: deserializa `GET /reservation/:id/audit`, incluye `ResumenCambios`.
-- **`HistorialAuditoriaFila.cs`**: modelo de presentación con `FechaFormateada` (`dd/MM/yyyy HH:mm`) y `ResumenTexto`.
+- **`AuditUiMapper`** / **`AuditDisplayHelper`**: mapean `detalle_cambios` de la API a `AuditCambioFila` (texto formateado para fechas, números y JSON).
+- **`BookingAuditEntry`**: incluye `DetalleCambios` (`AuditChangeDetail`).
+- **`HistorialAuditoriaFila`**: `Cambios`, `ResumenTexto`, `TieneDetalleCambios`.
+- Filtro por acción (`CREATED`, `UPDATED`, `CANCELED`, …) y resolución de nombre de actor vía listado de usuarios.
 
 ### Converters
 
@@ -547,6 +536,12 @@ Ver también [Check-in en recepción (panel)](#check-in-en-recepción-panel) má
 - **Cola:** pestañas Activas/Inactivas; diálogo rechazo ampliado (`FlexibilityReviewNoteDialog`).
 - **Auditorías:** interruptor «Registrar auditorías» → `OperationalSettingsService` / `operationalsettings` en Mongo.
 
+### 14. Auditoría con antes / después en UI
+
+- Deserialización de `detalle_cambios` desde la API.
+- Tabla **Antes / Después** en auditoría global, pestaña historial de reserva y ventana `AuditoriaReserva`.
+- Eliminado flujo legacy `SelectedUser` (selector de usuario vía `GestionUsuarios.ShowPickerDialog`).
+
 ---
 
 ## P9 · Ficha de estancias del cliente (recepción)
@@ -593,6 +588,9 @@ Entrada **antes de 12:00** o salida **después de 11:00** el **mismo día** (no 
 
 - Checkbox **Registrar auditorías** → `PUT /settings/operational` (`booking_audit_enabled`).
 - Con auditoría desactivada, la API deja de insertar en `booking_audit_log` (los registros antiguos siguen consultables).
+- **DataGrid:** columnas Fecha, Reserva, Acción, Actor, **Antes**, **Después** (resumen por evento).
+- Si hay `detalle_cambios`, la fila muestra debajo una **tabla por campo** (Campo · Antes · Después).
+- Filtros de carga (reserva, actor, acción) + búsqueda local en texto, Antes y Después.
 
 ### Configuración (`ConfigFlexibilidad`)
 

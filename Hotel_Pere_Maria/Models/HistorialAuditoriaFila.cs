@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Hotel_Pere_Maria.Models
 {
@@ -13,5 +14,8 @@ namespace Hotel_Pere_Maria.Models
         public string FechaFormateada =>
             Fecha.HasValue ? Fecha.Value.ToString("dd/MM/yyyy HH:mm") : "—";
         public string ResumenTexto { get; set; }
+        /// <summary>Campos modificados con valores antes y después.</summary>
+        public List<AuditCambioFila> Cambios { get; set; } = new();
+        public bool TieneDetalleCambios => Cambios != null && Cambios.Count > 0;
     }
 }

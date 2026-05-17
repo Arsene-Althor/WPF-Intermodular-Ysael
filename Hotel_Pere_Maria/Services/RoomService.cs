@@ -68,27 +68,6 @@ namespace Hotel_Pere_Maria.Services
             return rooms ?? new List<Room>();
         }
 
-        /// <summary>
-        /// (Opcional) Devuelve una habitación por su RoomId (si tienes endpoint).
-        /// Endpoint esperado:
-        /// GET {BaseUrl}api/rooms/{roomId}
-        /// </summary>
-        public static async Task<Room?> GetRoomByIdAsync(string roomId)
-        {
-            if (string.IsNullOrWhiteSpace(roomId))
-                return null;
-
-            // Importante: escapar por si lleva espacios o caracteres raros
-            string safeId = Uri.EscapeDataString(roomId);
-            string url = $"{ApiService.BaseUrl}room/one?id={safeId}";
-
-            // Si tu API devuelve 404, mejor controlarlo con HttpClient normal:
-            using HttpResponseMessage resp = await ApiService._httpClient.GetAsync(url);
-            if (!resp.IsSuccessStatusCode) return null;
-
-            return await resp.Content.ReadFromJsonAsync<Room>();
-        }
-
         public static async Task UpdateRoomAsync(object payload)
         {
             string url = $"{ApiService.BaseUrl}room/update";

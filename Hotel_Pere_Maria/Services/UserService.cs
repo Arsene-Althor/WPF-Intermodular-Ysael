@@ -117,26 +117,6 @@ namespace Hotel_Pere_Maria.Services
             }
         }
 
-        public static async Task UpdateDiscountAsync(string userId, double discount)
-        {
-            ConfigurarCabeceras();
-
-            // El backend espera { newDiscount: 0.2 } para un 20%
-            var payload = new { newDiscount = discount };
-
-            string json = JsonSerializer.Serialize(payload);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-
-            // Ruta definida en userRoutes.js: router.patch('/update/:userId', ...)
-            var response = await ApiService._httpClient.PatchAsync($"{ApiService.BaseUrl}user/update/{userId}", content);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                string error = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error al actualizar descuento: {error}");
-            }
-        }
-
         public static async Task<(bool success, string message, string newImagePath)> UpdateProfileImageAsync(string userId, string filePath)
         {
             try

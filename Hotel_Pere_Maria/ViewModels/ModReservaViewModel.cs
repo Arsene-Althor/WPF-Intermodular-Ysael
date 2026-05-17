@@ -283,20 +283,8 @@ namespace Hotel_Pere_Maria.ViewModels
                 _historialCache.Clear();
                 foreach (var e in lista.OrderBy(x => x.Timestamp ?? DateTime.MinValue))
                 {
-                    string nombreActor = mapaNombres.TryGetValue(e.ActorId, out var n) ? n : e.ActorId;
-                    string resumen = (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
-                        ? string.Join(Environment.NewLine, e.ResumenCambios)
-                        : "—";
-
-                    _historialCache.Add(new HistorialAuditoriaFila
-                    {
-                        ActionKey = e.Action ?? "",
-                        Accion = TraducirAccionAuditoria(e.Action),
-                        ActorId = e.ActorId,
-                        ActorNombre = nombreActor,
-                        Fecha = e.Timestamp,
-                        ResumenTexto = resumen
-                    });
+                    mapaNombres.TryGetValue(e.ActorId ?? "", out var nombreActor);
+                    _historialCache.Add(AuditUiMapper.ToHistorialFila(e, nombreActor ?? e.ActorId ?? ""));
                 }
 
                 _historialCargado = true;
