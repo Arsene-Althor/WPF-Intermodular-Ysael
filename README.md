@@ -137,3 +137,24 @@ Toggle **Registrar auditorías** → `PUT /settings/operational` (`booking_audit
 ## Conexión API
 
 `ApiService.BaseUrl` en `ApiService.cs` (misma URL que memoria; puerto puede ser `3011`). JWT en `Session.Token` como antes.
+
+---
+
+## Endpoints que consume WPF (por módulo)
+
+Detalle completo en [API — Endpoints nuevos](../API-Intermodular-Ysael/README.md#endpoints-nuevos-detalle).
+
+| Módulo WPF | Endpoints | Para qué los usa el escritorio |
+|------------|-----------|--------------------------------|
+| **Panel Inicio** | `GET /reservation/allActive` | Tarjetas con huésped, DNI e imagen habitación; clic abre check-in recepción. |
+| **Check-in recepción** | `GET …/check-in-status`, `POST /reservation/check-in` | Consultar ventana horaria y registrar llegada con o sin recargo. |
+| **modReserva** | `GET …/booking-receipt`, `GET …/invoice`, `POST /checkout`, `GET …/flexibility`, `PATCH …/review` | PDF justificante/factura, cerrar estancia, ver y resolver solicitudes P19 de esa reserva. |
+| **listFacturas** | `GET /reservation/invoices/history`, PDF + `POST …/invoice/email` | Histórico global `HotelInvoice`; descargar o reenviar por correo. |
+| **ConfigFactura** | `GET/PUT /settings/invoice` | Editar emisor que sale en el PDF fiscal. |
+| **SolicitudesFlexibilidad** | `GET /reservation/flexibility/pending`, `PATCH …/review` | Cola del día; aprobar/rechazar bronce (y revisar cualquier pending). |
+| **ConfigFlexibilidad** | `GET/PUT /settings/flexibility` | €/h y reglas de auto-aprobación P19. |
+| **listAuditorias** | `GET /reservation/audits`, `GET/PUT /settings/operational` | Ver cambios globales; activar/desactivar registro de nuevos eventos. |
+| **Auditoría reserva** | `GET /reservation/:id/audit` | Historial de una RSV con columnas Antes/Después. |
+| **ClientFichaEstancias** | `GET /users/:id/history`, `GET /users/:id/stats` | Ficha P9 de un cliente desde gestión de usuarios. |
+| **modRoom** | `GET/POST /room/extra-services`, `PUT /room/update` | Catálogo extras y habitación con galería/oferta. |
+| **Reservas (general)** | `PATCH /reservation/update`, `DELETE /reservation/cancel/:id` | Actualizar y cancelar con verbos REST actuales. |
