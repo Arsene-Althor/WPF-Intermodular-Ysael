@@ -2,6 +2,25 @@
 
 Implementación en escritorio (recepción / administración) de las cuatro propuestas del Proyecto Individual. Consume la [API](../API-Intermodular-Ysael/README.md) con JWT (`Session.Token`).
 
+Modelos Mongo y flujo en servidor: [API — Modelos MongoDB](../API-Intermodular-Ysael/README.md#modelos-mongodb-colecciones-nuevas).
+
+---
+
+## Colecciones que usa WPF (vía API)
+
+WPF **no** conecta a MongoDB. Cada pantalla llama endpoints que leen/escriben las colecciones nuevas:
+
+| Colección en Compass | Pantalla WPF | Qué hace el escritorio |
+|----------------------|--------------|------------------------|
+| `booking_audit_log` | `listAuditorias`, pestaña Historial en `modReserva` | Consulta logs; muestra antes/después. No escribe en la colección. |
+| `operationalsettings` | `listAuditorias` (checkbox) | Activa o desactiva **nuevas** líneas de auditoría (`PUT /settings/operational`). |
+| `hotelinvoices` | `listFacturas` | Lista facturas emitidas; descarga PDF y reenvío email. |
+| `invoicesettings` | `ConfigFactura` | Edita nombre hotel, CIF, dirección e IVA del PDF. |
+| `reservations` | `modReserva` (checkout) | Dispara checkout → rellena `invoice_number` en reserva + fila en `hotelinvoices`. |
+| `clientloyaltystats` + `reservations` | `ClientFichaEstancias` | Historial y stats del huésped (P9). |
+| `flexibilitysettings` | `ConfigFlexibilidad` | Edita €/h y reglas P19. |
+| `reservations` (P19 embebido) | `SolicitudesFlexibilidad`, bloque en `modReserva` | Aprueba/rechaza; el servidor actualiza subdocumentos y puede crear fila en `hotelinvoices`. |
+
 ---
 
 ## P11 · Auditoría completa de cambios en la reserva
