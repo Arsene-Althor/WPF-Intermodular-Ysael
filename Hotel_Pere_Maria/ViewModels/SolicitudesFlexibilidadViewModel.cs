@@ -136,7 +136,8 @@ namespace Hotel_Pere_Maria.ViewModels
         it.type == "stay_extension"
           ? "Procesada"
           : req?.StatusLabel ?? it.status_summary ?? "—";
-      var esActiva = it.needs_review || req?.status == "pending";
+      var esActiva = it.needs_review
+        || string.Equals(req?.status, "pending", StringComparison.OrdinalIgnoreCase);
       var fechaOrden =
         req?.requested_at
         ?? it.issued_at

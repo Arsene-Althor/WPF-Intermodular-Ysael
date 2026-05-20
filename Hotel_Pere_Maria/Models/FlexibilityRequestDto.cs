@@ -31,10 +31,16 @@ namespace Hotel_Pere_Maria.Models
     [JsonIgnore]
     public bool CanStaffReview => IsPending;
 
+    [JsonIgnore]
+    public bool WasAutoDecided =>
+      auto_approved == true || string.Equals(reviewed_by, "system:auto", StringComparison.OrdinalIgnoreCase);
+
     public string StatusLabel => status switch
     {
-      "pending" => "Pendiente",
+      "pending" => "Pendiente de revisión",
+      "approved" when auto_approved == true => "Aprobada (automático)",
       "approved" => "Aprobada",
+      "rejected" when auto_approved == false && availability_ok == false => "Rechazada (sin hueco)",
       "rejected" => "Rechazada",
       _ => status ?? "—"
     };

@@ -173,9 +173,8 @@ namespace Hotel_Pere_Maria.ViewModels
                     (r.ReservaId?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (r.Actor?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (r.Resumen?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (r.Antes?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (r.Despues?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (r.Accion?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false));
+                    (r.AccionLegible?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (r.AccionCodigo?.Contains(t, StringComparison.OrdinalIgnoreCase) ?? false));
             }
             Filas.Clear();
             foreach (var r in q.OrderByDescending(x => x.Fecha ?? DateTime.MinValue))

@@ -4,6 +4,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         mc:Ignorable="d" d:DesignHeight="640" d:DesignWidth="1100" Background="Transparent">
+    <UserControl.Resources>
+        <Style x:Key="AuditCellText" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,6"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+    </UserControl.Resources>
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -55,7 +63,7 @@
                                  Text="{Binding FiltroTexto, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </UniformGrid>
-                <TextBlock Text="Tras cambiar los tres primeros campos, pulsa «Recargar desde API». El cuarto filtra la tabla ya cargada."
+                <TextBlock Text="Tras cambiar los tres primeros campos, pulsa «Recargar desde API». El cuarto filtra la tabla ya cargada. Clic en fila abre detalle; mismo clic o «Cerrar detalle» lo oculta."
                            FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="5,8,0,0" TextWrapping="Wrap"/>
                 <Button Content="Limpiar filtros de carga" HorizontalAlignment="Left" Margin="5,10,0,0"
                         Style="{StaticResource NavChipButton}" Command="{Binding LimpiarFiltrosCommand}" Padding="12,6"/>
@@ -64,43 +72,56 @@
 
         <Border Grid.Row="2" Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="8"
                 BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
-            <DataGrid ItemsSource="{Binding Filas}" AutoGenerateColumns="False" IsReadOnly="True"
-                      RowHeight="40" GridLinesVisibility="Horizontal" BorderThickness="0"
-                      CanUserAddRows="False" HeadersVisibility="Column">
+            <DataGrid x:Name="GridAuditoria" ItemsSource="{Binding Filas}" AutoGenerateColumns="False" IsReadOnly="True"
+                      GridLinesVisibility="Horizontal" BorderThickness="0"
+                      CanUserAddRows="False" HeadersVisibility="Column"
+                      RowDetailsVisibilityMode="VisibleWhenSelected"
+                      SelectionMode="Single" SelectionUnit="FullRow"
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaTxt}" Width="130"/>
-                    <DataGridTextColumn Header="Reserva" Binding="{Binding ReservaId}" Width="110"/>
-                    <DataGridTextColumn Header="Acción" Binding="{Binding Accion}" Width="100"/>
-                    <DataGridTextColumn Header="Actor" Binding="{Binding Actor}" Width="180"/>
-                    <DataGridTextColumn Header="Antes" Binding="{Binding Antes}" Width="*"/>
-                    <DataGridTextColumn Header="Después" Binding="{Binding Despues}" Width="*"/>
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaTxt}" Width="128"
+                                        ElementStyle="{StaticResource AuditCellText}"/>
+                    <DataGridTextColumn Header="Reserva" Binding="{Binding ReservaId}" Width="100"
+                                        ElementStyle="{StaticResource AuditCellText}"/>
+                    <DataGridTextColumn Header="Acción" Binding="{Binding AccionLegible}" Width="130"
+                                        ElementStyle="{StaticResource AuditCellText}"/>
+                    <DataGridTextColumn Header="Actor" Binding="{Binding Actor}" Width="200"
+                                        ElementStyle="{StaticResource AuditCellText}"/>
+                    <DataGridTextColumn Header="Qué cambió" Binding="{Binding Resumen}" Width="*"
+                                        ElementStyle="{StaticResource AuditCellText}"/>
                 </DataGrid.Columns>
                 <DataGrid.RowDetailsTemplate>
                     <DataTemplate>
-                        <Border Margin="16,8,8,12" Padding="10" Background="{StaticResource Brush.SurfaceSubtle}"
+                        <Border Margin="16,8,16,12" Padding="14,12" Background="{StaticResource Brush.SurfaceSubtle}"
                                 BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1" CornerRadius="8">
                             <StackPanel>
-                                <TextBlock Text="Detalle por campo" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,8"/>
-                                <DataGrid ItemsSource="{Binding Cambios}" AutoGenerateColumns="False" IsReadOnly="True"
-                                          HeadersVisibility="Column" GridLinesVisibility="Horizontal"
-                                          CanUserAddRows="False" MaxHeight="220">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Campo" Binding="{Binding Etiqueta}" Width="160"/>
-                                        <DataGridTextColumn Header="Antes" Binding="{Binding Antes}" Width="*"/>
-                                        <DataGridTextColumn Header="Después" Binding="{Binding Despues}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                <DockPanel Margin="0,0,0,10" LastChildFill="True">
+                                    <Button DockPanel.Dock="Right" Content="Cerrar detalle" Padding="12,6" Margin="8,0,0,0"
+                                            Style="{StaticResource NavChipButton}" Click="CerrarDetalleFila_Click"
+                                            ToolTip="Oculta la comparación antes/después"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Comparación antes / después" FontWeight="SemiBold" FontSize="13"
+                                                   Foreground="{StaticResource Brush.TextPrimary}"/>
+                                        <TextBlock Text="Cada fila: valor anterior (rojo) y nuevo (verde)."
+                                                   FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="320" Padding="0,0,4,0">
+                                    <ItemsControl ItemsSource="{Binding Cambios}"
+                                                  ItemTemplate="{StaticResource AuditCambioFilaDetalleTemplate}"/>
+                                </ScrollViewer>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
                 </DataGrid.RowDetailsTemplate>
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
-                        <Setter Property="DetailsVisibility" Value="Collapsed"/>
+                        <Setter Property="MinHeight" Value="36"/>
+                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="AuditRow_PreviewMouseLeftButtonDown"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding TieneDetalleCambios}" Value="True">
-                                <Setter Property="DetailsVisibility" Value="Visible"/>
-                            </DataTrigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#E8F4FC"/>
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
