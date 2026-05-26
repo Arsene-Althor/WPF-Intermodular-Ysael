@@ -16,8 +16,11 @@ namespace Hotel_Pere_Maria.ViewModels
         private List<AuditGlobalRow> _todas = new();
         private string _filtroReserva = "";
         private string _filtroActor = "";
-        private string _filtroAccion = "";
+        private string _filtroAccionSeleccionada = "Todas";
         private string _filtroTexto = "";
+
+        public IReadOnlyList<string> OpcionesAccion { get; } =
+            new[] { "Todas", "CREATED", "UPDATED", "CANCELED" };
 
         public ObservableCollection<AuditGlobalRow> Filas { get; } = new();
 
@@ -33,10 +36,17 @@ namespace Hotel_Pere_Maria.ViewModels
             set { _filtroActor = value ?? ""; OnPropertyChanged(); Filtrar(); }
         }
 
-        public string FiltroAccion
+        public string FiltroAccionSeleccionada
         {
-            get => _filtroAccion;
-            set { _filtroAccion = value ?? ""; OnPropertyChanged(); Filtrar(); }
+            get => _filtroAccionSeleccionada;
+            set
+            {
+                var v = string.IsNullOrWhiteSpace(value) ? "Todas" : value;
+                if (_filtroAccionSeleccionada == v) return;
+                _filtroAccionSeleccionada = v;
+                OnPropertyChanged();
+                _ = CargarAsync();
+            }
         }
 
         public string FiltroTexto
@@ -119,11 +129,11 @@ namespace Hotel_Pere_Maria.ViewModels
         {
             _filtroReserva = "";
             _filtroActor = "";
-            _filtroAccion = "";
+            _filtroAccionSeleccionada = "Todas";
             _filtroTexto = "";
             OnPropertyChanged(nameof(FiltroReserva));
             OnPropertyChanged(nameof(FiltroActor));
-            OnPropertyChanged(nameof(FiltroAccion));
+            OnPropertyChanged(nameof(FiltroAccionSeleccionada));
             OnPropertyChanged(nameof(FiltroTexto));
             _ = CargarAsync();
         }
@@ -135,7 +145,7 @@ namespace Hotel_Pere_Maria.ViewModels
                 var (ok, msg, lista) = await ReservationService.GetGlobalAuditsAsync(
                     bookingId: string.IsNullOrWhiteSpace(FiltroReserva) ? null : FiltroReserva.Trim(),
                     actorId: string.IsNullOrWhiteSpace(FiltroActor) ? null : FiltroActor.Trim(),
-                    action: string.IsNullOrWhiteSpace(FiltroAccion) ? null : FiltroAccion.Trim(),
+                    action: AccionParaApi(),
                     fromIso: null,
                     toIso: null,
                     limit: 400);
@@ -163,9 +173,22 @@ namespace Hotel_Pere_Maria.ViewModels
             }
         }
 
+        private string? AccionParaApi()
+        {
+            if (string.IsNullOrWhiteSpace(FiltroAccionSeleccionada) || FiltroAccionSeleccionada == "Todas")
+                return null;
+            return FiltroAccionSeleccionada.Trim().ToUpperInvariant();
+        }
+
         private void Filtrar()
         {
             var q = _todas.AsEnumerable();
+            var accion = AccionParaApi();
+            if (accion != null)
+            {
+                q = q.Where(r => string.Equals(r.AccionCodigo, accion, StringComparison.OrdinalIgnoreCase));
+            }
+
             if (!string.IsNullOrWhiteSpace(FiltroTexto))
             {
                 var t = FiltroTexto.Trim();

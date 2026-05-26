@@ -12,120 +12,119 @@
             <Setter Property="FontSize" Value="12"/>
         </Style>
     </UserControl.Resources>
-    <Grid Margin="0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer x:Name="ScrollPrincipal" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  PanningMode="VerticalOnly">
+        <StackPanel Margin="0">
+            <Border Background="{StaticResource Brush.SurfaceSubtle}" CornerRadius="10" Padding="12,10" Margin="0,0,0,16"
+                    BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1">
+                <StackPanel>
+                    <DockPanel LastChildFill="False">
+                        <TextBlock DockPanel.Dock="Left" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"
+                                   Foreground="{StaticResource Brush.TextPrimary}" Text="Auditoría de reservas (global)"/>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <CheckBox Content="Registrar auditorías" IsChecked="{Binding AuditoriaActiva, Mode=TwoWay}"
+                                      VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
+                            <Button Content="Recargar desde API" Style="{StaticResource NavChipButton}" Padding="14,8" Margin="0,0,8,0"
+                                    Command="{Binding CargarCommand}"/>
+                        </StackPanel>
+                    </DockPanel>
+                    <TextBlock Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource Brush.TextMuted}"
+                               Text="{Binding EstadoAuditoriaTexto}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
 
-        <Border Grid.Row="0" Background="{StaticResource Brush.SurfaceSubtle}" CornerRadius="10" Padding="12,10" Margin="0,0,0,16"
-                BorderBrush="{StaticResource Brush.AccentMid}" BorderThickness="1">
-            <StackPanel>
-                <DockPanel LastChildFill="False">
-                    <TextBlock DockPanel.Dock="Left" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"
-                               Foreground="{StaticResource Brush.TextPrimary}" Text="Auditoría de reservas (global)"/>
-                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                        <CheckBox Content="Registrar auditorías" IsChecked="{Binding AuditoriaActiva, Mode=TwoWay}"
-                                  VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
-                        <Button Content="Recargar desde API" Style="{StaticResource NavChipButton}" Padding="14,8" Margin="0,0,8,0"
-                                Command="{Binding CargarCommand}"/>
-                    </StackPanel>
-                </DockPanel>
-                <TextBlock Margin="0,8,0,0" FontSize="12" Foreground="{StaticResource Brush.TextMuted}"
-                           Text="{Binding EstadoAuditoriaTexto}" TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
+            <Border Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="15" Margin="0,0,0,16"
+                    BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Filtros de carga (servidor) y filtro local" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
+                    <UniformGrid Columns="4">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Reserva (booking_id)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <TextBox Height="30" VerticalContentAlignment="Center"
+                                     Text="{Binding FiltroReserva, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Actor (user_id)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <TextBox Height="30" VerticalContentAlignment="Center"
+                                     Text="{Binding FiltroActor, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Acción" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <ComboBox Height="30" VerticalContentAlignment="Center"
+                                      ItemsSource="{Binding OpcionesAccion}"
+                                      SelectedItem="{Binding FiltroAccionSeleccionada, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Buscar en tabla (texto libre)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <TextBox Height="30" VerticalContentAlignment="Center"
+                                     Text="{Binding FiltroTexto, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Text="Reserva y actor: pulsa «Recargar desde API». Acción recarga al elegir del desplegable. El cuarto campo filtra la tabla ya cargada."
+                               FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="5,8,0,0" TextWrapping="Wrap"/>
+                    <Button Content="Limpiar filtros de carga" HorizontalAlignment="Left" Margin="5,10,0,0"
+                            Style="{StaticResource NavChipButton}" Command="{Binding LimpiarFiltrosCommand}" Padding="12,6"/>
+                </StackPanel>
+            </Border>
 
-        <Border Grid.Row="1" Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="15" Margin="0,0,0,16"
-                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
-            <StackPanel>
-                <TextBlock Text="Filtros de carga (servidor) y filtro local" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,12"/>
-                <UniformGrid Columns="4">
-                    <StackPanel Margin="5">
-                        <TextBlock Text="Reserva (booking_id)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
-                        <TextBox Height="30" VerticalContentAlignment="Center"
-                                 Text="{Binding FiltroReserva, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                    <StackPanel Margin="5">
-                        <TextBlock Text="Actor (user_id)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
-                        <TextBox Height="30" VerticalContentAlignment="Center"
-                                 Text="{Binding FiltroActor, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                    <StackPanel Margin="5">
-                        <TextBlock Text="Acción (CREATED/UPDATED/CANCELED)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
-                        <TextBox Height="30" VerticalContentAlignment="Center"
-                                 Text="{Binding FiltroAccion, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                    <StackPanel Margin="5">
-                        <TextBlock Text="Buscar en tabla (texto libre)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,3"/>
-                        <TextBox Height="30" VerticalContentAlignment="Center"
-                                 Text="{Binding FiltroTexto, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </UniformGrid>
-                <TextBlock Text="Tras cambiar los tres primeros campos, pulsa «Recargar desde API». El cuarto filtra la tabla ya cargada. Clic en fila abre detalle; mismo clic o «Cerrar detalle» lo oculta."
-                           FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="5,8,0,0" TextWrapping="Wrap"/>
-                <Button Content="Limpiar filtros de carga" HorizontalAlignment="Left" Margin="5,10,0,0"
-                        Style="{StaticResource NavChipButton}" Command="{Binding LimpiarFiltrosCommand}" Padding="12,6"/>
-            </StackPanel>
-        </Border>
-
-        <Border Grid.Row="2" Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="8"
-                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
-            <DataGrid x:Name="GridAuditoria" ItemsSource="{Binding Filas}" AutoGenerateColumns="False" IsReadOnly="True"
-                      GridLinesVisibility="Horizontal" BorderThickness="0"
-                      CanUserAddRows="False" HeadersVisibility="Column"
-                      RowDetailsVisibilityMode="VisibleWhenSelected"
-                      SelectionMode="Single" SelectionUnit="FullRow"
-                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Fecha" Binding="{Binding FechaTxt}" Width="128"
+            <Border Background="{StaticResource Brush.Surface}" CornerRadius="12" Padding="8"
+                    BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1">
+                <DataGrid x:Name="GridAuditoria" ItemsSource="{Binding Filas}" AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" BorderThickness="0"
+                          CanUserAddRows="False" HeadersVisibility="Column"
+                          RowDetailsVisibilityMode="VisibleWhenSelected"
+                          SelectionMode="Single" SelectionUnit="FullRow"
+                          HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          PreviewMouseWheel="GridAuditoria_PreviewMouseWheel">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Fecha" Binding="{Binding FechaTxt}" Width="128"
+                                            ElementStyle="{StaticResource AuditCellText}"/>
+                        <DataGridTextColumn Header="Reserva" Binding="{Binding ReservaId}" Width="100"
+                                            ElementStyle="{StaticResource AuditCellText}"/>
+                    <DataGridTextColumn Header="Acción" Binding="{Binding AccionCodigo}" Width="100"
                                         ElementStyle="{StaticResource AuditCellText}"/>
-                    <DataGridTextColumn Header="Reserva" Binding="{Binding ReservaId}" Width="100"
-                                        ElementStyle="{StaticResource AuditCellText}"/>
-                    <DataGridTextColumn Header="Acción" Binding="{Binding AccionLegible}" Width="130"
-                                        ElementStyle="{StaticResource AuditCellText}"/>
-                    <DataGridTextColumn Header="Actor" Binding="{Binding Actor}" Width="200"
-                                        ElementStyle="{StaticResource AuditCellText}"/>
-                    <DataGridTextColumn Header="Qué cambió" Binding="{Binding Resumen}" Width="*"
-                                        ElementStyle="{StaticResource AuditCellText}"/>
-                </DataGrid.Columns>
-                <DataGrid.RowDetailsTemplate>
-                    <DataTemplate>
-                        <Border Margin="16,8,16,12" Padding="14,12" Background="{StaticResource Brush.SurfaceSubtle}"
-                                BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1" CornerRadius="8">
-                            <StackPanel>
-                                <DockPanel Margin="0,0,0,10" LastChildFill="True">
-                                    <Button DockPanel.Dock="Right" Content="Cerrar detalle" Padding="12,6" Margin="8,0,0,0"
-                                            Style="{StaticResource NavChipButton}" Click="CerrarDetalleFila_Click"
-                                            ToolTip="Oculta la comparación antes/después"/>
-                                    <StackPanel>
-                                        <TextBlock Text="Comparación antes / después" FontWeight="SemiBold" FontSize="13"
-                                                   Foreground="{StaticResource Brush.TextPrimary}"/>
-                                        <TextBlock Text="Cada fila: valor anterior (rojo) y nuevo (verde)."
-                                                   FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </DockPanel>
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="320" Padding="0,0,4,0">
+                        <DataGridTextColumn Header="Actor" Binding="{Binding Actor}" Width="200"
+                                            ElementStyle="{StaticResource AuditCellText}"/>
+                        <DataGridTextColumn Header="Qué cambió" Binding="{Binding Resumen}" Width="*"
+                                            ElementStyle="{StaticResource AuditCellText}"/>
+                    </DataGrid.Columns>
+                    <DataGrid.RowDetailsTemplate>
+                        <DataTemplate>
+                            <Border Margin="16,8,16,12" Padding="14,12" Background="{StaticResource Brush.SurfaceSubtle}"
+                                    BorderBrush="{StaticResource Brush.AccentBorder}" BorderThickness="1" CornerRadius="8">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,10" LastChildFill="True">
+                                        <Button DockPanel.Dock="Right" Content="Cerrar detalle" Padding="12,6" Margin="8,0,0,0"
+                                                Style="{StaticResource NavChipButton}" Click="CerrarDetalleFila_Click"
+                                                ToolTip="Oculta la comparación antes/después"/>
+                                        <StackPanel>
+                                            <TextBlock Text="Detalle del cambio" FontWeight="SemiBold" FontSize="13"
+                                                       Foreground="{StaticResource Brush.TextPrimary}"/>
+                                            <TextBlock Text="«Sin valor» = no existía; «Se estableció» = dato nuevo. Estados en español."
+                                                       FontSize="11" Foreground="{StaticResource Brush.TextMuted}" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </DockPanel>
                                     <ItemsControl ItemsSource="{Binding Cambios}"
                                                   ItemTemplate="{StaticResource AuditCambioFilaDetalleTemplate}"/>
-                                </ScrollViewer>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </DataGrid.RowDetailsTemplate>
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="MinHeight" Value="36"/>
-                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="AuditRow_PreviewMouseLeftButtonDown"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#E8F4FC"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </DataGrid.RowStyle>
-            </DataGrid>
-        </Border>
-    </Grid>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </DataGrid.RowDetailsTemplate>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="MinHeight" Value="36"/>
+                            <EventSetter Event="PreviewMouseLeftButtonDown" Handler="AuditRow_PreviewMouseLeftButtonDown"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#E8F4FC"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

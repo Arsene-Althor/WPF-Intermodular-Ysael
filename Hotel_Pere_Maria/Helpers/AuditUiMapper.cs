@@ -23,12 +23,14 @@ namespace Hotel_Pere_Maria.Helpers
 
         public static HistorialAuditoriaFila ToHistorialFila(BookingAuditEntry e, string nombreActor)
         {
-            var cambios = AuditDisplayHelper.MapearDetalle(e.DetalleCambios);
+            var cambios = ResolverCambios(e);
             string resumen;
-            if (cambios.Count > 0)
+            if (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
+                resumen = string.Join(Environment.NewLine, e.ResumenCambios.Take(4));
+            else if (cambios.Count > 0)
                 resumen = AuditDisplayHelper.ResumenCorto(cambios);
             else if (e.Action == "CREATED")
-                resumen = "Alta de reserva (sin estado anterior)";
+                resumen = "CREATED — reserva nueva";
             else
                 resumen = (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
                     ? string.Join(Environment.NewLine, e.ResumenCambios)
@@ -46,9 +48,17 @@ namespace Hotel_Pere_Maria.Helpers
             };
         }
 
-        public static AuditGlobalRow ToGlobalRow(BookingAuditEntry e, string nombreActor)
+        private static List<AuditCambioFila> ResolverCambios(BookingAuditEntry e)
         {
             var cambios = AuditDisplayHelper.MapearDetalle(e.DetalleCambios);
+            if (cambios.Count > 0 || !string.Equals(e.Action, "CREATED", StringComparison.OrdinalIgnoreCase))
+                return cambios;
+            return AuditDisplayHelper.DetalleFallbackCreated(e);
+        }
+
+        public static AuditGlobalRow ToGlobalRow(BookingAuditEntry e, string nombreActor)
+        {
+            var cambios = ResolverCambios(e);
             var resumen = (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
                 ? string.Join("; ", e.ResumenCambios)
                 : cambios.Count > 0
@@ -56,10 +66,15 @@ namespace Hotel_Pere_Maria.Helpers
                     : "—";
 
             string resumenUi;
-            if (cambios.Count > 0)
+            if (e.ResumenCambios != null && e.ResumenCambios.Count > 0)
+                resumenUi = LimpiarResumenApi(
+                    string.Join(Environment.NewLine, e.ResumenCambios.Take(3)));
+            else if (cambios.Count > 0)
                 resumenUi = AuditDisplayHelper.ResumenCorto(cambios);
             else if (e.Action == "CREATED")
-                resumenUi = "Alta de reserva (sin estado anterior)";
+                resumenUi = e.Timestamp.HasValue
+                    ? $"CREATED — {e.BookingId} · {e.Timestamp.Value:dd/MM/yyyy HH:mm}"
+                    : $"CREATED — {e.BookingId}";
             else
                 resumenUi = LimpiarResumenApi(resumen);
 

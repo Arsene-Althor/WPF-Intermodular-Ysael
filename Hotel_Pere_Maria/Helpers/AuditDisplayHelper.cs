@@ -10,6 +10,15 @@ namespace Hotel_Pere_Maria.Helpers
     {
         private const int MaxValorCelda = 400;
 
+        private static readonly Dictionary<string, string> EstadosSolicitud = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["pending"] = "Pendiente",
+            ["approved"] = "Aprobada",
+            ["rejected"] = "Rechazada",
+            ["cancelled"] = "Cancelada",
+            ["canceled"] = "Cancelada",
+        };
+
         private static readonly Dictionary<string, string> EtiquetasSubcampo = new(StringComparer.OrdinalIgnoreCase)
         {
             ["status"] = "Estado",
@@ -62,9 +71,34 @@ namespace Hotel_Pere_Maria.Helpers
         private static string FormatearCadena(string? s)
         {
             if (string.IsNullOrEmpty(s)) return "—";
+            if (EstadosSolicitud.TryGetValue(s.Trim(), out var est)) return est;
             if (DateTime.TryParse(s, out var dt))
                 return dt.ToString("dd/MM/yyyy HH:mm");
             return Truncar(s);
+        }
+
+        private static bool EsVacioDisplay(string s) =>
+            string.IsNullOrWhiteSpace(s) || s == "—" || s == "Sin valor";
+
+        private static AuditCambioFila CrearFilaCambio(string etiqueta, string antes, string despues)
+        {
+            var vacioA = EsVacioDisplay(antes);
+            var vacioB = EsVacioDisplay(despues);
+            return new AuditCambioFila
+            {
+                Etiqueta = etiqueta,
+                Antes = vacioA ? "Sin valor" : antes,
+                Despues = vacioB ? "Sin valor" : despues,
+                EsSoloAlta = vacioA && !vacioB,
+                EsSoloBaja = !vacioA && vacioB,
+            };
+        }
+
+        private static string FraseResumenLinea(AuditCambioFila c)
+        {
+            if (c.EsSoloAlta) return $"{c.Etiqueta}: se estableció «{c.Despues}»";
+            if (c.EsSoloBaja) return $"{c.Etiqueta}: se eliminó (antes «{c.Antes}»)";
+            return $"{c.Etiqueta}: «{c.Antes}» → «{c.Despues}»";
         }
 
         private static string FormatearArray(JsonElement e)
@@ -101,13 +135,38 @@ namespace Hotel_Pere_Maria.Helpers
             return t.Substring(0, MaxValorCelda) + "…";
         }
 
+        /// <summary>Si la API no envió detalle (log antiguo), muestra al menos hora y reserva.</summary>
+        public static List<AuditCambioFila> DetalleFallbackCreated(BookingAuditEntry e)
+        {
+            var filas = new List<AuditCambioFila>();
+            if (e.Timestamp.HasValue)
+            {
+                filas.Add(CrearFilaCambio(
+                    "Registrado en auditoría",
+                    "—",
+                    e.Timestamp.Value.ToString("dd/MM/yyyy HH:mm")));
+            }
+            if (!string.IsNullOrWhiteSpace(e.BookingId))
+            {
+                filas.Add(CrearFilaCambio("ID reserva", "—", e.BookingId));
+            }
+            if (filas.Count == 0)
+            {
+                filas.Add(CrearFilaCambio(
+                    "Alta de reserva",
+                    "—",
+                    "Sin datos guardados en el log (recargue con API actualizada)"));
+            }
+            return filas;
+        }
+
         public static List<AuditCambioFila> MapearDetalle(IEnumerable<AuditChangeDetail>? detalle)
         {
             if (detalle == null) return new List<AuditCambioFila>();
             var filas = new List<AuditCambioFila>();
             foreach (var d in detalle)
                 filas.AddRange(ExpandirDetalle(d));
-            return filas.Where(c => c.Antes != "—" || c.Despues != "—").ToList();
+            return filas.Where(c => !EsVacioDisplay(c.Antes) || !EsVacioDisplay(c.Despues)).ToList();
         }
 
         private static IEnumerable<AuditCambioFila> ExpandirDetalle(AuditChangeDetail d)
@@ -130,21 +189,28 @@ namespace Hotel_Pere_Maria.Helpers
 
             return new[]
             {
-                new AuditCambioFila
-                {
-                    Etiqueta = etiqueta,
-                    Antes = FormatearValor(d.Antes),
-                    Despues = FormatearValor(d.Despues),
-                },
+                CrearFilaCambio(etiqueta, FormatearValor(d.Antes), FormatearValor(d.Despues)),
             };
         }
 
         /// <summary>Desglosa JSON de solicitud P19, desglose factura, etc. en una fila por subcampo.</summary>
+        private static bool ObjetoJsonVacio(JsonElement e) =>
+            e.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null
+            || (e.ValueKind == JsonValueKind.Object && !e.EnumerateObject().Any());
+
         private static List<AuditCambioFila> ExpandirObjetoComparado(
             string prefijo,
             JsonElement antesObj,
             JsonElement despuesObj)
         {
+            if (ObjetoJsonVacio(antesObj) && despuesObj.ValueKind == JsonValueKind.Object && despuesObj.EnumerateObject().Any())
+            {
+                return new List<AuditCambioFila>
+                {
+                    CrearFilaCambio($"{prefijo} registrada", "—", FormatearObjetoPlano(despuesObj)),
+                };
+            }
+
             var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (antesObj.ValueKind == JsonValueKind.Object)
             {
@@ -172,22 +238,16 @@ namespace Hotel_Pere_Maria.Helpers
                 if (sa == sb) continue;
 
                 var sub = EtiquetasSubcampo.TryGetValue(key, out var lbl) ? lbl : key;
-                filas.Add(new AuditCambioFila
-                {
-                    Etiqueta = string.IsNullOrEmpty(prefijo) ? sub : $"{prefijo} · {sub}",
-                    Antes = sa,
-                    Despues = sb,
-                });
+                var et = string.IsNullOrEmpty(prefijo) ? sub : $"{prefijo} · {sub}";
+                filas.Add(CrearFilaCambio(et, sa, sb));
             }
 
             if (filas.Count == 0)
             {
-                filas.Add(new AuditCambioFila
-                {
-                    Etiqueta = prefijo,
-                    Antes = antesObj.ValueKind == JsonValueKind.Object ? FormatearObjetoPlano(antesObj) : "—",
-                    Despues = despuesObj.ValueKind == JsonValueKind.Object ? FormatearObjetoPlano(despuesObj) : "—",
-                });
+                filas.Add(CrearFilaCambio(
+                    prefijo,
+                    antesObj.ValueKind == JsonValueKind.Object ? FormatearObjetoPlano(antesObj) : "—",
+                    despuesObj.ValueKind == JsonValueKind.Object ? FormatearObjetoPlano(despuesObj) : "—"));
             }
 
             return filas;
@@ -200,16 +260,13 @@ namespace Hotel_Pere_Maria.Helpers
             if (lista.Count == 0) return "—";
 
             if (lista.Count == 1)
-            {
-                var c = lista[0];
-                return $"{c.Etiqueta}: {c.Antes} → {c.Despues}";
-            }
+                return FraseResumenLinea(lista[0]);
 
             if (lista.Count <= 4)
             {
                 return string.Join(
                     Environment.NewLine,
-                    lista.Select(c => $"• {c.Etiqueta}: {c.Antes} → {c.Despues}"));
+                    lista.Select(c => $"• {FraseResumenLinea(c)}"));
             }
 
             var nombres = string.Join(", ", lista.Take(4).Select(c => c.Etiqueta));
