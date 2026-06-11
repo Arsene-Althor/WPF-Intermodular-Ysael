@@ -66,15 +66,37 @@
             </ScrollViewer>
 
             <StackPanel Grid.Row="2" Margin="0,16,0,0">
-                <Button Content="Registrar check-in" Command="{Binding RegistrarCommand}" Height="40" Margin="0,0,0,8"
-                        Background="#2E86C1" Foreground="White" FontWeight="SemiBold" BorderThickness="0"
-                        Visibility="{Binding CanRegisterNormal, Converter={StaticResource BoolToVis}}">
-                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style></Button.Resources>
+                <Button Content="Registrar check-in" Command="{Binding RegistrarCommand}" Height="42" Margin="0,0,0,8"
+                        Foreground="White" FontWeight="Bold" FontSize="14" Cursor="Hand"
+                        IsEnabled="{Binding CanRegisterNormal}">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" CornerRadius="8" Background="#2E86C1">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#2471A3"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
-                <Button Command="{Binding RegistrarTardeCommand}" Height="40" Margin="0,0,0,8"
-                        Background="#D35400" Foreground="White" FontWeight="SemiBold" BorderThickness="0"
+                <Button Command="{Binding RegistrarTardeCommand}" Height="42" Margin="0,0,0,8"
+                        Foreground="White" FontWeight="Bold" FontSize="14" Cursor="Hand"
                         Visibility="{Binding CanRegisterLate, Converter={StaticResource BoolToVis}}">
-                    <Button.Resources><Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style></Button.Resources>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd" CornerRadius="8" Background="#D35400">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#BA4A00"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                     <TextBlock TextAlignment="Center">
                         <Run Text="Registrar check-in tardío (+"/>
                         <Run Text="{Binding LateFeeTexto, Mode=OneWay}"/>

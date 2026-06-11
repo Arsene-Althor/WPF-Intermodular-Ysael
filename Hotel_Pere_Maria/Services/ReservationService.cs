@@ -465,6 +465,7 @@ namespace Hotel_Pere_Maria.Services
         {
             try
             {
+                ConfigurarCabeceras();
                 var respuesta = await ApiService._httpClient.GetAsync(ApiService.BaseUrl + "reservation/all");
                 if (respuesta.IsSuccessStatusCode)
                 {

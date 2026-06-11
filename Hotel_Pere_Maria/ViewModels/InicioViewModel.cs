@@ -102,6 +102,7 @@ namespace Hotel_Pere_Maria.ViewModels
         public ICommand CerrarSesionCommand { get; }
         public ICommand AbrirPerfilCommand { get; }
         public ICommand AbrirAllRoomsCommand { get; }
+        public ICommand AbrirDashboardCommand { get; }
         public ICommand AbrirFacturasCommand { get; }
         public ICommand AbrirConfigFacturaCommand { get; }
         public ICommand AbrirAuditoriasCommand { get; }
@@ -118,6 +119,7 @@ namespace Hotel_Pere_Maria.ViewModels
             CerrarSesionCommand = new RelayCommand(async () => await ExecuteLogout());
             AbrirPerfilCommand = new RelayCommand(ExecuteAbrirPerfil);
             AbrirAllRoomsCommand = new RelayCommand(OpenListRoomEmbedded);
+            AbrirDashboardCommand = new RelayCommand(OpenDashboardEmbedded);
             AbrirFacturasCommand = new RelayCommand(OpenFacturasEmbedded, () => PuedeGestionFacturas);
             AbrirConfigFacturaCommand = new RelayCommand(OpenConfigFacturaEmbedded, () => PuedeGestionFacturas);
             AbrirAuditoriasCommand = new RelayCommand(OpenAuditoriasEmbedded, () => PuedeGestionFacturas);
@@ -154,6 +156,11 @@ namespace Hotel_Pere_Maria.ViewModels
         private void OpenListRoomEmbedded()
         {
             CurrentPage = new listRoom();
+        }
+
+        private void OpenDashboardEmbedded()
+        {
+            CurrentPage = new Dashboard();
         }
 
         private void OpenListReservasEmbedded()

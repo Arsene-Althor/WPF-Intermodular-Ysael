@@ -35,6 +35,7 @@
                     <Button Style="{StaticResource NavChipButton}" Content="Reservas" Command="{Binding AbrirAllReservasCommand}"/>
                     <Button Style="{StaticResource NavChipButton}" Content="Usuarios" Command="{Binding AbrirGestionUsuariosCommand}"/>
                     <Button Style="{StaticResource NavChipButton}" Content="Habitaciones" Command="{Binding AbrirAllRoomsCommand}"/>
+                    <Button Style="{StaticResource NavChipButton}" Content="Analítica" Command="{Binding AbrirDashboardCommand}"/>
                     <Button Style="{StaticResource NavChipButton}" Content="Facturas"
                             Command="{Binding AbrirFacturasCommand}"
                             Visibility="{Binding PuedeGestionFacturas, Converter={StaticResource BoolToVis}}"/>
